@@ -1,0 +1,26 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+apply plugin: 'kotlin'
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    compile project(":core")
+    compile 'io.rsocket:rsocket-android-core:0.9-SNAPSHOT'
+    testCompile group: 'junit', name: 'junit', version: "$junit_version"
+    testCompile project(":codec-jackson")
+    testCompile 'io.rsocket:rsocket-transport-okhttp:0.9-SNAPSHOT'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.6"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.6"
+}

@@ -1,0 +1,57 @@
+group 'com.github.mostroverkhov.r2'
+version '0.1-SNAPSHOT'
+
+subprojects {
+
+    group = 'com.github.mostroverkhov.r2'
+    version = mavenversion
+
+    apply plugin: 'java'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+
+    repositories {
+        mavenCentral()
+        maven { url 'http://repo.spring.io/milestone' }
+        maven { url 'https://oss.jfrog.org/libs-snapshot' }
+    }
+
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: '4.12'
+    }
+
+    ext {
+        kotlin_version = '1.2.0'
+        junit_version = '4.12'
+    }
+
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+
+    artifacts {
+        archives sourcesJar, javadocJar, jar
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+
+                artifact sourcesJar {
+                    classifier "sources"
+                }
+
+                artifact javadocJar {
+                    classifier "javadoc"
+                }
+            }
+        }
+    }
+}

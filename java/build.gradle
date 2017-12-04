@@ -1,0 +1,11 @@
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+dependencies {
+    compile project(":core")
+    compile 'io.rsocket:rsocket-core:0.9.16'
+    testCompile group: 'junit', name: 'junit', version: "$junit_version"
+    testCompile project(":codec-jackson")
+    testCompile 'io.rsocket:rsocket-transport-netty:0.9.16'
+}
