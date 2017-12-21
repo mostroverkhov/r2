@@ -1,7 +1,7 @@
 # R2
 [![Build Status](https://travis-ci.org/mostroverkhov/r2.svg?branch=master)](https://travis-ci.org/mostroverkhov/r2)  
 
-RSocket based RPC for JVM (via [RSocket-java](https://github.com/rsocket/rsocket-java)) and Android (via [RSocket-android](https://github.com/rsocket/rsocket-android)) with pluggable serialization
+RSocket based RPC for JVM (via [rsocket-java](https://github.com/rsocket/rsocket-java)) and Android (via [rsocket-android](https://github.com/rsocket/rsocket-android)) with pluggable serialization
 
 Supports 4 interaction models: fire-and-forget, request-response, request-stream, request-channel  
 
