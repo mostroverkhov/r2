@@ -1,12 +1,12 @@
 package com.github.mostroverkhov.r2.android
 
-import com.github.mostroverkhov.r2.core.*
-import com.github.mostroverkhov.r2.core.requester.RequesterBuilder
-import com.github.mostroverkhov.r2.core.requester.RequesterFactory
-import com.github.mostroverkhov.r2.core.internal.requester.ClientSetup
-import com.github.mostroverkhov.r2.core.internal.requester.SetupMetadata
+import com.github.mostroverkhov.r2.core.Metadata
 import com.github.mostroverkhov.r2.core.internal.requester.ClientFluentBuilder
 import com.github.mostroverkhov.r2.core.internal.requester.RequesterConfigurer
+import com.github.mostroverkhov.r2.core.internal.requester.SetupData
+import com.github.mostroverkhov.r2.core.internal.requester.setupData
+import com.github.mostroverkhov.r2.core.requester.RequesterBuilder
+import com.github.mostroverkhov.r2.core.requester.RequesterFactory
 import io.reactivex.Single
 import io.rsocket.android.RSocket
 import io.rsocket.android.RSocketFactory.ClientRSocketFactory
@@ -24,14 +24,13 @@ class R2Client : ClientFluentBuilder<
             ClientTransport,
             RSocket,
             Single<RequesterFactory>> {
-        clientRSocketFactory = ClientSetup()
-                .metadata(metadata)
-                .setupMetadata { setup -> connectionSetup(clientRSocketFactory, setup) }
+        val setupMetadata = setupData(metadata)
+        clientRSocketFactory = connectionSetup(clientRSocketFactory, setupMetadata)
         return this
     }
 
     private fun connectionSetup(factory: ClientRSocketFactory?,
-                                setup: SetupMetadata): ClientRSocketFactory {
+                                setup: SetupData): ClientRSocketFactory {
         return factory
                 ?.dataMimeType(setup.dataType)
                 ?.metadataMimeType(setup.metadataType)
