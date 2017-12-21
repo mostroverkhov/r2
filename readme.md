@@ -65,3 +65,4 @@ Server part of `RSocket` is started as
                 ).transport(TcpServerTransport.create(PORT))
                 .start()
 ```
+Runnable example with Client and Server is available [here](https://github.com/mostroverkhov/r2/blob/release/java/src/test/java/com/github/mostroverkhov/r2/java/JavaClientServerExample.java), example of Client for Android is [here](https://github.com/mostroverkhov/r2/blob/release/android/src/test/java/com/github/mostroverkhov/r2/android/AndroidClientExample.kt)
