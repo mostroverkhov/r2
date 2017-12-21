@@ -1,6 +1,6 @@
 # R2
 
-RSocket RPC for Reactor (RSocket-java) and RxJava2 (RSocket-android) with pluggable serialization
+RSocket based RPC for JVM (via [RSocket-java](https://github.com/rsocket/rsocket-java)) and Android (via [RSocket-android](https://github.com/rsocket/rsocket-android)) with pluggable serialization
 
 Supports 4 interaction models: fire-and-forget, request-response, request-stream, request-channel  
 
