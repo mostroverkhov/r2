@@ -16,14 +16,20 @@ class MetadataCodecTest {
 
     @Test
     fun route() {
-        val route = "proto/1/svc/method".grow(5)
+        val route = "proto/1/svc/method"
         assertRouteWriteRead(route, mapOf("foo" to "bar"))
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun routeExceedsLength() {
-        val route = "proto/1/svc/method".grow(12)
+        val route = "proto/1/svc/method".times(4000)
         assertRouteWriteRead(route, mapOf("foo" to "bar"))
+    }
+
+    @Test()
+    fun longKey() {
+        val route = "proto/1/svc/method"
+        assertRouteWriteRead(route, mapOf("foo".times(50) to "bar"))
     }
 
     private fun assertRouteWriteRead(route: String, keyValues: Map<String, String>) {
@@ -52,10 +58,13 @@ class MetadataCodecTest {
         }
     }
 
-    private fun encode(route: String) = Charsets.US_ASCII.encode(route)
+    private fun String.times(n: Int): String {
 
-    private fun String.grow(rep: Int) = doGrow(this, rep)
+        tailrec fun String.times(b: StringBuilder, n: Int): String {
+            return if (n > 0) times(b.append(this), n - 1) else b.toString()
+        }
+        return times(StringBuilder(), n)
+    }
 
-    tailrec private fun doGrow(base: String, rep: Int): String = if (rep == 0) base else
-        doGrow(base + base, rep - 1)
+    private fun encode(route: String) = charset.encode(route)
 }

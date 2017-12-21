@@ -112,7 +112,7 @@ public class MetadataCodec {
 
     @NotNull
     private ByteBuffer decodeValue(ByteBuffer metadata) {
-        short valueLength = metadata.getShort();
+        int valueLength = metadata.getShort() & 0xFFFF;
         ByteBuffer res = (ByteBuffer) metadata.slice().limit(valueLength);
         metadata.position(metadata.position() + valueLength);
         return res;
@@ -120,7 +120,7 @@ public class MetadataCodec {
 
     @NotNull
     private String decodeKey(ByteBuffer metadata) {
-        byte keyLength = metadata.get();
+        int keyLength = metadata.get() & 0xFF;
         byte[] keyBytes = new byte[keyLength];
         metadata.get(keyBytes);
         return decodeKey(keyBytes);

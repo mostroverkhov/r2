@@ -1,12 +1,12 @@
 package com.github.mostroverkhov.r2.java;
 
-import com.github.mostroverkhov.r2.core.*;
-import com.github.mostroverkhov.r2.core.requester.RequesterFactory;
-import com.github.mostroverkhov.r2.core.requester.RequesterBuilder;
-import com.github.mostroverkhov.r2.core.internal.requester.ClientSetup;
-import com.github.mostroverkhov.r2.core.internal.requester.SetupMetadata;
+import com.github.mostroverkhov.r2.core.Metadata;
 import com.github.mostroverkhov.r2.core.internal.requester.ClientFluentBuilder;
+import com.github.mostroverkhov.r2.core.internal.requester.ClientSetup;
 import com.github.mostroverkhov.r2.core.internal.requester.RequesterConfigurer;
+import com.github.mostroverkhov.r2.core.internal.requester.SetupData;
+import com.github.mostroverkhov.r2.core.requester.RequesterBuilder;
+import com.github.mostroverkhov.r2.core.requester.RequesterFactory;
 import io.rsocket.RSocket;
 import io.rsocket.RSocketFactory;
 import io.rsocket.transport.ClientTransport;
@@ -15,7 +15,7 @@ import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-import static io.rsocket.RSocketFactory.*;
+import static io.rsocket.RSocketFactory.ClientRSocketFactory;
 
 public class R2Client extends ClientFluentBuilder<ClientRSocketFactory,
         ClientTransport,
@@ -29,9 +29,8 @@ public class R2Client extends ClientFluentBuilder<ClientRSocketFactory,
             RSocket,
             Mono<RequesterFactory>> metadata(@NotNull Metadata metadata) {
 
-        setClientRSocketFactory(new ClientSetup()
-                .metadata(metadata)
-                .setupMetadata(setup -> connectionSetup(getClientRSocketFactory(), setup)));
+        SetupData setupData = ClientSetup.setupData(metadata);
+        setClientRSocketFactory(connectionSetup(getClientRSocketFactory(), setupData));
 
         return this;
     }
@@ -45,7 +44,7 @@ public class R2Client extends ClientFluentBuilder<ClientRSocketFactory,
     }
 
     private static ClientRSocketFactory connectionSetup(ClientRSocketFactory factory,
-                                                        SetupMetadata setup) {
+                                                        SetupData setup) {
         assertFactory(factory);
         return factory
                 .dataMimeType(setup.getDataType())
