@@ -1,0 +1,20 @@
+language: java
+jdk:
+- oraclejdk8
+
+# force upgrade Java8 as per https://github.com/travis-ci/travis-ci/issues/4042 (fixes compilation issue)
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
+
+dist: trusty
+#group: edge
+sudo: false
+# as per http://blog.travis-ci.com/2014-12-17-faster-builds-with-container-based-infrastructure/
+
+# cache between builds
+cache:
+  directories:
+  - $HOME/.m2
+  - $HOME/.gradle
