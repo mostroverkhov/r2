@@ -47,13 +47,13 @@ internal class AndroidRequesterAdapter(private val rSocket: RSocket) : CallAdapt
 
     private fun Call.encode(): Payload {
         this as RequestCall
-        return PayloadImpl(encodeData(arg), encodeMetadata())
+        return PayloadImpl(encodeData(args.data), encodeMetadata())
     }
 
     private fun Call.encodePublisher(): Publisher<Payload> {
         this as RequestCall
         var first = true
-        return Flowable.fromPublisher(arg as Publisher<*>)
+        return Flowable.fromPublisher(args.data as Publisher<*>)
                 .map { t ->
                     val metadata = if (first) {
                         first = false

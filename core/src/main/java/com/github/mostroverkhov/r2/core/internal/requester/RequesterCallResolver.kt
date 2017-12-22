@@ -1,17 +1,17 @@
 package com.github.mostroverkhov.r2.core.internal.requester
 
-import com.github.mostroverkhov.r2.core.*
-import com.github.mostroverkhov.r2.core.internal.requester.Interaction.*
+import com.github.mostroverkhov.r2.core.DataCodec
+import com.github.mostroverkhov.r2.core.Metadata
+import com.github.mostroverkhov.r2.core.RouteEncoder
 import com.github.mostroverkhov.r2.core.contract.*
 import com.github.mostroverkhov.r2.core.internal.MetadataCodec
-import com.github.mostroverkhov.r2.core.internal.Route
+import com.github.mostroverkhov.r2.core.internal.requester.Interaction.*
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 
 internal class RequesterCallResolver(private val dataCodec: DataCodec,
                                      private val metadataCodec: MetadataCodec,
-                                     private val routeEncoder: RouteEncoder,
-                                     private val metadataBuilder: Metadata.RequestBuilder) {
+                                     private val routeEncoder: RouteEncoder) {
 
     fun resolve(targetAction: TargetAction): Call {
         val action = targetAction.action
@@ -31,20 +31,21 @@ internal class RequesterCallResolver(private val dataCodec: DataCodec,
                 "${action.declaredAnnotations.map { it.annotationClass }}")
     }
 
-    private fun metadataFactory(): (Route) -> Metadata {
-        return { route: Route ->
-            val encodedRoute = routeEncoder.encode(route)
-            metadataBuilder.route(encodedRoute).build()
-        }
-    }
-
-    private fun resolveArg(targetAction: TargetAction): Any {
+    private fun resolveArgs(targetAction: TargetAction,
+                            interaction: Interaction): ActionArgs {
         val args = targetAction.args
-        if (args == null || args.size != 1) {
+        if (args != null && args.size > 2) {
             throw IllegalArgumentException("Method: ${targetAction.action.name} of service: " +
-                    "${targetAction.target.javaClass} is expected to have 1 argument")
+                    "${targetAction.target.javaClass} is expected to have at most 2 arguments")
         }
-        return args[0]
+        val builder = ActionArgs.Builder(interaction)
+        args?.forEach {
+            when (it) {
+                is Metadata -> builder.metadata(it)
+                else -> builder.data(it)
+            }
+        }
+        return builder.build()
     }
 
     private fun resolveService(m: Method): String {
@@ -57,28 +58,39 @@ internal class RequesterCallResolver(private val dataCodec: DataCodec,
         }
     }
 
+    private fun resolveResponsePayloadType(m: Method): Class<*> {
+        val returnType = m.genericReturnType
+        return if (returnType is ParameterizedType) {
+            val returnTypeArgs = returnType.actualTypeArguments
+            if (returnTypeArgs.size != 1) {
+                throw IllegalArgumentException("$m: generic return type is expected to have 1 type argument")
+            }
+            return returnTypeArgs[0] as Class<*>
+        } else {
+            Nothing::class.java
+        }
+    }
+
     private fun closeCall(interaction: Interaction): CloseCall = CloseCall(interaction)
 
     private fun requestCall(targetAction: TargetAction,
-                            methodInteraction: Interaction,
+                            interaction: Interaction,
                             methodName: String): RequestCall {
-
         assertMethodName(methodName, targetAction)
 
         val action = targetAction.action
-
         val serviceName = resolveService(action)
         val responsePayloadType = resolveResponsePayloadType(action)
-        val arg = resolveArg(targetAction)
+        val args = resolveArgs(targetAction, interaction)
 
         return RequestCall(
-                metadataFactory(),
+                routeEncoder,
                 metadataCodec,
                 dataCodec,
                 serviceName,
                 methodName,
-                arg,
-                methodInteraction,
+                args,
+                interaction,
                 responsePayloadType)
     }
 
@@ -88,15 +100,6 @@ internal class RequesterCallResolver(private val dataCodec: DataCodec,
             val action = targetAction.action
             throw IllegalArgumentException("Call ${action.declaringClass.name}." +
                     "${action.name} has empty method name")
-        }
-    }
-
-    private fun resolveResponsePayloadType(m: Method): Class<*> {
-        val returnType = m.genericReturnType
-        return if (returnType is ParameterizedType) {
-            return returnType.actualTypeArguments[0] as Class<*>
-        } else {
-            Nothing::class.java
         }
     }
 }

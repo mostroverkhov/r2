@@ -57,15 +57,16 @@ class JavaRequesterAdapter implements CallAdapter {
     private Payload encode(Call call) {
         RequestCall requestCall = cast(call);
         return new PayloadImpl(
-                requestCall.encodeData(requestCall.getArg()),
+                requestCall.encodeData(requestCall.getArgs().getData()),
                 requestCall.encodeMetadata());
     }
 
+    @SuppressWarnings("ConstantConditions")
     private Publisher<Payload> encodePublisher(Call call) {
         RequestCall requestCal = cast(call);
         final AtomicBoolean first = new AtomicBoolean(true);
-
-        return Flux.from(((Publisher<?>) requestCal.getArg()))
+        /*suppressed as non-nullness for Request-Channel is verified by ActionArgs Builder */
+        return Flux.from(((Publisher<?>) requestCal.getArgs().getData()))
                 .map(t -> {
                     ByteBuffer metadata =
                             first.compareAndSet(true, false)

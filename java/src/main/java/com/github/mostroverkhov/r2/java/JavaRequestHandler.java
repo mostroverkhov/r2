@@ -49,14 +49,14 @@ public class JavaRequestHandler extends AbstractRSocket {
         TargetAction targetAction = resolveTarget(payload);
         return targetAction.<Mono<?>>invoke()
                 .map(targetAction::encode)
-                .map(this::asPayload);
+                .map(this::payload);
     }
 
     private Flux<Payload> callRequestStream(Payload payload) {
         TargetAction targetAction = resolveTarget(payload);
         return targetAction.<Flux<?>>invoke()
                 .map(targetAction::encode)
-                .map(this::asPayload);
+                .map(this::payload);
     }
 
     private Flux<Payload> callRequestChannel(Publisher<Payload> arg) {
@@ -66,11 +66,11 @@ public class JavaRequestHandler extends AbstractRSocket {
                     Flux<Payload> tailPayload = headTail.tail();
                     TargetAction targetAction = resolveTarget(headPayload);
                     Flux<Object> payloadT = tailPayload
-                            .startWith(headPayload)
                             .map(p -> targetAction.decode(p.getData()));
-                    return targetAction.<Flux<?>>invoke(payloadT)
+                    return targetAction.request(payloadT::startWith)
+                            .<Flux<?>>invoke()
                             .map(targetAction::encode)
-                            .map(this::asPayload);
+                            .map(this::payload);
                 });
     }
 
@@ -78,7 +78,7 @@ public class JavaRequestHandler extends AbstractRSocket {
         return targetResolver.resolve(payload.getData(), payload.getMetadata());
     }
 
-    private Payload asPayload(ByteBuffer data) {
+    private Payload payload(ByteBuffer data) {
         return new PayloadImpl(data, null);
     }
 
