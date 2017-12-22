@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import static com.github.mostroverkhov.r2.java.JavaMocks.*;
+import static org.junit.Assert.*;
 
 public class JavaEndToEndTest {
 
@@ -47,43 +48,65 @@ public class JavaEndToEndTest {
 
     @Test(timeout = 5_000)
     public void stream() throws Exception {
-        List<Person> list = personsService.stream(new Person("john", "doe"))
+        Person expected = expectedPerson();
+        List<Person> list = personsService.stream(expected)
                 .collectList().block();
-        Assert.assertEquals(1, list.size());
-        Person person = list.get(0);
-        Assert.assertEquals("john", person.getName());
-        Assert.assertEquals("doe", person.getSurname());
+        assertEquals(1, list.size());
+        Person actual = list.get(0);
+        assertEquals(expected, actual);
     }
 
     @Test(timeout = 5_000)
     public void fireAndForget() throws Exception {
-        personsService.fnf(new Person("john", "doe")).block();
+        Metadata md = new Metadata.Builder()
+                .data("foo", "bar".getBytes(Charsets.UTF_8))
+                .build();
+        personsService.fnf(expectedPerson(), md).block();
     }
 
     @Test(timeout = 5_000)
     public void response() throws Exception {
-        Person person = personsService.response(new Person("john", "doe")).block();
-        Assert.assertEquals("john", person.getName());
-        Assert.assertEquals("doe", person.getSurname());
+        Metadata md = new Metadata.Builder()
+                .data("foo", "bar".getBytes(Charsets.UTF_8))
+                .build();
+        Person expected = expectedPerson();
+        Person actual = personsService.response(expected, md).block();
+        assertEquals(expected, actual);
     }
 
     @Test(timeout = 5_000)
     public void channel() throws Exception {
-        List<Person> list = personsService.channel(Flux.just(new Person("john", "doe"))).collectList().block();
-        Assert.assertEquals(2, list.size());
-        Person person = list.get(0);
-        Assert.assertEquals("john", person.getName());
-        Assert.assertEquals("doe", person.getSurname());
+        Person expected = expectedPerson();
+        List<Person> list = personsService.channel(Flux.just(expected)).collectList().block();
+        assertEquals(2, list.size());
+        Person actual = list.get(0);
+        assertEquals(expected, actual);
+    }
+
+    @Test(timeout = 5_000)
+    public void emptyResponse() throws Exception {
+        Person actual = personsService.responseEmpty().block();
+        assertEquals(expectedPerson(), actual);
+    }
+
+    @Test(timeout = 5_000)
+    public void onlyMetadataResponse() throws Exception {
+        Metadata md = new Metadata.Builder()
+                .data("foo", "bar".getBytes(Charsets.UTF_8))
+                .build();
+
+        Person actual = personsService.responseMetadata(md).block();
+        assertEquals(expectedPerson(), actual);
     }
 
     @Test(timeout = 5_000, expected = IllegalArgumentException.class)
     public void noAnno() throws Exception {
-        personsService.noAnno(new Person("john", "doe")).collectList().block();
+        personsService.noAnno(expectedPerson()).collectList().block();
     }
 
     @Test(timeout = 5_000, expected = IllegalArgumentException.class)
     public void emptyAnno() {
-        personsService.emptyAnno(new Person("john", "doe")).collectList().block();
+        personsService.emptyAnno(expectedPerson()).collectList().block();
     }
 
     @NotNull
@@ -96,5 +119,10 @@ public class JavaEndToEndTest {
                 .create("stub", "stub",
                         new PayloadImpl(ByteBuffer.allocate(0),
                                 encodedMd));
+    }
+
+    @NotNull
+    private Person expectedPerson() {
+        return new Person("john", "doe");
     }
 }

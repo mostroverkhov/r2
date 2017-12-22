@@ -70,6 +70,22 @@ class AndroidRequesterEndToEndTest {
         assertEquals("doe", person.surname)
     }
 
+    @Test
+    fun emptyResponse() {
+        val person = svc.emptyResponse().blockingGet()
+        assertEquals("john", person.name)
+        assertEquals("doe", person.surname)
+    }
+
+    @Test
+    fun onlyMetadataResponse() {
+        val metadata = Metadata.Builder().data("foo", "bar".toByteArray(Charsets.UTF_8)).build()
+        val person = svc.metadataResponse(metadata).blockingGet()
+        assertEquals("john", person.name)
+        assertEquals("doe", person.surname)
+    }
+
+
     @Test(timeout = 5_000, expected = IllegalArgumentException::class)
     fun noAnno() {
         val person = svc.noAnno(Person("john", "doe")).toList().blockingGet()

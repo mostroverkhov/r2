@@ -15,7 +15,7 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    testCompile group: 'org.reactivestreams', name: 'reactive-streams', version: '1.0.2'
+    compile group: 'org.reactivestreams', name: 'reactive-streams', version: '1.0.2'
 }
 
 compileKotlin {

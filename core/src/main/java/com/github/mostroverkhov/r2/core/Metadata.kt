@@ -8,13 +8,13 @@ class Metadata private constructor(private val route: ByteBuffer?,
 
     fun data(key: String): ByteArray? = keyValues[key]?.invoke()?.toArray()
 
-    fun hasRoute(): Boolean = route != null
-
-    fun route(): ByteArray? = route?.toArray()
-
     fun keys() = keyValues.keys
 
     fun auth() = data(Keys.AUTH())
+
+    fun hasRoute(): Boolean = route != null
+
+    fun route(): ByteArray? = route?.toArray()
 
     fun asByteBuffer(): AsByteBuffer = AsByteBuffer()
 
@@ -27,6 +27,9 @@ class Metadata private constructor(private val route: ByteBuffer?,
     }
 
     inner class AsByteBuffer {
+
+        fun keys() = this@Metadata.keys()
+
         fun data(key: String): (() -> ByteBuffer)? = keyValues[key]
 
         fun route(): ByteBuffer? = route
@@ -60,7 +63,17 @@ class Metadata private constructor(private val route: ByteBuffer?,
     internal class RequestBuilder : Builder() {
         private lateinit var route: ByteBuffer
 
-        fun route(route: ByteBuffer): Builder {
+        fun metadata(metadata: Metadata?): RequestBuilder {
+            metadata?.let {
+                val md = it.asByteBuffer()
+                md.keys().forEach { key ->
+                    data(key, md.data(key)!!)
+                }
+            }
+            return this
+        }
+
+        fun route(route: ByteBuffer): RequestBuilder {
             this.route = route
             return this
         }

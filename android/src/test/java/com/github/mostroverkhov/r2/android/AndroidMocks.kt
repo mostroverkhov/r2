@@ -1,5 +1,6 @@
 package com.github.mostroverkhov.r2.android
 
+import com.github.mostroverkhov.r2.core.Metadata
 import com.github.mostroverkhov.r2.core.contract.*
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -20,6 +21,12 @@ interface PersonsService {
     @RequestChannel("channel")
     fun channel(person: Flowable<Person>): Flowable<Person>
 
+    @RequestResponse("emptyResponse")
+    fun emptyResponse(): Single<Person>
+
+    @RequestResponse("metadataResponse")
+    fun metadataResponse(metadata: Metadata): Single<Person>
+
     fun noAnno(person: Person): Flowable<Person>
 
     @RequestStream
@@ -33,6 +40,14 @@ interface PersonsService {
 }
 
 class PersonServiceHandler : PersonsService {
+    override fun emptyResponse(): Single<Person> {
+        return Single.just(Person("john", "doe"))
+    }
+
+    override fun metadataResponse(metadata: Metadata): Single<Person> {
+        return Single.just(Person("john", "doe"))
+    }
+
     override fun close(): Completable {
         return Completable.complete()
     }

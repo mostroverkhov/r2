@@ -1,6 +1,8 @@
 package com.github.mostroverkhov.r2.java;
 
+import com.github.mostroverkhov.r2.core.Metadata;
 import com.github.mostroverkhov.r2.core.contract.*;
+import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -12,10 +14,16 @@ public class JavaMocks {
         Flux<Person> stream(Person person);
 
         @RequestResponse("response")
-        Mono<Person> response(Person person);
+        Mono<Person> response(Person person, Metadata metadata);
+
+        @RequestResponse("responseEmpty")
+        Mono<Person> responseEmpty();
+
+        @RequestResponse("responseMetadata")
+        Mono<Person> responseMetadata(Metadata metadata);
 
         @FireAndForget("fnf")
-        Mono<Void> fnf(Person person);
+        Mono<Void> fnf(Person person, Metadata metadata);
 
         @RequestChannel("channel")
         Flux<Person> channel(Flux<Person> person);
@@ -41,12 +49,22 @@ public class JavaMocks {
         }
 
         @Override
-        public Mono<Person> response(Person person) {
+        public Mono<Person> response(Person person, Metadata metadata) {
             return Mono.just(person);
         }
 
         @Override
-        public Mono<Void> fnf(Person person) {
+        public Mono<Person> responseEmpty() {
+            return Mono.just(responsePerson());
+        }
+
+        @Override
+        public Mono<Person> responseMetadata(Metadata metadata) {
+            return Mono.just(responsePerson());
+        }
+
+        @Override
+        public Mono<Void> fnf(Person person, Metadata metadata) {
             return Mono.empty();
         }
 
@@ -74,6 +92,11 @@ public class JavaMocks {
         public Mono<Void> onClose() {
             return Mono.empty();
         }
+
+        @NotNull
+        private Person responsePerson() {
+            return new Person("john", "doe");
+        }
     }
 
     static class Person {
@@ -94,6 +117,24 @@ public class JavaMocks {
                     "name='" + name + '\'' +
                     ", surname='" + surname + '\'' +
                     '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Person person = (Person) o;
+
+            if (!name.equals(person.name)) return false;
+            return surname.equals(person.surname);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = name.hashCode();
+            result = 31 * result + surname.hashCode();
+            return result;
         }
 
         public String getName() {

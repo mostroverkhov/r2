@@ -31,14 +31,14 @@ class AndroidRequestHandler(private val targetResolver: ResponderTargetResolver)
         val targetAction = targetResolver.resolveTarget(arg)
         return targetAction<Single<*>>()
                 .map { targetAction.encode(it) }
-                .map { asPayload(it) }
+                .map { payload(it) }
     }
 
     private fun callRequestStream(arg: Payload): Flowable<Payload> {
         val targetAction = targetResolver.resolveTarget(arg)
         return targetAction<Flowable<*>>()
                 .map { targetAction.encode(it) }
-                .map { asPayload(it) }
+                .map { payload(it) }
     }
 
     private fun callRequestChannel(arg: Publisher<Payload>): Flowable<Payload> {
@@ -46,12 +46,10 @@ class AndroidRequestHandler(private val targetResolver: ResponderTargetResolver)
                 .flatMap { headTail ->
                     val (headPayload, tailPayload) = headTail
                     val targetAction = targetResolver.resolveTarget(headPayload)
-                    val payloadT = tailPayload
-                            .startWith(headPayload)
-                            .map { targetAction.decode(it.data) }
-                    targetAction<Flowable<*>>(payloadT)
-                            .map { targetAction.encode(it) }
-                            .map { asPayload(it) }
+                    val payloadT = tailPayload.map { targetAction.decode(it.data) }
+                    val response: Flowable<*> = targetAction.request { request -> payloadT.startWith(request)}()
+                    response.map { targetAction.encode(it) }
+                            .map { payload(it) }
                 }
     }
 
@@ -60,8 +58,7 @@ class AndroidRequestHandler(private val targetResolver: ResponderTargetResolver)
 
     companion object {
 
-        private fun asPayload(data: ByteBuffer): Payload
-                = PayloadImpl(data, null)
+        private fun payload(data: ByteBuffer): Payload = PayloadImpl(data, null)
 
         private fun split(p: Publisher<Payload>): Flowable<Split> {
             var first = true
