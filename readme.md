@@ -69,7 +69,7 @@ Server part of `RSocket` is started as
                 .start()
 ```
 
-Request methods can have payload(as data - T, or Publisher<T> for channel requests), metadata, both, or none. Channel requests must have at least one argument.
+Request methods can have payload (as data - T, or Publisher<T> for channel requests), metadata, both, or none. Channel requests must have at least one argument.
 
 ### Examples
 
