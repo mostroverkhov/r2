@@ -68,6 +68,9 @@ Server part of `RSocket` is started as
                 ).transport(TcpServerTransport.create(PORT))
                 .start()
 ```
+
+Request methods can have payload(as data - T, or Publisher<T> for channel requests), metadata, both, or none. Channel requests must have at least one argument.
+
 ### Examples
 
 Runnable example with Client and Server is available [here](https://github.com/mostroverkhov/r2/blob/master/java/src/test/java/com/github/mostroverkhov/r2/java/JavaClientServerExample.java), example of Client for Android is [here](https://github.com/mostroverkhov/r2/blob/master/android/src/test/java/com/github/mostroverkhov/r2/android/AndroidClientExample.kt)
