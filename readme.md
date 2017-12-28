@@ -1,7 +1,7 @@
 # R2
 [![Build Status](https://travis-ci.org/mostroverkhov/r2.svg?branch=master)](https://travis-ci.org/mostroverkhov/r2)  
 
-RSocket based RPC for Java8 / Reactor (via [rsocket-java](https://github.com/rsocket/rsocket-java)) and Kotlin / RxJava2 (via [rsocket-android](https://github.com/rsocket/rsocket-android)) with pluggable serialization
+RSocket based RPC for Java8/Reactor (via [rsocket-java](https://github.com/rsocket/rsocket-java)) and Kotlin/RxJava2 (via [rsocket-android](https://github.com/rsocket/rsocket-android)) with pluggable serialization
 
 Supports 4 interaction models: fire-and-forget, request-response, request-stream, request-channel  
 
@@ -70,6 +70,10 @@ Server part of `RSocket` is started as
 ```
 
 Request methods can have payload (as data - `T`, or `Publisher<T>` for Channel requests), metadata, both, or none. Channel requests must have at least one argument.
+
+### Serialization
+
+`codec-jackson` provides JSON serialization. Also, some binary formats (cbor, avro and others) are supported with [https://github.com/FasterXML/jackson-dataformats-binary](jackson-dataformats-binary). `codec-proto` provides Protobuf serialization. Custom data codecs can be easily built by implementing minimalistic `DataCodec` interface.
 
 ### Examples
 
