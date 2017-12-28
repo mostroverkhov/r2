@@ -73,7 +73,7 @@ Request methods can have payload (as data - `T`, or `Publisher<T>` for Channel r
 
 ### Serialization
 
-`codec-jackson` provides JSON serialization. Also, some binary formats (cbor, avro and others) are supported with [https://github.com/FasterXML/jackson-dataformats-binary](jackson-dataformats-binary). `codec-proto` provides Protobuf serialization. Custom data codecs can be easily built by implementing minimalistic `DataCodec` interface.
+`codec-jackson` provides JSON serialization. Also, some binary formats (cbor, avro and others) are supported with [jackson-dataformat-binary](https://github.com/FasterXML/jackson-dataformats-binary). `codec-proto` provides Protobuf serialization. Custom data codecs can be easily built by implementing minimalistic `DataCodec` interface.
 
 ### Examples
 
