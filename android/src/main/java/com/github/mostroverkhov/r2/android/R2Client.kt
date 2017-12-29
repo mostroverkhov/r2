@@ -4,7 +4,7 @@ import com.github.mostroverkhov.r2.core.Metadata
 import com.github.mostroverkhov.r2.core.internal.requester.ClientFluentBuilder
 import com.github.mostroverkhov.r2.core.internal.requester.RequesterConfigurer
 import com.github.mostroverkhov.r2.core.internal.requester.SetupData
-import com.github.mostroverkhov.r2.core.internal.requester.setupData
+import com.github.mostroverkhov.r2.core.internal.requester.clientSetupMetaData
 import com.github.mostroverkhov.r2.core.requester.RequesterBuilder
 import com.github.mostroverkhov.r2.core.requester.RequesterFactory
 import io.reactivex.Single
@@ -24,7 +24,7 @@ class R2Client : ClientFluentBuilder<
             ClientTransport,
             RSocket,
             Single<RequesterFactory>> {
-        val setupMetadata = setupData(metadata)
+        val setupMetadata = clientSetupMetaData(metadata)
         clientRSocketFactory = connectionSetup(clientRSocketFactory, setupMetadata)
         return this
     }

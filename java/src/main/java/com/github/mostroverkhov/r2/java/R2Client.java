@@ -29,7 +29,7 @@ public class R2Client extends ClientFluentBuilder<ClientRSocketFactory,
             RSocket,
             Mono<RequesterFactory>> metadata(@NotNull Metadata metadata) {
 
-        SetupData setupData = ClientSetup.setupData(metadata);
+        SetupData setupData = ClientSetup.clientSetupMetaData(metadata);
         setClientRSocketFactory(connectionSetup(getClientRSocketFactory(), setupData));
 
         return this;

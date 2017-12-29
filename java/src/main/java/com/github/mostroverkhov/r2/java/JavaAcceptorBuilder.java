@@ -10,20 +10,26 @@ import reactor.core.publisher.Mono;
 import java.nio.ByteBuffer;
 import java.util.function.Function;
 
-public class JavaAcceptorBuilder extends RequestAcceptorBuilder<ConnectionSetupPayload, Mono<RSocket>> {
+public class JavaAcceptorBuilder extends RequestAcceptorBuilder<
+        ConnectionSetupPayload,
+        Mono<RSocket>,
+        JavaAcceptorBuilder> {
+
+    JavaAcceptorBuilder() {
+    }
 
     @NotNull
     @Override
     public JavaRequestAcceptor build() {
         return new JavaRequestAcceptor(metadata ->
-                new JavaRequestHandler(targetResolver(metadata)));
+                new JavaRSocketHandler(targetResolver(metadata)));
     }
 
     static class JavaRequestAcceptor implements RequestAcceptor<ConnectionSetupPayload, Mono<RSocket>> {
 
         private final Function<ByteBuffer, RSocket> handlerFactory;
 
-        public JavaRequestAcceptor(Function<ByteBuffer, RSocket> handlerFactory) {
+        JavaRequestAcceptor(Function<ByteBuffer, RSocket> handlerFactory) {
             this.handlerFactory = handlerFactory;
         }
 

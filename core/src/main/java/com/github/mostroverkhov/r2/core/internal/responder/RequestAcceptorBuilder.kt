@@ -8,26 +8,27 @@ import com.github.mostroverkhov.r2.core.internal.MetadataCodec
 import com.github.mostroverkhov.r2.core.internal.StringRouteCodec
 import java.nio.ByteBuffer
 
-abstract class RequestAcceptorBuilder<SetupPayload, HandlerRSocket> {
+@Suppress("UNCHECKED_CAST")
+abstract class RequestAcceptorBuilder<SetupPayload,
+        HandlerRSocket,
+        T : RequestAcceptorBuilder<SetupPayload, HandlerRSocket, T>> {
     private lateinit var serviceReader: (ConnectionContext) -> ServiceReader
     private lateinit var codecReader: CodecReader
     private var routeDecoderF = defaultRouteDecoder
 
-    fun services(serviceReader: (ConnectionContext) -> ServiceReader)
-            : RequestAcceptorBuilder<SetupPayload, HandlerRSocket> {
+    open fun services(serviceReader: (ConnectionContext) -> ServiceReader): T {
         this.serviceReader = serviceReader
-        return this
+        return this as T
     }
 
-    fun codecs(codecReader: CodecReader): RequestAcceptorBuilder<SetupPayload, HandlerRSocket> {
+    open fun codecs(codecReader: CodecReader): T {
         this.codecReader = codecReader
-        return this
+        return this as T
     }
 
-    fun routeDecoder(routeDecoderF: (CodecReader) -> RouteDecoder)
-            : RequestAcceptorBuilder<SetupPayload, HandlerRSocket> {
+    open fun routeDecoder(routeDecoderF: (CodecReader) -> RouteDecoder): T {
         this.routeDecoderF = routeDecoderF
-        return this
+        return this as T
     }
 
     protected fun targetResolver(payloadMetadata: ByteBuffer): ResponderTargetResolver {
