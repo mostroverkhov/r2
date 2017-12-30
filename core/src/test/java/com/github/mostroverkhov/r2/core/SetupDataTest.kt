@@ -14,8 +14,8 @@ class SetupDataTest {
                 .build()
 
         val setupData = clientSetupMetaData(metadata)
-        assertEquals(setupData.dataType, "application/x.mostroverkhov.r2")
-        assertEquals(setupData.metadataType, "application/x.mostroverkhov.r2")
+        assertTrue(setupData.dataType.startsWith("application/x.mostroverkhov.r2"))
+        assertTrue(setupData.metadataType.startsWith("application/x.mostroverkhov.r2"))
         assertEquals(0, setupData.data.remaining())
         assertTrue(setupData.metadata.remaining() > 0)
     }
