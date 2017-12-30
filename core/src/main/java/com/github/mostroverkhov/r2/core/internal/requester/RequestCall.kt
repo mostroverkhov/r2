@@ -3,6 +3,7 @@ package com.github.mostroverkhov.r2.core.internal.requester
 import com.github.mostroverkhov.r2.core.*
 import com.github.mostroverkhov.r2.core.internal.MetadataCodec
 import com.github.mostroverkhov.r2.core.internal.Route
+import com.github.mostroverkhov.r2.core.RouteEncoder
 import java.nio.ByteBuffer
 
 sealed class Call {

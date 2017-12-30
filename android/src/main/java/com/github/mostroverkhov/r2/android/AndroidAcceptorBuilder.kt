@@ -11,14 +11,16 @@ typealias HandlerFactory = (ByteBuffer) -> RSocket
 typealias SetupPayload = ConnectionSetupPayload
 typealias Acceptor = RequestAcceptor<SetupPayload, Single<RSocket>>
 
-class AndroidAcceptorBuilder : RequestAcceptorBuilder<SetupPayload, Single<RSocket>>() {
+class AndroidAcceptorBuilder : RequestAcceptorBuilder<
+        SetupPayload,
+        Single<RSocket>,
+        AndroidAcceptorBuilder>() {
 
     override fun build(): Acceptor
-            = AndroidRequestAcceptor { AndroidRequestHandler(targetResolver(it)) }
+            = AndroidRequestAcceptor { AndroidRSocketHandler(targetResolver(it)) }
 
     private class AndroidRequestAcceptor(private val handlerFactory: HandlerFactory) : Acceptor {
         override fun accept(setup: SetupPayload): Single<RSocket> =
                 Single.just(handlerFactory(setup.metadata))
-
     }
 }

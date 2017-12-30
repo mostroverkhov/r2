@@ -10,6 +10,7 @@ import com.github.mostroverkhov.r2.java.JavaMocks.Person;
 import io.rsocket.ConnectionSetupPayload;
 import io.rsocket.RSocket;
 import io.rsocket.RSocketFactory;
+import io.rsocket.RSocketFactory.Start;
 import io.rsocket.transport.netty.client.TcpClientTransport;
 import io.rsocket.transport.netty.server.NettyContextCloseable;
 import io.rsocket.transport.netty.server.TcpServerTransport;
@@ -31,36 +32,37 @@ public class JavaClientServerExample {
     public static void main(String[] args) {
         /*Wraps Requester RSocket of client side of Connection*/
         Mono<PersonsService> service =
-                clientRequester().map(f -> f.create(PersonsService.class));
+                clientRequester().map(f -> f.create(PersonsService.class))
+                        .cache();
 
-        /*Corresponds Responder RSocket of server side of Connection. Requester RSocket is not exposed yet*/
-        RequestAcceptor<ConnectionSetupPayload, Mono<RSocket>> serverAcceptor = serverAcceptor();
+        Start<NettyContextCloseable> serverStart = new R2Server<NettyContextCloseable>()
+                .connectWith(RSocketFactory.receive())
+                /*Configure Responder RSocket (acceptor) of server side of Connection.
+                  Requester RSocket is not exposed yet*/
+                .configureAcceptor(JavaClientServerExample::configureAcceptor)
+                .transport(TcpServerTransport.create(PORT));
 
-        Pair<NettyContextCloseable, Flux<Person>> pair = RSocketFactory
-                .receive()
-                .acceptor(() ->
-                        (setup, sendRSocket) -> serverAcceptor.accept(setup)
-                ).transport(TcpServerTransport.create(PORT))
-                .start()
-                .map(closeable -> {
-                    Flux<Person> persons = Flux.interval(Duration.ofSeconds(1))
-                            .flatMap(__ -> service
-                                    .flatMapMany(svc ->
-                                            svc.channel(
-                                                    Flux.just(new Person("john", "doe")))
-                                    )
-                            );
-                    return new Pair<>(closeable, persons);
-                }).block();
+        /*periodic requests*/
+        Flux<Person> persons = Flux.interval(Duration.ofMillis(10))
+                .flatMap(__ -> service
+                        .flatMapMany(svc ->
+                                svc.channel(
+                                        Flux.just(new Person("john", "doe")))
+                        )
+                );
+        Pair<NettyContextCloseable, Flux<Person>> started =
+                serverStart
+                        .start()
+                        .map(close -> new Pair<>(close, persons)).block();
 
-        pair.getSecond().subscribe(System.out::println);
-        pair.getFirst().onClose().block();
+        started.getSecond().subscribe(System.out::println);
+        started.getFirst().onClose().block();
 
     }
 
     private static Mono<RequesterFactory> clientRequester() {
         return new R2Client()
-                .connectWith(clientRSocketFactory())
+                .connectWith(RSocketFactory.connect())
                 /*Passed to Server (Connection Acceptor) as ConnectionContext*/
                 .metadata(metadata())
                 .transport(TcpClientTransport.create(PORT))
@@ -68,19 +70,13 @@ public class JavaClientServerExample {
     }
 
     @NotNull
-    private static RequestAcceptor<ConnectionSetupPayload, Mono<RSocket>> serverAcceptor() {
-        return new JavaAcceptorBuilder()
+    private static JavaAcceptorBuilder configureAcceptor(JavaAcceptorBuilder builder) {
+        return builder
+                /*Jackson codec. Also there can be cbor, protobuf etc*/
                 .codecs(new Codecs().add(new JacksonDataCodec()))
                 /*ConnectionContext represents Metadata(key -> value) set by Client (Connection initiator)
                 as metadata*/
-                .services(ctx -> new Services().add(new PersonServiceHandler()))
-                .build();
-    }
-
-    @NotNull
-    private static RSocketFactory.ClientRSocketFactory clientRSocketFactory() {
-        return RSocketFactory
-                .connect();
+                .services(ctx -> new Services().add(new PersonServiceHandler()));
     }
 
     @NotNull

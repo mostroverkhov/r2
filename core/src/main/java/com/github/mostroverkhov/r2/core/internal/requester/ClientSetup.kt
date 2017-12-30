@@ -4,21 +4,20 @@ package com.github.mostroverkhov.r2.core.internal.requester
 
 import com.github.mostroverkhov.r2.core.Metadata
 import com.github.mostroverkhov.r2.core.internal.MetadataCodec
+import com.github.mostroverkhov.r2.core.internal.MimeType
 import java.nio.ByteBuffer
 
-fun setupData(metadata: Metadata): SetupData = SetupData(
-        dataType,
-        metadataType,
+fun clientSetupMetaData(metadata: Metadata): SetupData = SetupData(
+        MimeType.dataType,
+        MimeType.metadataType,
         emptyBuffer,
         metadataCodec.encode(metadata))
 
 
-data class SetupData(val dataType: String,
-                     val metadataType: String,
-                     val data: ByteBuffer,
-                     val metadata: ByteBuffer)
+data class SetupData internal constructor(val dataType: String,
+                                          val metadataType: String,
+                                          val data: ByteBuffer,
+                                          val metadata: ByteBuffer)
 
 private val metadataCodec = MetadataCodec()
-private val dataType = "application/x.mostroverkhov.r2"
-private val metadataType = "application/x.mostroverkhov.r2"
 private val emptyBuffer = ByteBuffer.allocate(0)
