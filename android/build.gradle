@@ -13,6 +13,8 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     compile project(":core")
     compile 'io.rsocket:rsocket-android-core:0.9-SNAPSHOT'
+    compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.1.8'
+
     testCompile group: 'junit', name: 'junit', version: "$junit_version"
     testCompile project(":codec-jackson")
     testCompile 'io.rsocket:rsocket-transport-okhttp:0.9-SNAPSHOT'
