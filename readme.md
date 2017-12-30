@@ -1,9 +1,9 @@
 # R2
 [![Build Status](https://travis-ci.org/mostroverkhov/r2.svg?branch=master)](https://travis-ci.org/mostroverkhov/r2)  
 
-RSocket based RPC for Java8/Reactor (via [rsocket-java](https://github.com/rsocket/rsocket-java)) and Kotlin/RxJava2 (via [rsocket-android](https://github.com/rsocket/rsocket-android)) with pluggable serialization
+RSocket based RPC for Java8/Reactor (via [rsocket-java](https://github.com/rsocket/rsocket-java)) and Kotlin/RxJava2 (via [rsocket-android](https://github.com/rsocket/rsocket-android)) with pluggable serialization (jackson, cbor, protobuf and others).
 
-Supports 4 interaction models: fire-and-forget, request-response, request-stream, request-channel  
+Supports 4 interaction models: fire-and-forget, request-response, request-stream, request-channel.
 
 ### Usage
 
@@ -47,13 +47,24 @@ For creating Requesters
         PersonsService svc = requesterFactory.create(PersonsService.class);
 ```
 
-And `RequestAcceptor` for handling requests
+And `R2Server` for handling requests
 ```java
-        RequestAcceptor<ConnectionSetupPayload, Mono<RSocket>> acceptor = 
-        new JavaAcceptorBuilder()
+        Start<NettyContextCloseable> serverStart = new R2Server<NettyContextCloseable>()
+                .connectWith(RSocketFactory.receive())
+                /*Configure Responder RSocket (acceptor) of server side of Connection.
+                  Requester RSocket is not exposed yet*/
+                .configureAcceptor(JavaClientServerExample::configureAcceptor)
+                .transport(TcpServerTransport.create(PORT));
+
+    @NotNull
+    private static JavaAcceptorBuilder configureAcceptor(JavaAcceptorBuilder builder) {
+        return builder
+                /*Jackson codec. Also there can be cbor, protobuf etc*/
                 .codecs(new Codecs().add(new JacksonDataCodec()))
-                .services(ctx -> new Services().add(new PersonServiceHandler()))
-                .build();
+                /*ConnectionContext represents Metadata(key -> value) set by Client (Connection initiator)
+                as metadata*/
+                .services(ctx -> new Services().add(new PersonServiceHandler()));
+    }
 
 ```
 
@@ -61,15 +72,10 @@ Here, `PersonServiceHandler` implements `PersonsService`
 
 Server part of `RSocket` is started as
 ```java
-      RSocketFactory
-                .receive()
-                .acceptor(() ->
-                        (setup, sendRSocket) -> serverAcceptor.accept(setup)
-                ).transport(TcpServerTransport.create(PORT))
-                .start()
+     Mono<NettyContextCloseable> started = serverStart.start()
 ```
 
-Request methods can have payload (as data - `T`, or `Publisher<T>` for Channel requests), metadata, both, or none. Channel requests must have at least one argument.
+Request methods can have payload (as data - `T`, or `Publisher<T>` for Channel requests), metadata, both, or none. Channel requests must have payload at least.
 
 ### Serialization
 
