@@ -62,8 +62,9 @@ public class JavaClientServerExample {
                 .connectWith(RSocketFactory.connect())
                 /*Passed to Server (Connection Acceptor) as ConnectionContext*/
                 .metadata(metadata())
+                .configureRequester(b -> b.codec(new JacksonDataCodec()))
                 .transport(TcpClientTransport.create(PORT))
-                .configureRequester(b -> b.codec(new JacksonDataCodec()));
+                .start();
     }
 
     @NotNull

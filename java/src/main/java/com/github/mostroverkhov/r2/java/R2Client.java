@@ -3,12 +3,10 @@ package com.github.mostroverkhov.r2.java;
 import com.github.mostroverkhov.r2.core.Metadata;
 import com.github.mostroverkhov.r2.core.internal.requester.ClientFluentBuilder;
 import com.github.mostroverkhov.r2.core.internal.requester.ClientSetup;
-import com.github.mostroverkhov.r2.core.internal.requester.RequesterConfigurer;
 import com.github.mostroverkhov.r2.core.internal.requester.SetupData;
 import com.github.mostroverkhov.r2.core.requester.RequesterBuilder;
 import com.github.mostroverkhov.r2.core.requester.RequesterFactory;
 import io.rsocket.RSocket;
-import io.rsocket.RSocketFactory;
 import io.rsocket.transport.ClientTransport;
 import io.rsocket.util.PayloadImpl;
 import kotlin.jvm.functions.Function1;
@@ -17,35 +15,71 @@ import reactor.core.publisher.Mono;
 
 import static io.rsocket.RSocketFactory.ClientRSocketFactory;
 
-public class R2Client extends ClientFluentBuilder<ClientRSocketFactory,
+public class R2Client extends ClientFluentBuilder<
+        ClientRSocketFactory,
         ClientTransport,
         RSocket,
         Mono<RequesterFactory>> {
 
+    private Function1<
+            ? super RequesterBuilder,
+            ? extends RequesterBuilder> requesterConfigurer;
+    private Metadata metadata;
+    private ClientTransport clientTransport;
+
     @NotNull
     @Override
-    public ClientFluentBuilder<RSocketFactory.ClientRSocketFactory,
+    public ClientFluentBuilder<
+            ClientRSocketFactory,
             ClientTransport,
             RSocket,
             Mono<RequesterFactory>> metadata(@NotNull Metadata metadata) {
-
-        SetupData setupData = ClientSetup.clientSetupMetaData(metadata);
-        setClientRSocketFactory(connectionSetup(getClientRSocketFactory(), setupData));
-
+        this.metadata = metadata;
         return this;
     }
 
     @NotNull
     @Override
-    public RequesterConfigurer<Mono<RequesterFactory>> transport(ClientTransport clientTransport) {
-        ClientRSocketFactory factory = getClientRSocketFactory();
-        assertFactory(factory);
-        return new JavaRequesterConfigurer(factory.transport(clientTransport).start());
+    public ClientFluentBuilder<
+            ClientRSocketFactory,
+            ClientTransport,
+            RSocket,
+            Mono<RequesterFactory>> transport(ClientTransport clientTransport) {
+        this.clientTransport = clientTransport;
+        return this;
+    }
+
+    @NotNull
+    @Override
+    public ClientFluentBuilder<
+            ClientRSocketFactory,
+            ClientTransport,
+            RSocket,
+            Mono<RequesterFactory>> configureRequester(
+            @NotNull Function1<
+                    ? super RequesterBuilder,
+                    ? extends RequesterBuilder> f) {
+        requesterConfigurer = f;
+        return this;
+    }
+
+    @Override
+    public Mono<RequesterFactory> start() {
+        assertState();
+        SetupData setupData = ClientSetup.clientSetupMetaData(metadata);
+        Mono<RSocket> rSocket = connectionSetup(getClientRSocketFactory(), setupData)
+                .transport(clientTransport)
+                .start();
+        Mono<RequesterFactory> requesterFactory = rSocket
+                .map(JavaRequesterBuilder::new)
+                .map(requesterConfigurer::invoke)
+                .map(RequesterBuilder::build);
+
+        return requesterFactory;
     }
 
     private static ClientRSocketFactory connectionSetup(ClientRSocketFactory factory,
                                                         SetupData setup) {
-        assertFactory(factory);
         return factory
                 .dataMimeType(setup.getDataType())
                 .metadataMimeType(setup.getMetadataType())
@@ -56,29 +90,15 @@ public class R2Client extends ClientFluentBuilder<ClientRSocketFactory,
                 );
     }
 
-    private static void assertFactory(ClientRSocketFactory factory) {
-        if (factory == null) {
-            throw new IllegalArgumentException("ClientRSocketFactory was not set");
-        }
+    private void assertState() {
+        assertArg(getClientRSocketFactory(), "ClientRSocketFactory");
+        assertArg(clientTransport, "ClientTransport");
+        assertArg(requesterConfigurer, "RequesterConfigurer");
     }
 
-    private static class JavaRequesterConfigurer
-            implements RequesterConfigurer<Mono<RequesterFactory>> {
-
-        private final Mono<RSocket> rSocket;
-
-        public JavaRequesterConfigurer(Mono<RSocket> rSocket) {
-            this.rSocket = rSocket;
-        }
-
-        @NotNull
-        @Override
-        public Mono<RequesterFactory> configureRequester(@NotNull Function1<
-                ? super RequesterBuilder,
-                ? extends RequesterBuilder> f) {
-            return rSocket.map(JavaRequesterBuilder::new)
-                    .map(f::invoke)
-                    .map(RequesterBuilder::build);
+    private static void assertArg(Object arg, String name) {
+        if (arg == null) {
+            throw new IllegalArgumentException(name + " was not set");
         }
     }
 }

@@ -20,8 +20,10 @@ class AndroidClientExample {
         val requesterFactory = R2Client()
                 .connectWith(clientFactory)
                 .metadata(md)
-                .transport(OkhttpWebsocketClientTransport.create(url))
                 .configureRequester { it.codec(JacksonDataCodec()) }
+                .transport(OkhttpWebsocketClientTransport.create(url))
+                .start()
+
 
         val svc = requesterFactory.map { it.create<PersonsService>() }
     }

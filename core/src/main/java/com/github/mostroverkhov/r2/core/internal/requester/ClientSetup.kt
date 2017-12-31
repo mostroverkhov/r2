@@ -7,11 +7,14 @@ import com.github.mostroverkhov.r2.core.internal.MetadataCodec
 import com.github.mostroverkhov.r2.core.internal.MimeType
 import java.nio.ByteBuffer
 
-fun clientSetupMetaData(metadata: Metadata): SetupData = SetupData(
+fun clientSetupMetaData(metadata: Metadata?): SetupData = SetupData(
         MimeType.dataType,
         MimeType.metadataType,
         emptyBuffer,
-        metadataCodec.encode(metadata))
+        metadataBuffer(metadata))
+
+private fun metadataBuffer(metadata: Metadata?) =
+        metadata?.let { metadataCodec.encode(it) } ?: emptyBuffer
 
 
 data class SetupData internal constructor(val dataType: String,
