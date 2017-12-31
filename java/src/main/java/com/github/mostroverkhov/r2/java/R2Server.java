@@ -35,8 +35,6 @@ public class R2Server<T extends Closeable> extends ServerFluentBuilder<
 
     @NotNull
     private SetupInterceptor setupInterceptor() {
-        return new SetupInterceptor(
-                MimeType.getDataType(),
-                MimeType.getMetadataType());
+        return new SetupInterceptor(MimeType.INSTANCE);
     }
 }

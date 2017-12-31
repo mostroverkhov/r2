@@ -32,31 +32,28 @@ public class JavaClientServerExample {
     public static void main(String[] args) {
         /*Wraps Requester RSocket of client side of Connection*/
         Mono<PersonsService> service =
-                clientRequester().map(f -> f.create(PersonsService.class))
+                clientRequester().map(factory -> factory.create(PersonsService.class))
                         .cache();
 
-        Start<NettyContextCloseable> serverStart = new R2Server<NettyContextCloseable>()
+        Mono<NettyContextCloseable> started = new R2Server<NettyContextCloseable>()
                 .connectWith(RSocketFactory.receive())
                 /*Configure Responder RSocket (acceptor) of server side of Connection.
                   Requester RSocket is not exposed yet*/
                 .configureAcceptor(JavaClientServerExample::configureAcceptor)
-                .transport(TcpServerTransport.create(PORT));
+                .transport(TcpServerTransport.create(PORT))
+                .start();
 
         /*periodic requests*/
-        Flux<Person> persons = Flux.interval(Duration.ofMillis(10))
+        Flux<Person> persons = Flux.interval(Duration.ofSeconds(1))
                 .flatMap(__ -> service
                         .flatMapMany(svc ->
                                 svc.channel(
                                         Flux.just(new Person("john", "doe")))
                         )
                 );
-        Pair<NettyContextCloseable, Flux<Person>> started =
-                serverStart
-                        .start()
-                        .map(close -> new Pair<>(close, persons)).block();
-
-        started.getSecond().subscribe(System.out::println);
-        started.getFirst().onClose().block();
+        NettyContextCloseable closeable = started.block();
+        persons.subscribe(System.out::println, System.out::println);
+        closeable.onClose().block();
 
     }
 

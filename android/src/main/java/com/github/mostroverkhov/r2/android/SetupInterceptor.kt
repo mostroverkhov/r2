@@ -1,5 +1,6 @@
 package com.github.mostroverkhov.r2.android
 
+import com.github.mostroverkhov.r2.core.internal.MimeType
 import io.reactivex.Flowable
 import io.rsocket.android.DuplexConnection
 import io.rsocket.android.Frame
@@ -8,8 +9,7 @@ import io.rsocket.android.plugins.DuplexConnectionInterceptor
 import io.rsocket.android.plugins.DuplexConnectionInterceptor.*
 import org.reactivestreams.Publisher
 
-class SetupInterceptor(private val dataMime: String,
-                       private val metadataMime: String)
+class SetupInterceptor(private val mimeType: MimeType)
     : DuplexConnectionInterceptor {
 
     override fun invoke(type: DuplexConnectionInterceptor.Type,
@@ -31,8 +31,8 @@ class SetupInterceptor(private val dataMime: String,
                     .doOnNext { f ->
                         val dataMimeType = Frame.Setup.dataMimeType(f)
                         val metadataMimeType = Frame.Setup.metadataMimeType(f)
-                        if (dataMime != dataMimeType
-                                || metadataMime != metadataMimeType) {
+                        if (mimeType.dataType != dataMimeType
+                                || mimeType.metadataType != metadataMimeType) {
                             val msg = "Unsupported r2: $dataMimeType : $metadataMimeType"
                             val error = InvalidSetupException(msg)
                             source.sendOne(Frame.Error.from(0, error))
