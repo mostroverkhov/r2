@@ -27,12 +27,17 @@ abstract class ClientFluentBuilder<
             RSocket,
             RequesterFactory>
 
-    abstract fun transport(transport: Transport): RequesterConfigurer<
+    abstract fun transport(transport: Transport): ClientFluentBuilder<
+            RSocketFactory,
+            Transport,
+            RSocket,
             RequesterFactory>
+
+    abstract fun configureRequester(f: (RequesterBuilder) -> RequesterBuilder): ClientFluentBuilder<
+            RSocketFactory,
+            Transport,
+            RSocket,
+            RequesterFactory>
+
+    abstract fun start(): RequesterFactory
 }
-
-interface RequesterConfigurer<RequesterFactory> {
-
-    fun configureRequester(f: (RequesterBuilder) -> RequesterBuilder): RequesterFactory
-}
-

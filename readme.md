@@ -36,10 +36,12 @@ Given interface
 R2 provides `RequesterFactory`
 ```java
         Mono<RequesterFactory> = new R2Client()
-                .connectWith(clientRSocketFactory())
-                .metadata(metadata())
-                .transport(TcpClientTransport.create(PORT))
-                .configureRequester(b -> b.codec(new JacksonDataCodec()));
+                                      .connectWith(RSocketFactory.connect())
+                                       /*Passed to Server (Connection Acceptor) as ConnectionContext*/
+                                      .metadata(metadata())
+                                      .configureRequester(b -> b.codec(new JacksonDataCodec()))
+                                      .transport(TcpClientTransport.create(PORT))
+                                      .start();
 ```
 
 For creating Requesters
@@ -49,12 +51,13 @@ For creating Requesters
 
 And `R2Server` for handling requests
 ```java
-        Start<NettyContextCloseable> serverStart = new R2Server<NettyContextCloseable>()
+        Mono<NettyContextCloseable> started = new R2Server<NettyContextCloseable>()
                 .connectWith(RSocketFactory.receive())
                 /*Configure Responder RSocket (acceptor) of server side of Connection.
                   Requester RSocket is not exposed yet*/
                 .configureAcceptor(JavaClientServerExample::configureAcceptor)
-                .transport(TcpServerTransport.create(PORT));
+                .transport(TcpServerTransport.create(PORT))
+                .start();
 
     @NotNull
     private static JavaAcceptorBuilder configureAcceptor(JavaAcceptorBuilder builder) {

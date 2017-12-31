@@ -1,5 +1,6 @@
 package com.github.mostroverkhov.r2.java;
 
+import com.github.mostroverkhov.r2.core.internal.MimeType;
 import io.rsocket.DuplexConnection;
 import io.rsocket.Frame;
 import io.rsocket.exceptions.InvalidSetupException;
@@ -16,10 +17,9 @@ class SetupInterceptor implements DuplexConnectionInterceptor {
     private final String dataMime;
     private final String metadataMime;
 
-    public SetupInterceptor(String dataMimeType,
-                            String metadataMimeType) {
-        this.dataMime = dataMimeType;
-        this.metadataMime = metadataMimeType;
+    public SetupInterceptor(MimeType mimeType) {
+        this.dataMime = mimeType.getDataType();
+        this.metadataMime = mimeType.getMetadataType();
     }
 
     @Override

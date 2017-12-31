@@ -28,9 +28,7 @@ class R2Server<T : Closeable> : ServerFluentBuilder<
                 .transport(transport)
     }
 
-    private fun setupInterceptor() = SetupInterceptor(
-            MimeType.dataType,
-            MimeType.metadataType)
+    private fun setupInterceptor() = SetupInterceptor(MimeType)
 
     private fun adapt(acceptor: Acceptor): SocketAcceptor = object : SocketAcceptor {
         override fun accept(setup: ConnectionSetupPayload,
