@@ -9,6 +9,7 @@ import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -82,5 +83,18 @@ class JavaRequesterAdapter implements CallAdapter {
 
     private RequestCall cast(Call call) {
         return (RequestCall) call;
+    }
+
+    @NotNull
+    @Override
+    public Object resolve(@NotNull Method action, @NotNull RuntimeException err) {
+        Class<?> returnType = action.getReturnType();
+        if (returnType.isAssignableFrom(Mono.class)) {
+            return Mono.error(err);
+        } else if (returnType.isAssignableFrom(Flux.class)) {
+            return Flux.error(err);
+        } else {
+            throw err;
+        }
     }
 }

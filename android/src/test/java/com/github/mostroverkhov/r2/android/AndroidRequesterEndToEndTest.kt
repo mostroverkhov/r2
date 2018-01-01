@@ -94,7 +94,7 @@ class AndroidRequesterEndToEndTest {
     @Test(timeout = 5_000, expected = IllegalArgumentException::class)
     fun emptyAnno() {
         svc.emptyAnno(Person("john", "doe"))
-                .blockingSubscribe({}, { err -> })
+                .blockingSubscribe()
     }
 
     private fun mockSetupPayload(): ConnectionSetupPayload {

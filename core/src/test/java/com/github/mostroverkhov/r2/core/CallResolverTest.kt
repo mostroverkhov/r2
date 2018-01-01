@@ -3,15 +3,13 @@ package com.github.mostroverkhov.r2.core
 import com.github.mostroverkhov.r2.core.contract.*
 import com.github.mostroverkhov.r2.core.internal.MetadataCodec
 import com.github.mostroverkhov.r2.core.internal.StringRouteCodec
-import com.github.mostroverkhov.r2.core.internal.requester.CloseCall
-import com.github.mostroverkhov.r2.core.internal.requester.Interaction
-import com.github.mostroverkhov.r2.core.internal.requester.RequestCall
-import com.github.mostroverkhov.r2.core.internal.requester.RequesterCallResolver
+import com.github.mostroverkhov.r2.core.internal.requester.*
 import com.github.mostroverkhov.r2.core.requester.RequesterFactory
 import org.junit.Assert.*
 import org.junit.Test
 import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
+import java.lang.reflect.Method
 
 class CallResolverTest {
     private val dataCodec = MockCodec()
@@ -27,7 +25,7 @@ class CallResolverTest {
 
     @Test
     fun fnf() {
-        callHandler.handleWith { call ->
+        callHandler.handleWith(Adapter { call ->
             assertTrue(call is RequestCall)
             call as RequestCall
             assertEquals(Interaction.FNF, call.interaction)
@@ -36,12 +34,12 @@ class CallResolverTest {
             assertEquals(Request("fnf"), call.args.data)
             assertEquals(Void::class.java, call.responsePayloadType)
             Pub<Void>()
-        }.fnf(Request("fnf"))
+        }).fnf(Request("fnf"))
     }
 
     @Test
     fun response() {
-        callHandler.handleWith { call ->
+        callHandler.handleWith(Adapter { call ->
             assertTrue(call is RequestCall)
             call as RequestCall
             assertEquals(Interaction.RESPONSE, call.interaction)
@@ -50,12 +48,12 @@ class CallResolverTest {
             assertEquals(Request("rep"), call.args.data)
             assertEquals(Response::class.java, call.responsePayloadType)
             Pub<Response>()
-        }.response(Request("rep"))
+        }).response(Request("rep"))
     }
 
     @Test
     fun stream() {
-        callHandler.handleWith { call ->
+        callHandler.handleWith(Adapter { call ->
             assertTrue(call is RequestCall)
             call as RequestCall
             assertEquals(Interaction.STREAM, call.interaction)
@@ -64,12 +62,12 @@ class CallResolverTest {
             assertEquals(Request("stream"), call.args.data)
             assertEquals(Response::class.java, call.responsePayloadType)
             Pub<Response>()
-        }.stream(Request("stream"))
+        }).stream(Request("stream"))
     }
 
     @Test
     fun channel() {
-        callHandler.handleWith { call ->
+        callHandler.handleWith(Adapter { call ->
             assertTrue(call is RequestCall)
             call as RequestCall
             assertEquals(Interaction.CHANNEL, call.interaction)
@@ -78,7 +76,7 @@ class CallResolverTest {
             assertTrue(call.args.data is Publisher<*>)
             assertEquals(Response::class.java, call.responsePayloadType)
             Pub<Response>()
-        }.channel(Pub(Request("channel")))
+        }).channel(Pub(Request("channel")))
     }
 
     @Test
@@ -87,7 +85,7 @@ class CallResolverTest {
                 .data("foo", "bar".toByteArray(Charsets.UTF_8))
                 .build()
 
-        callHandler.handleWith { call ->
+        callHandler.handleWith(Adapter { call ->
             assertTrue(call is RequestCall)
             call as RequestCall
             assertEquals(Interaction.RESPONSE, call.interaction)
@@ -97,12 +95,12 @@ class CallResolverTest {
             assertNotNull(call.args.metadata)
             assertEquals(Response::class.java, call.responsePayloadType)
             Pub<Response>()
-        }.metadataResponse(metadata)
+        }).metadataResponse(metadata)
     }
 
     @Test
     fun emptyResponse() {
-        callHandler.handleWith { call ->
+        callHandler.handleWith(Adapter { call ->
             assertTrue(call is RequestCall)
             call as RequestCall
             assertEquals(Interaction.RESPONSE, call.interaction)
@@ -112,42 +110,46 @@ class CallResolverTest {
             assertNull(call.args.metadata)
             assertEquals(Response::class.java, call.responsePayloadType)
             Pub<Response>()
-        }.emptyResponse()
+        }).emptyResponse()
     }
 
 
     @Test
     fun close() {
-        callHandler.handleWith { call ->
+        callHandler.handleWith(Adapter { call ->
             assertTrue(call is CloseCall)
             assertEquals(Interaction.CLOSE, call.interaction)
             Pub<Void>()
-        }.close()
+        }).close()
     }
 
     @Test
     fun onClose() {
-        callHandler.handleWith { call ->
+        callHandler.handleWith(Adapter
+        { call ->
             assertTrue(call is CloseCall)
             assertEquals(Interaction.ONCLOSE, call.interaction)
             Pub<Void>()
-        }.onClose()
+        }).onClose()
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun noSvcAnno() {
-        RequesterFactory.CallHandler(callResolver, SvcNoAnno::class.java).handleWith { Pub<Void>() }
+        RequesterFactory.CallHandler(callResolver, SvcNoAnno::class.java)
+                .handleWith(Adapter { Pub<Void>() })
                 .fnf(Request("fnf"))
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun noInteraction() {
-        callHandler.handleWith { Pub<Void>() }.noInteraction(Pub(Request("channel")))
+        callHandler.handleWith(Adapter { Pub<Void>() })
+                .noInteraction(Pub(Request("channel")))
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun noMethodName() {
-        callHandler.handleWith { Pub<Void>() }.noMethodName(Pub(Request("channel")))
+        callHandler.handleWith(Adapter { Pub<Void>() })
+                .noMethodName(Pub(Request("channel")))
     }
 
     private class Pub<T>(internal val request: Request?) : Publisher<T> {
@@ -200,4 +202,11 @@ class CallResolverTest {
     data class Request(val req: String)
 
     data class Response(val resp: String)
+
+    private class Adapter(private val adapter: (Call) -> Any) : CallAdapter {
+
+        override fun adapt(call: Call) = adapter(call)
+
+        override fun resolve(action: Method, err: RuntimeException): Any = throw err
+    }
 }

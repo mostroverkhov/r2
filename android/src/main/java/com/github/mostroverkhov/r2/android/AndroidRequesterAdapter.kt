@@ -8,6 +8,7 @@ import io.rsocket.android.Payload
 import io.rsocket.android.RSocket
 import io.rsocket.android.util.PayloadImpl
 import org.reactivestreams.Publisher
+import java.lang.reflect.Method
 
 internal class AndroidRequesterAdapter(private val rSocket: RSocket) : CallAdapter {
 
@@ -39,6 +40,19 @@ internal class AndroidRequesterAdapter(private val rSocket: RSocket) : CallAdapt
             Interaction.ONCLOSE -> rSocket.onClose()
         }
     }
+
+    override fun resolve(action: Method, err: RuntimeException): Any =
+            with(action.returnType) {
+                when {
+                    assignableFrom<Completable>() -> Completable.error(err)
+                    assignableFrom<Single<*>>() -> Single.error<Any>(err)
+                    assignableFrom<Flowable<*>>() -> Flowable.error<Any>(err)
+                    else -> throw err
+                }
+            }
+
+    private inline fun <reified T> Class<*>.assignableFrom()
+            = isAssignableFrom(T::class.java)
 
     private fun Call.decode(arg: Payload): Any {
         this as RequestCall
