@@ -1,9 +1,43 @@
 # R2
 [![Build Status](https://travis-ci.org/mostroverkhov/r2.svg?branch=master)](https://travis-ci.org/mostroverkhov/r2)  
 
-RSocket based RPC for Java8/Reactor (via [rsocket-java](https://github.com/rsocket/rsocket-java)) and Kotlin/RxJava2 (via [rsocket-android](https://github.com/rsocket/rsocket-android)) with pluggable serialization (jackson, cbor, protobuf and others).
+RSocket based RPC with pluggable serialization (jackson, cbor, protobuf and others), 
+Java8/Reactor (with [rsocket-java](https://github.com/rsocket/rsocket-java)) and Kotlin/RxJava2 (with [rsocket-android](https://github.com/rsocket/rsocket-android)) bindings.
 
-Supports 4 interaction models: fire-and-forget, request-response, request-stream, request-channel.
+[RSocket](http://rsocket.io/) is binary application protocol bringing Reactive-Streams semantics
+to network communications. Check [FAQ](https://github.com/rsocket/rsocket/blob/master/FAQ.md) for more info.
+
+Supports 4 interaction models: `fire-and-forget`, `request-response`, `request-stream`, `request-channel`,
+and `Metadata` passing - for connection setup and above interactions.  
+
+###Build and Binaries
+
+The project is released on [jitpack](https://jitpack.io/#mostroverkhov/r2)
+```groovy
+   repositories {
+      maven { url 'https://jitpack.io' }
+   }
+```
+
+java8/reactor
+```groovy
+    compile 'com.github.mostroverkhov.r2:java:0.1'
+```
+
+kotlin/rxjava2/android
+```groovy
+    compile 'com.github.mostroverkhov.r2:android:0.1'
+```
+
+data codecs
+```groovy
+        
+     /*Json support. CBOR and others are available in jackson-dataformat-binary*/ 
+     compile 'com.github.mostroverkhov.r2:codec-jackson:0.1'
+        
+     /*Protocol buffers*/
+     compile 'com.github.mostroverkhov.r2:codec-proto:0.1'
+```
 
 ### Usage
 
@@ -78,7 +112,7 @@ Server part of `RSocket` is started as
      Mono<NettyContextCloseable> started = serverStart.start()
 ```
 
-Request methods can have payload (as data - `T`, or `Publisher<T>` for Channel requests), metadata, both, or none. Channel requests must have payload at least.
+Request methods can have payload (as data - `T`, or `Publisher<T>` for Channel requests), `Metadata`, both, or none. Channel requests must have payload at least.
 
 ### Serialization
 
