@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/mostroverkhov/r2.svg?branch=master)](https://travis-ci.org/mostroverkhov/r2)  
 
 RSocket based RPC with pluggable serialization (jackson, cbor, protobuf and others), 
-Java8/Reactor (with [rsocket-java](https://github.com/rsocket/rsocket-java)) and Kotlin/RxJava2 (with [rsocket-android](https://github.com/rsocket/rsocket-android)) bindings.
+Java8/Reactor (via [rsocket-java](https://github.com/rsocket/rsocket-java)) and Kotlin/RxJava2 (via [rsocket-android](https://github.com/rsocket/rsocket-android)) bindings.
 
 [RSocket](http://rsocket.io/) is binary application protocol bringing Reactive-Streams semantics
 to network communications. Check [FAQ](https://github.com/rsocket/rsocket/blob/master/FAQ.md) for more info.
