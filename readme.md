@@ -10,7 +10,7 @@ to network communications. Check [FAQ](https://github.com/rsocket/rsocket/blob/m
 Supports 4 interaction models: `fire-and-forget`, `request-response`, `request-stream`, `request-channel`,
 and `Metadata` passing - for connection setup and above interactions.  
 
-###Build and Binaries
+### Build and Binaries
 
 The project is released on [jitpack](https://jitpack.io/#mostroverkhov/r2)
 ```groovy
@@ -32,7 +32,7 @@ kotlin/rxjava2/android
 data codecs
 ```groovy
         
-     /*Json support. CBOR and others are available in jackson-dataformat-binary*/ 
+     /*Json support. CBOR and others are available with jackson-dataformat-binary*/ 
      compile 'com.github.mostroverkhov.r2:codec-jackson:0.1'
         
      /*Protocol buffers*/
