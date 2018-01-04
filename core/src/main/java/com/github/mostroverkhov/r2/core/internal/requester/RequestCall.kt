@@ -15,14 +15,25 @@ data class RequestCall internal constructor(internal val routeEncoder: RouteEnco
                                             override val dataCodec: DataCodec,
                                             override val service: String,
                                             override val method: String,
-                                            val args: ActionArgs,
                                             override val interaction: Interaction,
                                             internal val responsePayloadType: Class<*>) : Call(), Route {
+    private var args: ActionArgs? = null
+
+    internal fun setArgs(args: ActionArgs): RequestCall {
+        this.args = args
+        return this
+    }
+
+    fun getArgs(): ActionArgs {
+        return args!!
+    }
+
+
     fun encodeData(payloadT: Any?): ByteBuffer = payloadT?.let { dataCodec.encode(it) } ?: emptyData
 
     fun decodeData(data: ByteBuffer): Any = dataCodec.decode(data, responsePayloadType)
 
-    fun encodeMetadata(): ByteBuffer = metadataCodec.encode(requestMetadata(args.metadata, this))
+    fun encodeMetadata(): ByteBuffer = metadataCodec.encode(requestMetadata(args!!.metadata, this))
 
     companion object {
         private val emptyData = ByteBuffer.allocate(0)

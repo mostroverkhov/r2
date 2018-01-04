@@ -4,46 +4,54 @@ import com.github.mostroverkhov.r2.core.contract.RequestResponse
 import com.github.mostroverkhov.r2.core.contract.Service
 import com.github.mostroverkhov.r2.core.internal.responder.ResponderTargetResolver
 import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Test
 import org.reactivestreams.Publisher
 
 class ResponderTargetResolverTest {
+
+    private lateinit var methodResolver: ResponderTargetResolver.MethodResolver
+    @Before
+    fun setUp() {
+        methodResolver = ResponderTargetResolver.MethodResolver()
+    }
+
     @Test
     fun resolveService() {
-        val svc = ResponderTargetResolver.resolveSvcContract(TestHandler())
+        val svc = ResponderTargetResolver.resolveSvcContract(TestHandler::class.java)
         assertTrue(svc == TestContract::class.java)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun resolveServiceNonContract() {
-        val svc = ResponderTargetResolver.resolveSvcContract(NoSvcHandler())
+        val svc = ResponderTargetResolver.resolveSvcContract(NoSvcHandler::class.java)
         assertTrue(svc == TestContract::class.java)
     }
 
     @Test
     fun resolveMethod() {
-        val svc = TestContract::class.java
-        val method = ResponderTargetResolver.resolveTargetMethod(svc, "response")
+        val svc = TestHandler()
+        val method = methodResolver.resolve(svc, "response")
         assertNotNull(method)
         assertTrue(method.isAccessible)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun resolveMethodNonExistent() {
-        val svc = TestContract::class.java
-        ResponderTargetResolver.resolveTargetMethod(svc, "resp")
+        val svc = TestHandler()
+        methodResolver.resolve(svc, "resp")
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun resolveMethodOverloaded() {
-        val svc = OverloadContract::class.java
-        ResponderTargetResolver.resolveTargetMethod(svc, "response")
+        val svc = OverloadHandler()
+        methodResolver.resolve(svc, "response")
     }
 
     @Test
     fun resolveOneArg() {
-        val svc = TestContract::class.java
-        val targetMethod = ResponderTargetResolver.resolveTargetMethod(svc, "response")
+        val svc = TestContractHandler()
+        val targetMethod = methodResolver.resolve(svc, "response")
         val actionArgs = ResponderTargetResolver.resolveArguments(targetMethod)
         assertEquals(null, actionArgs.metadataPos())
         assertEquals(0, actionArgs.requestPos())
@@ -52,8 +60,8 @@ class ResponderTargetResolverTest {
 
     @Test
     fun resolveTwoArgs() {
-        val svc = TestContract::class.java
-        val targetMethod = ResponderTargetResolver.resolveTargetMethod(svc, "twoArgs")
+        val svc = TestContractHandler()
+        val targetMethod = methodResolver.resolve(svc, "twoArgs")
         val actionArgs = ResponderTargetResolver.resolveArguments(targetMethod)
         assertEquals(0, actionArgs.requestPos())
         assertEquals(1, actionArgs.metadataPos())
@@ -62,8 +70,8 @@ class ResponderTargetResolverTest {
 
     @Test
     fun resolveTwoArgsSwapped() {
-        val svc = TestContract::class.java
-        val targetMethod = ResponderTargetResolver.resolveTargetMethod(svc, "twoArgsSwapped")
+        val svc = TestContractHandler()
+        val targetMethod = methodResolver.resolve(svc, "twoArgsSwapped")
         val actionArgs = ResponderTargetResolver.resolveArguments(targetMethod)
         assertEquals(1, actionArgs.requestPos())
         assertEquals(0, actionArgs.metadataPos())
@@ -72,11 +80,9 @@ class ResponderTargetResolverTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun resolveMissingName() {
-        val svc = TestContract::class.java
-        ResponderTargetResolver.resolveTargetMethod(svc, "missName")
+        val svc = TestContractHandler()
+        methodResolver.resolve(svc, "missName")
     }
-
-
 }
 
 private class TestHandler : TestContract {
@@ -119,6 +125,24 @@ private interface TestContract {
     fun missName(metadata: Metadata, request: Item): Publisher<Item>
 }
 
+private class TestContractHandler : TestContract {
+    override fun response(request: Item): Publisher<Item> {
+        return Publisher { }
+    }
+
+    override fun twoArgs(request: Item, metadata: Metadata): Publisher<Item> {
+        return Publisher { }
+    }
+
+    override fun twoArgsSwapped(metadata: Metadata, request: Item): Publisher<Item> {
+        return Publisher { }
+    }
+
+    override fun missName(metadata: Metadata, request: Item): Publisher<Item> {
+        return Publisher { }
+    }
+}
+
 private interface NoSvcContract {
     @RequestResponse
     fun response(request: Item): Publisher<Item>
@@ -130,6 +154,13 @@ private interface OverloadContract {
 
     @RequestResponse
     fun response(): Publisher<Item>
+}
+
+private class OverloadHandler : OverloadContract {
+
+    override fun response(request: Item): Publisher<Item> = Publisher { }
+
+    override fun response(): Publisher<Item> = Publisher { }
 }
 
 
