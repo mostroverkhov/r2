@@ -1,4 +1,4 @@
-# R2
+# R2: RSocket RPC
 [![Build Status](https://travis-ci.org/mostroverkhov/r2.svg?branch=master)](https://travis-ci.org/mostroverkhov/r2)  
 
 RSocket based RPC with pluggable serialization (jackson, cbor, protobuf and others), 
@@ -21,22 +21,22 @@ The project is released on [jitpack](https://jitpack.io/#mostroverkhov/r2)
 
 java8/reactor
 ```groovy
-    compile 'com.github.mostroverkhov.r2:java:0.1'
+    compile 'com.github.mostroverkhov.r2:java:0.1.1'
 ```
 
 kotlin/rxjava2/android
 ```groovy
-    compile 'com.github.mostroverkhov.r2:android:0.1'
+    compile 'com.github.mostroverkhov.r2:android:0.1.1'
 ```
 
 data codecs
 ```groovy
         
      /*Json support. CBOR and others are available with jackson-dataformat-binary*/ 
-     compile 'com.github.mostroverkhov.r2:codec-jackson:0.1'
+     compile 'com.github.mostroverkhov.r2:codec-jackson:0.1.1'
         
      /*Protocol buffers*/
-     compile 'com.github.mostroverkhov.r2:codec-proto:0.1'
+     compile 'com.github.mostroverkhov.r2:codec-proto:0.1.1'
 ```
 
 ### Usage
