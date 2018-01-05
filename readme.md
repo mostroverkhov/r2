@@ -10,6 +10,9 @@ to network communications. Check [FAQ](https://github.com/rsocket/rsocket/blob/m
 Supports 4 interaction models: `fire-and-forget`, `request-response`, `request-stream`, `request-channel`,
 and `Metadata` passing - for connection setup and above interactions.  
 
+### Performance
+Check [RPC-Thunderdome](https://github.com/mostroverkhov/rpc-thunderdome) project to roughly estimate relative performance of RSocket R2, RSocket Proteus, Grpc & Ratpack
+
 ### Build and Binaries
 
 The project is released on [jitpack](https://jitpack.io/#mostroverkhov/r2)
