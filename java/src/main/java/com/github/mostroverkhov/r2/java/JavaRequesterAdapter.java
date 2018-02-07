@@ -89,9 +89,9 @@ class JavaRequesterAdapter implements CallAdapter {
     @Override
     public Object resolve(@NotNull Method action, @NotNull RuntimeException err) {
         Class<?> returnType = action.getReturnType();
-        if (returnType.isAssignableFrom(Mono.class)) {
+        if (Mono.class.equals(returnType)) {
             return Mono.error(err);
-        } else if (returnType.isAssignableFrom(Flux.class)) {
+        } else if (Flux.class.equals(returnType)) {
             return Flux.error(err);
         } else {
             throw err;
