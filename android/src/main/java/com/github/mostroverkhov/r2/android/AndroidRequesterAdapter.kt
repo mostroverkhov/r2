@@ -44,15 +44,15 @@ internal class AndroidRequesterAdapter(private val rSocket: RSocket) : CallAdapt
     override fun resolve(action: Method, err: RuntimeException): Any =
             with(action.returnType) {
                 when {
-                    assignableFrom<Completable>() -> Completable.error(err)
-                    assignableFrom<Single<*>>() -> Single.error<Any>(err)
-                    assignableFrom<Flowable<*>>() -> Flowable.error<Any>(err)
+                    typeIs<Completable>() -> Completable.error(err)
+                    typeIs<Single<*>>() -> Single.error<Any>(err)
+                    typeIs<Flowable<*>>() -> Flowable.error<Any>(err)
                     else -> throw err
                 }
             }
 
-    private inline fun <reified T> Class<*>.assignableFrom()
-            = isAssignableFrom(T::class.java)
+    private inline fun <reified T> Class<*>.typeIs()
+            = T::class.java == this
 
     private fun Call.decode(arg: Payload): Any {
         this as RequestCall
