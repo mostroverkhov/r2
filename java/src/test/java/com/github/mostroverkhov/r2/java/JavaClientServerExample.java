@@ -1,20 +1,15 @@
 package com.github.mostroverkhov.r2.java;
 
-import com.github.mostroverkhov.r2.codec.jackson.JacksonDataCodec;
+import com.github.mostroverkhov.r2.codec.jackson.JacksonJsonDataCodec;
 import com.github.mostroverkhov.r2.core.Metadata;
-import com.github.mostroverkhov.r2.core.internal.responder.RequestAcceptor;
 import com.github.mostroverkhov.r2.core.requester.RequesterFactory;
 import com.github.mostroverkhov.r2.core.responder.Codecs;
 import com.github.mostroverkhov.r2.core.responder.Services;
 import com.github.mostroverkhov.r2.java.JavaMocks.Person;
-import io.rsocket.ConnectionSetupPayload;
-import io.rsocket.RSocket;
 import io.rsocket.RSocketFactory;
-import io.rsocket.RSocketFactory.Start;
 import io.rsocket.transport.netty.client.TcpClientTransport;
 import io.rsocket.transport.netty.server.NettyContextCloseable;
 import io.rsocket.transport.netty.server.TcpServerTransport;
-import kotlin.Pair;
 import kotlin.text.Charsets;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Flux;
@@ -62,7 +57,7 @@ public class JavaClientServerExample {
                 .connectWith(RSocketFactory.connect())
                 /*Passed to Server (Connection Acceptor) as ConnectionContext*/
                 .metadata(metadata())
-                .configureRequester(b -> b.codec(new JacksonDataCodec()))
+                .configureRequester(b -> b.codec(new JacksonJsonDataCodec()))
                 .transport(TcpClientTransport.create(PORT))
                 .start();
     }
@@ -71,7 +66,7 @@ public class JavaClientServerExample {
     private static JavaAcceptorBuilder configureAcceptor(JavaAcceptorBuilder builder) {
         return builder
                 /*Jackson codec. Also there can be cbor, protobuf etc*/
-                .codecs(new Codecs().add(new JacksonDataCodec()))
+                .codecs(new Codecs().add(new JacksonJsonDataCodec()))
                 /*ConnectionContext represents Metadata(key -> value) set by Client (Connection initiator)
                 as metadata*/
                 .services(ctx -> new Services().add(new PersonServiceHandler()));

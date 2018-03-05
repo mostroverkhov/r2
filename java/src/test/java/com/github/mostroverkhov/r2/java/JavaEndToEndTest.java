@@ -1,6 +1,6 @@
 package com.github.mostroverkhov.r2.java;
 
-import com.github.mostroverkhov.r2.codec.jackson.JacksonDataCodec;
+import com.github.mostroverkhov.r2.codec.jackson.JacksonJsonDataCodec;
 import com.github.mostroverkhov.r2.core.Metadata;
 import com.github.mostroverkhov.r2.core.internal.MetadataCodec;
 import com.github.mostroverkhov.r2.core.requester.RequesterFactory;
@@ -11,7 +11,6 @@ import io.rsocket.RSocket;
 import io.rsocket.util.PayloadImpl;
 import kotlin.text.Charsets;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import reactor.core.publisher.Flux;
@@ -31,7 +30,7 @@ public class JavaEndToEndTest {
     public void setUp() throws Exception {
 
         Mono<RSocket> handlerRSocket = new JavaAcceptorBuilder()
-                .codecs(new Codecs().add(new JacksonDataCodec()))
+                .codecs(new Codecs().add(new JacksonJsonDataCodec()))
                 .services(ctx -> new Services().add(new PersonServiceHandler()))
                 .build()
                 .accept(mockSetupPayload());
@@ -39,7 +38,7 @@ public class JavaEndToEndTest {
         RequesterFactory requesterFactory = handlerRSocket
                 .map(rs ->
                         new JavaRequesterBuilder(rs)
-                                .codec(new JacksonDataCodec())
+                                .codec(new JacksonJsonDataCodec())
                                 .build())
                 .block();
 

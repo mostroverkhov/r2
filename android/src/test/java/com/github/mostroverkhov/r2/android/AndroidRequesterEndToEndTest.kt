@@ -1,6 +1,6 @@
 package com.github.mostroverkhov.r2.android
 
-import com.github.mostroverkhov.r2.codec.jackson.JacksonDataCodec
+import com.github.mostroverkhov.r2.codec.jackson.JacksonJsonDataCodec
 import com.github.mostroverkhov.r2.core.Metadata
 import com.github.mostroverkhov.r2.core.internal.MetadataCodec
 import com.github.mostroverkhov.r2.core.responder.Codecs
@@ -21,14 +21,14 @@ class AndroidRequesterEndToEndTest {
     fun setUp() {
 
         val handlerRSocket = AndroidAcceptorBuilder()
-                .codecs(Codecs() + JacksonDataCodec())
+                .codecs(Codecs() + JacksonJsonDataCodec())
                 .services { ctx -> Services() + PersonServiceHandler() }
                 .build()
                 .accept(mockSetupPayload())
 
         val requesterFactory = handlerRSocket.map {
             AndroidRequesterBuilder(it)
-                    .codec(JacksonDataCodec())
+                    .codec(JacksonJsonDataCodec())
                     .build()
         }.blockingGet()
         svc = requesterFactory.create()

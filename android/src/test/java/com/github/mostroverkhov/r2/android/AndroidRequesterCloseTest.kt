@@ -1,6 +1,6 @@
 package com.github.mostroverkhov.r2.android
 
-import com.github.mostroverkhov.r2.codec.jackson.JacksonDataCodec
+import com.github.mostroverkhov.r2.codec.jackson.JacksonJsonDataCodec
 import io.reactivex.Completable
 import io.rsocket.android.AbstractRSocket
 import org.junit.Assert.assertEquals
@@ -17,7 +17,7 @@ class AndroidRequesterCloseTest {
 
         rsocket = MockRSocket()
         personsService = AndroidRequesterBuilder(rsocket)
-                .codec(JacksonDataCodec())
+                .codec(JacksonJsonDataCodec())
                 .build()
                 .create()
     }

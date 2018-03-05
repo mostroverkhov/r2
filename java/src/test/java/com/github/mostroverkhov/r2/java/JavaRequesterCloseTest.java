@@ -1,8 +1,7 @@
 package com.github.mostroverkhov.r2.java;
 
-import com.github.mostroverkhov.r2.codec.jackson.JacksonDataCodec;
+import com.github.mostroverkhov.r2.codec.jackson.JacksonJsonDataCodec;
 import io.rsocket.AbstractRSocket;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import reactor.core.publisher.Mono;
@@ -20,7 +19,7 @@ public class JavaRequesterCloseTest {
 
         mockRSocket = new MockRSocket();
         personsService = new JavaRequesterBuilder(mockRSocket)
-                .codec(new JacksonDataCodec())
+                .codec(new JacksonJsonDataCodec())
                 .build().create(JavaMocks.PersonsService.class);
     }
 
