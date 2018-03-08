@@ -1,6 +1,6 @@
 package com.github.mostroverkhov.r2.android
 
-import com.github.mostroverkhov.r2.codec.jackson.JacksonDataCodec
+import com.github.mostroverkhov.r2.codec.jackson.JacksonJsonDataCodec
 import com.github.mostroverkhov.r2.core.Metadata
 import io.rsocket.android.RSocketFactory
 import io.rsocket.transport.okhttp.client.OkhttpWebsocketClientTransport
@@ -20,7 +20,7 @@ class AndroidClientExample {
         val requesterFactory = R2Client()
                 .connectWith(clientFactory)
                 .metadata(md)
-                .configureRequester { it.codec(JacksonDataCodec()) }
+                .configureRequester { it.codec(JacksonJsonDataCodec()) }
                 .transport(OkhttpWebsocketClientTransport.create(url))
                 .start()
 

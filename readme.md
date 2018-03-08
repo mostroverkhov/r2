@@ -24,22 +24,22 @@ The project is released on [jitpack](https://jitpack.io/#mostroverkhov/r2)
 
 java8/reactor
 ```groovy
-    compile 'com.github.mostroverkhov.r2:java:0.1.1'
+    compile 'com.github.mostroverkhov.r2:java:0.2.0'
 ```
 
 kotlin/rxjava2/android
 ```groovy
-    compile 'com.github.mostroverkhov.r2:android:0.1.1'
+    compile 'com.github.mostroverkhov.r2:android:0.2.0'
 ```
 
 data codecs
 ```groovy
         
      /*Json support. CBOR and others are available with jackson-dataformat-binary*/ 
-     compile 'com.github.mostroverkhov.r2:codec-jackson:0.1.1'
+     compile 'com.github.mostroverkhov.r2:codec-jackson:0.2.0'
         
      /*Protocol buffers*/
-     compile 'com.github.mostroverkhov.r2:codec-proto:0.1.1'
+     compile 'com.github.mostroverkhov.r2:codec-proto:0.2.0'
 ```
 
 ### Usage
@@ -76,7 +76,7 @@ R2 provides `RequesterFactory`
                                       .connectWith(RSocketFactory.connect())
                                        /*Passed to Server (Connection Acceptor) as ConnectionContext*/
                                       .metadata(metadata())
-                                      .configureRequester(b -> b.codec(new JacksonDataCodec()))
+                                      .configureRequester(b -> b.codec(new JacksonJsonDataCodec()))
                                       .transport(TcpClientTransport.create(PORT))
                                       .start();
 ```
@@ -100,7 +100,7 @@ And `R2Server` for handling requests
     private static JavaAcceptorBuilder configureAcceptor(JavaAcceptorBuilder builder) {
         return builder
                 /*Jackson codec. Also there can be cbor, protobuf etc*/
-                .codecs(new Codecs().add(new JacksonDataCodec()))
+                .codecs(new Codecs().add(new JacksonJsonDataCodec()))
                 /*ConnectionContext represents Metadata(key -> value) set by Client (Connection initiator)
                 as metadata*/
                 .services(ctx -> new Services().add(new PersonServiceHandler()));
@@ -119,7 +119,7 @@ Request methods can have payload (as data - `T`, or `Publisher<T>` for Channel r
 
 ### Serialization
 
-`codec-jackson` provides JSON serialization. Also, some binary formats (cbor, avro and others) are supported with [jackson-dataformat-binary](https://github.com/FasterXML/jackson-dataformats-binary). `codec-proto` provides Protobuf serialization. Custom data codecs can be easily built by implementing minimalistic `DataCodec` interface.
+`codec-jackson` provides JSON serialization. Also, some binary formats (cbor, avro and others) are supported with [jackson-dataformat-binary](https://github.com/FasterXML/jackson-dataformats-binary) - just extend `BaseJacksonDataCodec` and provide respective `ObjectMapper` to it. `codec-proto` provides Protobuf serialization. Custom data codecs can be easily built by implementing minimalistic `DataCodec` interface.
 
 ### Examples
 
