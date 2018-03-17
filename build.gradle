@@ -14,7 +14,7 @@ subprojects {
     repositories {
         mavenCentral()
         maven { url 'http://repo.spring.io/milestone' }
-        maven { url 'https://oss.jfrog.org/libs-snapshot' }
+        maven { url 'https://jitpack.io' }
     }
 
     dependencies {

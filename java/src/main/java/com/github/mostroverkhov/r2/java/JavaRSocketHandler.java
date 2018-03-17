@@ -2,9 +2,9 @@ package com.github.mostroverkhov.r2.java;
 
 import com.github.mostroverkhov.r2.core.internal.responder.ResponderTargetResolver;
 import com.github.mostroverkhov.r2.core.internal.responder.TargetAction;
-import io.rsocket.AbstractRSocket;
-import io.rsocket.Payload;
-import io.rsocket.util.PayloadImpl;
+import com.github.mostroverkhov.rsocket.AbstractRSocket;
+import com.github.mostroverkhov.rsocket.Payload;
+import com.github.mostroverkhov.rsocket.util.PayloadImpl;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

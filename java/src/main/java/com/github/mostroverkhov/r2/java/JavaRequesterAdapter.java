@@ -1,9 +1,9 @@
 package com.github.mostroverkhov.r2.java;
 
 import com.github.mostroverkhov.r2.core.internal.requester.*;
-import io.rsocket.Payload;
-import io.rsocket.RSocket;
-import io.rsocket.util.PayloadImpl;
+import com.github.mostroverkhov.rsocket.Payload;
+import com.github.mostroverkhov.rsocket.RSocket;
+import com.github.mostroverkhov.rsocket.util.PayloadImpl;
 import org.jetbrains.annotations.NotNull;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;

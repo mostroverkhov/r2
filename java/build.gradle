@@ -4,11 +4,11 @@ sourceCompatibility = 1.8
 
 dependencies {
     compile project(":core")
-    compile 'io.rsocket:rsocket-core:0.9.16'
+    compile 'com.github.mostroverkhov.rsocket-java-more:rsocket-core:0.11.0'
     compile group: 'io.projectreactor', name: 'reactor-core', version: '3.1.2.RELEASE'
 
     testCompile group: 'junit', name: 'junit', version: "$junit_version"
     testCompile project(":codec-jackson")
-    testCompile 'io.rsocket:rsocket-transport-netty:0.9.16'
+    testCompile 'com.github.mostroverkhov.rsocket-java-more:rsocket-transport-netty:0.11.0'
     testCompile group: 'io.projectreactor', name: 'reactor-test', version: '3.1.2.RELEASE'
 }

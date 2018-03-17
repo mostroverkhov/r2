@@ -6,14 +6,15 @@ import com.github.mostroverkhov.r2.core.internal.requester.ClientSetup;
 import com.github.mostroverkhov.r2.core.internal.requester.SetupData;
 import com.github.mostroverkhov.r2.core.requester.RequesterBuilder;
 import com.github.mostroverkhov.r2.core.requester.RequesterFactory;
-import io.rsocket.RSocket;
-import io.rsocket.transport.ClientTransport;
-import io.rsocket.util.PayloadImpl;
+import com.github.mostroverkhov.rsocket.RSocket;
+import com.github.mostroverkhov.rsocket.RSocketFactory;
+import com.github.mostroverkhov.rsocket.RSocketFactory.ClientRSocketFactory;
+import com.github.mostroverkhov.rsocket.transport.ClientTransport;
+import com.github.mostroverkhov.rsocket.util.PayloadImpl;
 import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-import static io.rsocket.RSocketFactory.ClientRSocketFactory;
 
 public class R2Client extends ClientFluentBuilder<
         ClientRSocketFactory,

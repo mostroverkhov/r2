@@ -1,17 +1,18 @@
 package com.github.mostroverkhov.r2.java;
 
 import com.github.mostroverkhov.r2.core.internal.MimeType;
-import io.rsocket.DuplexConnection;
-import io.rsocket.Frame;
-import io.rsocket.exceptions.InvalidSetupException;
-import io.rsocket.plugins.DuplexConnectionInterceptor;
+import com.github.mostroverkhov.rsocket.DuplexConnection;
+import com.github.mostroverkhov.rsocket.Frame;
+import com.github.mostroverkhov.rsocket.exceptions.InvalidSetupException;
+import com.github.mostroverkhov.rsocket.interceptors.DuplexConnectionInterceptor;
 import org.jetbrains.annotations.NotNull;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static io.rsocket.Frame.Setup.dataMimeType;
-import static io.rsocket.Frame.Setup.metadataMimeType;
+import static com.github.mostroverkhov.rsocket.Frame.Setup.dataMimeType;
+import static com.github.mostroverkhov.rsocket.Frame.Setup.metadataMimeType;
+
 
 class SetupInterceptor implements DuplexConnectionInterceptor {
     private final String dataMime;
@@ -24,7 +25,7 @@ class SetupInterceptor implements DuplexConnectionInterceptor {
 
     @Override
     public DuplexConnection apply(Type type, DuplexConnection connection) {
-        return type == Type.STREAM_ZERO
+        return type == Type.INIT
                 ? new SetupConnection(connection)
                 : connection;
     }
