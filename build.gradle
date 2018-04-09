@@ -1,6 +1,3 @@
-group 'com.github.mostroverkhov.r2'
-version '0.1-SNAPSHOT'
-
 subprojects {
 
     group = 'com.github.mostroverkhov.r2'
@@ -13,8 +10,11 @@ subprojects {
 
     repositories {
         mavenCentral()
-        maven { url 'http://repo.spring.io/milestone' }
         maven { url 'https://oss.jfrog.org/libs-snapshot' }
+    }
+
+    ext {
+        kotlin_version = '1.2.31'
     }
 
     dependencies {
@@ -30,10 +30,6 @@ subprojects {
 
     check.dependsOn jacocoTestReport
 
-    ext {
-        kotlin_version = '1.2.0'
-        junit_version = '4.12'
-    }
 
     task sourcesJar(type: Jar, dependsOn: classes) {
         classifier = 'sources'
