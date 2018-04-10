@@ -1,26 +1,9 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
-
-apply plugin: 'kotlin'
 
 dependencies {
-    compile project(":codec-jackson")
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-smile', version: '2.9.5'
-    compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-cbor', version: '2.9.5'
+    api project(":codec-jackson")
+    api 'com.fasterxml.jackson.dataformat:jackson-dataformat-smile'
+    api 'com.fasterxml.jackson.dataformat:jackson-dataformat-cbor'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7'
 
-    testCompile project(':codec-jackson').sourceSets.test.output
-}
-
-compileKotlin {
-    kotlinOptions.jvmTarget = "1.6"
-}
-compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.6"
+    testImplementation project(':codec-jackson').sourceSets.test.output
 }
