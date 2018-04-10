@@ -1,20 +1,71 @@
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.5.RELEASE"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.2.31"
+    }
+}
+
+configure(subprojects.findAll { it.name != 'java' }) {
+
+    apply plugin: 'kotlin'
+
+    compileKotlin {
+        kotlinOptions.jvmTarget = "1.6"
+    }
+    compileTestKotlin {
+        kotlinOptions.jvmTarget = "1.6"
+    }
+}
+
 subprojects {
 
     group = 'com.github.mostroverkhov.r2'
     version = mavenversion
 
-    apply plugin: 'java'
+    buildscript {
+        repositories {
+            mavenCentral()
+        }
+    }
+
+    apply plugin: 'java-library'
+    apply plugin: 'io.spring.dependency-management'
     apply plugin: 'maven'
     apply plugin: 'maven-publish'
     apply plugin: 'jacoco'
+
 
     repositories {
         mavenCentral()
         maven { url 'https://oss.jfrog.org/libs-snapshot' }
     }
 
-    ext {
-        kotlin_version = '1.2.31'
+    dependencyManagement {
+        dependencies {
+            dependency "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.2.31"
+            dependency group: 'org.reactivestreams', name: 'reactive-streams', version: '1.0.2'
+
+            dependencySet(group: 'io.projectreactor', version: '3.1.2.RELEASE') {
+                entry 'reactor-core'
+                entry 'reactor-test'
+            }
+            dependency 'io.rsocket:rsocket-core:0.9.16'
+            dependency 'io.rsocket:rsocket-transport-netty:0.9.16'
+
+            dependency 'io.rsocket:rsocket-android-core:0.9-SNAPSHOT'
+            dependency 'io.rsocket:rsocket-transport-okhttp:0.9-SNAPSHOT'
+
+            dependency 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
+            dependencySet(group: 'com.fasterxml.jackson.dataformat', version: '2.9.5') {
+                entry 'jackson-dataformat-smile'
+                entry 'jackson-dataformat-cbor'
+            }
+        }
     }
 
     dependencies {
