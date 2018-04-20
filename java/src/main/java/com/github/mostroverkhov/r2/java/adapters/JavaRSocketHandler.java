@@ -1,4 +1,4 @@
-package com.github.mostroverkhov.r2.java;
+package com.github.mostroverkhov.r2.java.adapters;
 
 import com.github.mostroverkhov.r2.core.internal.responder.ResponderTargetResolver;
 import com.github.mostroverkhov.r2.core.internal.responder.TargetAction;

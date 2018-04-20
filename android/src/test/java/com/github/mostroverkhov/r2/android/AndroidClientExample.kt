@@ -2,6 +2,8 @@ package com.github.mostroverkhov.r2.android
 
 import com.github.mostroverkhov.r2.codec.jackson.JacksonJsonDataCodec
 import com.github.mostroverkhov.r2.core.Metadata
+import com.github.mostroverkhov.r2.core.Codecs
+import com.github.mostroverkhov.r2.core.Services
 import io.rsocket.android.RSocketFactory
 import io.rsocket.transport.okhttp.client.OkhttpWebsocketClientTransport
 import okhttp3.HttpUrl
@@ -20,10 +22,15 @@ class AndroidClientExample {
         val requesterFactory = R2Client()
                 .connectWith(clientFactory)
                 .metadata(md)
-                .configureRequester { it.codec(JacksonJsonDataCodec()) }
+                .configureAcceptor { configurer ->
+                    configurer
+                            .codecs(Codecs() + JacksonJsonDataCodec())
+                            .services { requester ->
+                                Services() + SmarterPersonsServiceHandler(requester)
+                            }
+                }
                 .transport(OkhttpWebsocketClientTransport.create(url))
                 .start()
-
 
         val svc = requesterFactory.map { it.create<PersonsService>() }
     }
@@ -41,8 +48,8 @@ class AndroidClientExample {
     }
 
     companion object {
-        val host = "foo.com"
-        val port = 8081
-        val scheme = "https"
+        const val host = "foo.com"
+        const val port = 8081
+        const val scheme = "https"
     }
 }

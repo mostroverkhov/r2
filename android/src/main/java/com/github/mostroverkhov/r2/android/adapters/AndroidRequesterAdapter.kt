@@ -1,4 +1,4 @@
-package com.github.mostroverkhov.r2.android
+package com.github.mostroverkhov.r2.android.adapters
 
 import com.github.mostroverkhov.r2.core.internal.requester.*
 import io.reactivex.Completable

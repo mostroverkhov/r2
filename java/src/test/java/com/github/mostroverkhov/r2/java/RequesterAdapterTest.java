@@ -1,6 +1,7 @@
 package com.github.mostroverkhov.r2.java;
 
 import com.github.mostroverkhov.r2.core.internal.requester.CallAdapter;
+import com.github.mostroverkhov.r2.java.adapters.JavaRequesterAdapter;
 import io.rsocket.AbstractRSocket;
 import org.junit.Assert;
 import org.junit.Before;

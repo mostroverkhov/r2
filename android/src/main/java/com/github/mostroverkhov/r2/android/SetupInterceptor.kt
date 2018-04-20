@@ -9,7 +9,7 @@ import io.rsocket.android.plugins.DuplexConnectionInterceptor
 import io.rsocket.android.plugins.DuplexConnectionInterceptor.*
 import org.reactivestreams.Publisher
 
-class SetupInterceptor(private val mimeType: MimeType)
+internal class SetupInterceptor(private val mimeType: MimeType)
     : DuplexConnectionInterceptor {
 
     override fun invoke(type: DuplexConnectionInterceptor.Type,

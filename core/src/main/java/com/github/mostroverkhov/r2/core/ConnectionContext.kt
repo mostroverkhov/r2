@@ -1,6 +1,4 @@
-package com.github.mostroverkhov.r2.core.responder
-
-import com.github.mostroverkhov.r2.core.Metadata
+package com.github.mostroverkhov.r2.core
 
 class ConnectionContext(val metadata: Metadata) {
 

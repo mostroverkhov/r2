@@ -1,4 +1,4 @@
-package com.github.mostroverkhov.r2.java;
+package com.github.mostroverkhov.r2.java.adapters;
 
 import com.github.mostroverkhov.r2.core.internal.requester.*;
 import io.rsocket.Payload;
@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class JavaRequesterAdapter implements CallAdapter {
+public class JavaRequesterAdapter implements CallAdapter {
     private final RSocket rSocket;
 
     public JavaRequesterAdapter(RSocket rSocket) {

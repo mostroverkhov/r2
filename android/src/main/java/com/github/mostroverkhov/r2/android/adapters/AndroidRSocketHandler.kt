@@ -1,4 +1,4 @@
-package com.github.mostroverkhov.r2.android
+package com.github.mostroverkhov.r2.android.adapters
 
 import com.github.mostroverkhov.r2.core.internal.responder.ResponderTargetResolver
 import com.github.mostroverkhov.r2.core.internal.responder.TargetAction
@@ -47,18 +47,19 @@ class AndroidRSocketHandler(private val targetResolver: ResponderTargetResolver)
                     val (headPayload, tailPayload) = headTail
                     val targetAction = targetResolver.resolveTarget(headPayload)
                     val payloadT = tailPayload.map { targetAction.decode(it.data) }
-                    val response: Flowable<*> = targetAction.request { request -> payloadT.startWith(request)}()
+                    val response: Flowable<*> = targetAction
+                            .request { request -> payloadT.startWith(request) }()
                     response.map { targetAction.encode(it) }
                             .map { payload(it) }
                 }
     }
 
-    private fun ResponderTargetResolver.resolveTarget(payload: Payload): TargetAction
-            = resolve(payload.data, payload.metadata)
+    private fun ResponderTargetResolver.resolveTarget(payload: Payload) =
+            resolve(payload.data, payload.metadata)
 
     companion object {
 
-        private fun payload(data: ByteBuffer): Payload = PayloadImpl(data, null)
+        private fun payload(data: ByteBuffer) = PayloadImpl(data, null)
 
         private fun split(p: Publisher<Payload>): Flowable<Split> {
             var first = true

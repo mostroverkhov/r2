@@ -3,9 +3,10 @@ package com.github.mostroverkhov.r2.java;
 import com.github.mostroverkhov.r2.codec.jackson.JacksonJsonDataCodec;
 import com.github.mostroverkhov.r2.core.Metadata;
 import com.github.mostroverkhov.r2.core.internal.MetadataCodec;
-import com.github.mostroverkhov.r2.core.requester.RequesterFactory;
-import com.github.mostroverkhov.r2.core.responder.Codecs;
-import com.github.mostroverkhov.r2.core.responder.Services;
+import com.github.mostroverkhov.r2.core.RequesterFactory;
+import com.github.mostroverkhov.r2.core.Codecs;
+import com.github.mostroverkhov.r2.core.Services;
+import io.rsocket.AbstractRSocket;
 import io.rsocket.ConnectionSetupPayload;
 import io.rsocket.RSocket;
 import io.rsocket.util.PayloadImpl;
@@ -20,7 +21,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import static com.github.mostroverkhov.r2.java.JavaMocks.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class JavaEndToEndTest {
 
@@ -29,11 +30,13 @@ public class JavaEndToEndTest {
     @Before
     public void setUp() throws Exception {
 
-        Mono<RSocket> handlerRSocket = new JavaAcceptorBuilder()
+        Mono<RSocket> handlerRSocket = new JavaServerAcceptorBuilder()
                 .codecs(new Codecs().add(new JacksonJsonDataCodec()))
-                .services(ctx -> new Services().add(new PersonServiceHandler()))
+                .services((ctx, requesterFactory) ->
+                    new Services()
+                        .add(new PersonServiceHandler("")))
                 .build()
-                .accept(mockSetupPayload());
+                .accept(mockSetupPayload(), mockRSocket());
 
         RequesterFactory requesterFactory = handlerRSocket
                 .map(rs ->
@@ -76,7 +79,8 @@ public class JavaEndToEndTest {
     @Test(timeout = 5_000)
     public void channel() throws Exception {
         Person expected = expectedPerson();
-        List<Person> list = personsService.channel(Flux.just(expected)).collectList().block();
+        List<Person> list = personsService
+            .channel(Flux.just(expected)).collectList().block();
         assertEquals(2, list.size());
         Person actual = list.get(0);
         assertEquals(expected, actual);
@@ -118,6 +122,12 @@ public class JavaEndToEndTest {
                 .create("stub", "stub",
                         new PayloadImpl(ByteBuffer.allocate(0),
                                 encodedMd));
+    }
+
+    @NotNull
+    private RSocket mockRSocket() {
+        return new AbstractRSocket() {
+        };
     }
 
     @NotNull

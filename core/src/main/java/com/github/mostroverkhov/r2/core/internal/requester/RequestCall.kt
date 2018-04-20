@@ -2,21 +2,21 @@ package com.github.mostroverkhov.r2.core.internal.requester
 
 import com.github.mostroverkhov.r2.core.*
 import com.github.mostroverkhov.r2.core.internal.MetadataCodec
-import com.github.mostroverkhov.r2.core.internal.Route
-import com.github.mostroverkhov.r2.core.RouteEncoder
+import com.github.mostroverkhov.r2.core.internal.ServiceMethod
+import com.github.mostroverkhov.r2.core.internal.ServiceMethodEncoder
 import java.nio.ByteBuffer
 
 sealed class Call {
     abstract val interaction: Interaction
 }
 
-data class RequestCall internal constructor(internal val routeEncoder: RouteEncoder,
+data class RequestCall internal constructor(internal val routeEncoder: ServiceMethodEncoder,
                                             internal val metadataCodec: MetadataCodec,
                                             override val dataCodec: DataCodec,
                                             override val service: String,
                                             override val method: String,
                                             override val interaction: Interaction,
-                                            internal val responsePayloadType: Class<*>) : Call(), Route {
+                                            internal val responsePayloadType: Class<*>) : Call(), ServiceMethod {
     private var args: ActionArgs? = null
 
     internal fun setArgs(args: ActionArgs): RequestCall {
@@ -40,11 +40,11 @@ data class RequestCall internal constructor(internal val routeEncoder: RouteEnco
     }
 
     private fun requestMetadata(argMetadata: Metadata?,
-                                route: Route): Metadata {
+                                serviceMethod: ServiceMethod): Metadata {
 
         return Metadata.RequestBuilder()
                 .metadata(argMetadata)
-                .route(routeEncoder.encode(route))
+                .route(routeEncoder.encode(serviceMethod))
                 .build()
     }
 }

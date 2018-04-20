@@ -2,9 +2,8 @@ package com.github.mostroverkhov.r2.core
 
 import com.github.mostroverkhov.r2.core.contract.*
 import com.github.mostroverkhov.r2.core.internal.MetadataCodec
-import com.github.mostroverkhov.r2.core.internal.StringRouteCodec
+import com.github.mostroverkhov.r2.core.internal.StringServiceMethodCodec
 import com.github.mostroverkhov.r2.core.internal.requester.*
-import com.github.mostroverkhov.r2.core.requester.RequesterFactory
 import org.junit.Assert.*
 import org.junit.Test
 import org.reactivestreams.Publisher
@@ -14,7 +13,7 @@ import java.lang.reflect.Method
 class CallResolverTest {
     private val dataCodec = MockCodec()
     private val mdCodec = MetadataCodec()
-    private val routeEncoder = StringRouteCodec().encoder()
+    private val routeEncoder = StringServiceMethodCodec().encoder()
 
     private val callResolver = RequesterCallResolver(
             dataCodec,

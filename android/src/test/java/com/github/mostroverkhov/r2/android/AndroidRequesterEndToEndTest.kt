@@ -3,8 +3,8 @@ package com.github.mostroverkhov.r2.android
 import com.github.mostroverkhov.r2.codec.jackson.JacksonJsonDataCodec
 import com.github.mostroverkhov.r2.core.Metadata
 import com.github.mostroverkhov.r2.core.internal.MetadataCodec
-import com.github.mostroverkhov.r2.core.responder.Codecs
-import com.github.mostroverkhov.r2.core.responder.Services
+import com.github.mostroverkhov.r2.core.Codecs
+import com.github.mostroverkhov.r2.core.Services
 import io.reactivex.Flowable
 import io.rsocket.android.ConnectionSetupPayload
 import io.rsocket.android.util.PayloadImpl
@@ -20,11 +20,11 @@ class AndroidRequesterEndToEndTest {
     @Before
     fun setUp() {
 
-        val handlerRSocket = AndroidAcceptorBuilder()
+        val handlerRSocket = AndroidServerAcceptorBuilder()
                 .codecs(Codecs() + JacksonJsonDataCodec())
-                .services { ctx -> Services() + PersonServiceHandler() }
+                .services { _, _ -> Services() + PersonServiceHandler() }
                 .build()
-                .accept(mockSetupPayload())
+                .accept(mockSetupPayload(), DummyRSocket())
 
         val requesterFactory = handlerRSocket.map {
             AndroidRequesterBuilder(it)

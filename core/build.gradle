@@ -1,6 +1,6 @@
 sourceCompatibility = 1.6
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7"
-    implementation 'org.reactivestreams:reactive-streams'
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk7"
+    api 'org.reactivestreams:reactive-streams'
 }
