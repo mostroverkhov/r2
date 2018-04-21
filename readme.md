@@ -70,63 +70,95 @@ Given service interface
     }
 ```
 
-R2 provides `RequesterFactory`
+And `PersonServiceHandler` - implementation of `PersonsService`
+
+R2 provides `RequesterFactory` to create *Requesters* -`RequesterFactory.create(PersonsService.class)`, and `Services`( containing `PersonsServiceHandler()`) - to act as *Responder* for incoming requests. Such Requester and Responder available for each side of connection(*Client* and *Server*).   
+
+`Client` side (Connection initiator) can be constructed as follows:
+
+```java    
+   
+   Mono<RequesterFactory> requesterFactory =
+     new R2Client()
+        .connectWith(RSocketFactory.connect())
+        /*Passed to Server (Connection Acceptor) as ConnectionContext*/
+        .metadata(metadata())
+        /*Configure Requester and Responder sides of Client side of Connection*/
+        .configureAcceptor(JavaClientServerExample::configureClient)
+        .transport(TcpClientTransport.create(PORT))
+        .start();
+```
+Configuration consists of providing `DataCodec` for payloads serialization, and Services to handle incoming requests
+from peer. `RequesterFactory` is available to service handlers too
+
 ```java
-        Mono<RequesterFactory> = new R2Client()
-                                      .connectWith(RSocketFactory.connect())
-                                       /*Passed to Server (Connection Acceptor) as ConnectionContext*/
-                                      .metadata(metadata())
-                                      .configureRequester(b -> b.codec(new JacksonJsonDataCodec()))
-                                      .transport(TcpClientTransport.create(PORT))
-                                      .start();
+    @NotNull
+    private static ClientAcceptorBuilder configureClient(ClientAcceptorBuilder b) {
+       return b
+         .codecs(new Codecs()
+            .add(new JacksonJsonDataCodec()))
+        .services(requesterFactory ->
+            new Services()
+                .add(new PersonServiceHandler()));
+  }
 ```
 
-For creating Requesters
+Requesters can be created as follows
+
 ```java
         PersonsService svc = requesterFactory.create(PersonsService.class);
 ```
 
-And `R2Server` for handling requests
+`Server` side (Connection Acceptor) 
+
 ```java
-        Mono<NettyContextCloseable> started = new R2Server<NettyContextCloseable>()
-                .connectWith(RSocketFactory.receive())
-                /*Configure Responder RSocket (acceptor) of server side of Connection.
-                  Requester RSocket is not exposed yet*/
-                .configureAcceptor(JavaClientServerExample::configureAcceptor)
-                .transport(TcpServerTransport.create(PORT))
-                .start();
-
-    @NotNull
-    private static JavaAcceptorBuilder configureAcceptor(JavaAcceptorBuilder builder) {
-        return builder
-                /*Jackson codec. Also there can be cbor, protobuf etc*/
-                .codecs(new Codecs().add(new JacksonJsonDataCodec()))
-                /*ConnectionContext represents Metadata(key -> value) set by Client (Connection initiator)
-                as metadata*/
-                .services(ctx -> new Services().add(new PersonServiceHandler()));
-    }
-
+     Mono<NettyContextCloseable> startedServer =
+        new R2Server<NettyContextCloseable>()
+            .connectWith(RSocketFactory.receive())
+            /*Configure Requester and Responder sides of Server side of Connection*/
+            .configureAcceptor(JavaClientServerExample::configureServer)
+            .transport(TcpServerTransport.create(PORT))
+            .start();
 ```
+Its configuration is symmetric to `Client` and looks like
 
-Here, `PersonServiceHandler` implements `PersonsService`
+```java
+  private static ServerAcceptorBuilder configureServer(ServerAcceptorBuilder builder) {
+    return builder
+        /*Jackson Json codec. Also there can be cbor, protobuf etc*/
+        .codecs(
+            new Codecs()
+                .add(new JacksonJsonDataCodec()))
+        
+        /*ctx is ConnectionContext represents Metadata(key -> value) set by
+        Client (Connection initiator) as metadata.*/
+        /*RequesterFactory uses first codec provided in Codecs*/
+        .services((ctx, requesterFactory) ->
+            new Services()
+                .add(new RequestingPersonServiceHandler(requesterFactory)));
+  }
+```
+In addition to `RequesterFactory`, `Service Handlers` have access to `ConnectionContext` - initial metadata set by `Client` on connection.
 
-Server part of `RSocket` is started as
+Server is started as
 ```java
      Mono<NettyContextCloseable> started = serverStart.start()
 ```
+### Requests
 
-Request methods can have payload (as data - `T`, or `Publisher<T>` for Channel requests), `Metadata`, both, or none. Channel requests must have payload at least.
+Request methods can have Payload (as data - `T`, or `Publisher<T>` for Channel requests), `Metadata`, both, or none. Channel requests must have Payload at least.
 
 ### Serialization
 
-`codec-jackson` provides JSON serialization. Also, some binary formats (cbor, avro and others) are supported with [jackson-dataformat-binary](https://github.com/FasterXML/jackson-dataformats-binary) - just extend `BaseJacksonDataCodec` and provide respective `ObjectMapper` to it. `codec-proto` provides Protobuf serialization. Custom data codecs can be easily built by implementing minimalistic `DataCodec` interface.
+`codec-jackson` provides simple JSON serialization. Also, some binary formats (CBOR and Smile) are supported with `codec-jackson-binary` artifact. `codec-proto` provides Protocol Buffers serialization. Custom data codecs can be written by implementing minimalistic `DataCodec` interface.
 
 ### Performance
+
 Check [RPC-Thunderdome](https://github.com/mostroverkhov/rpc-thunderdome) project to roughly estimate relative performance of RSocket R2, RSocket Proteus, Grpc & Ratpack
 
 ### Examples
 
-Runnable example with Java / Reactor Client and Server is available [here](https://github.com/mostroverkhov/r2/blob/master/java/src/test/java/com/github/mostroverkhov/r2/java/JavaClientServerExample.java), example of Client for Kotlin / RxJava2 is [here](https://github.com/mostroverkhov/r2/blob/master/android/src/test/java/com/github/mostroverkhov/r2/android/AndroidClientExample.kt)
+Runnable example with Java/Reactor client and server is available [here](https://github.com/mostroverkhov/r2/blob/master/reactor-java/src/test/java/com/github/mostroverkhov/r2/java/JavaClientServerExample.java), example of client for rxJava/kotlin is [here](https://github.com/mostroverkhov/r2/blob/master/rxjava-kotlin/src/test/java/com/github/mostroverkhov/r2/android/AndroidClientExample.kt)
 
 ### LICENSE
 
