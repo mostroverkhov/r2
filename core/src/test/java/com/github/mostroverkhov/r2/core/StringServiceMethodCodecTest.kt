@@ -1,14 +1,13 @@
 package com.github.mostroverkhov.r2.core
 
-import com.github.mostroverkhov.r2.core.internal.StringRouteCodec
-import com.github.mostroverkhov.r2.core.internal.responder.SimpleRoute
-import com.github.mostroverkhov.r2.core.responder.Codecs
+import com.github.mostroverkhov.r2.core.internal.StringServiceMethodCodec
+import com.github.mostroverkhov.r2.core.internal.responder.SimpleServiceMethod
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class StringRouteCodecTest {
+class StringServiceMethodCodecTest {
 
-    private val routeCodec = StringRouteCodec()
+    private val routeCodec = StringServiceMethodCodec()
     private val dataCodec = MockCodec()
     private var charset = Charsets.UTF_8
     private val expectedPath = "mock/svc/method"
@@ -17,7 +16,7 @@ class StringRouteCodecTest {
     @Test
     fun encode() {
         val encoded = routeCodec.encoder()
-                .encode(SimpleRoute(dataCodec, "svc", "method"))
+                .encode(SimpleServiceMethod(dataCodec, "svc", "method"))
         val encodedPath = encoded.asStr(charset)
         assertEquals("mock/svc/method", encodedPath)
     }

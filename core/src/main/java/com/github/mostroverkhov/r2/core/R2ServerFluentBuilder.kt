@@ -1,6 +1,6 @@
-package com.github.mostroverkhov.r2.core.internal.responder
+package com.github.mostroverkhov.r2.core
 
-abstract class ServerFluentBuilder<
+abstract class R2ServerFluentBuilder<
         RSocketFactory,
         AcceptorBuilder,
         Transport,
@@ -9,7 +9,7 @@ abstract class ServerFluentBuilder<
     protected var serverRSocketFactory: RSocketFactory? = null
     protected var acceptorConfigurer: ((AcceptorBuilder) -> AcceptorBuilder)? = null
 
-    open fun connectWith(rSocketFactory: RSocketFactory): ServerFluentBuilder<
+    open fun connectWith(rSocketFactory: RSocketFactory): R2ServerFluentBuilder<
             RSocketFactory,
             AcceptorBuilder,
             Transport,
@@ -18,7 +18,7 @@ abstract class ServerFluentBuilder<
         return this
     }
 
-    open fun configureAcceptor(f: (AcceptorBuilder) -> AcceptorBuilder): ServerFluentBuilder<
+    open fun configureAcceptor(f: (AcceptorBuilder) -> AcceptorBuilder): R2ServerFluentBuilder<
             RSocketFactory,
             AcceptorBuilder,
             Transport,

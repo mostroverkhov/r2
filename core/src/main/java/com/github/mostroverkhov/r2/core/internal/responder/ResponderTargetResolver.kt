@@ -3,10 +3,10 @@ package com.github.mostroverkhov.r2.core.internal.responder
 import com.github.mostroverkhov.r2.core.DataCodec
 import com.github.mostroverkhov.r2.core.Metadata
 import com.github.mostroverkhov.r2.core.internal.MetadataCodec
-import com.github.mostroverkhov.r2.core.RouteDecoder
+import com.github.mostroverkhov.r2.core.internal.ServiceMethodDecoder
 import com.github.mostroverkhov.r2.core.contract.*
-import com.github.mostroverkhov.r2.core.internal.Route
-import com.github.mostroverkhov.r2.core.responder.ServiceReader
+import com.github.mostroverkhov.r2.core.internal.ServiceMethod
+import com.github.mostroverkhov.r2.core.ServiceReader
 import org.reactivestreams.Publisher
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
@@ -18,7 +18,7 @@ typealias ArgErr = IllegalArgumentException
 
 class ResponderTargetResolver(private val svcReader: ServiceReader,
                               private val metadataCodec: MetadataCodec,
-                              private val routeDecoder: RouteDecoder) {
+                              private val serviceMethodDecoder: ServiceMethodDecoder) {
     private val methodResolver = MethodResolver()
 
     fun resolve(payloadData: ByteBuffer,
@@ -45,10 +45,10 @@ class ResponderTargetResolver(private val svcReader: ServiceReader,
         return targetAction
     }
 
-    private fun decodeRoute(metadata: Metadata): Route {
+    private fun decodeRoute(metadata: Metadata): ServiceMethod {
         val routeBuffer = metadata.asByteBuffer().route()
                 ?: throw missingRouteError()
-        return routeDecoder.decode(routeBuffer)
+        return serviceMethodDecoder.decode(routeBuffer)
     }
 
     private fun decodeMetadata(metadata: ByteBuffer): Metadata =

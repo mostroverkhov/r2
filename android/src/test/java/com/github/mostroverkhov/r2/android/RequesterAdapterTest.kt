@@ -1,5 +1,6 @@
 package com.github.mostroverkhov.r2.android
 
+import com.github.mostroverkhov.r2.android.adapters.AndroidRequesterAdapter
 import com.github.mostroverkhov.r2.core.internal.requester.CallAdapter
 import io.reactivex.Completable
 import io.reactivex.Flowable

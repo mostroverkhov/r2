@@ -1,4 +1,4 @@
-package com.github.mostroverkhov.r2.core.responder
+package com.github.mostroverkhov.r2.core
 
 import com.github.mostroverkhov.r2.core.contract.Service
 import java.util.concurrent.ConcurrentHashMap

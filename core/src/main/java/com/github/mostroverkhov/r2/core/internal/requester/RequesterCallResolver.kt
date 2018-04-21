@@ -2,7 +2,7 @@ package com.github.mostroverkhov.r2.core.internal.requester
 
 import com.github.mostroverkhov.r2.core.DataCodec
 import com.github.mostroverkhov.r2.core.Metadata
-import com.github.mostroverkhov.r2.core.RouteEncoder
+import com.github.mostroverkhov.r2.core.internal.ServiceMethodEncoder
 import com.github.mostroverkhov.r2.core.contract.*
 import com.github.mostroverkhov.r2.core.internal.MetadataCodec
 import com.github.mostroverkhov.r2.core.internal.requester.Interaction.*
@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 internal class RequesterCallResolver(private val dataCodec: DataCodec,
                                      private val metadataCodec: MetadataCodec,
-                                     private val routeEncoder: RouteEncoder) {
+                                     private val routeEncoder: ServiceMethodEncoder) {
 
     private val requestCallCache = ConcurrentHashMap<Method, () -> RequestCall>()
 

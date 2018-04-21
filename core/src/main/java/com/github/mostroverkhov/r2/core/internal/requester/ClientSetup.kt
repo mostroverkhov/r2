@@ -7,7 +7,7 @@ import com.github.mostroverkhov.r2.core.internal.MetadataCodec
 import com.github.mostroverkhov.r2.core.internal.MimeType
 import java.nio.ByteBuffer
 
-fun clientSetupMetaData(metadata: Metadata?): SetupData = SetupData(
+fun metaData(metadata: Metadata?): SetupData = SetupData(
         MimeType.dataType,
         MimeType.metadataType,
         emptyBuffer,

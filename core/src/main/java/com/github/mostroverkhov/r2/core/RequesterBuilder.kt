@@ -1,25 +1,19 @@
-package com.github.mostroverkhov.r2.core.requester
+package com.github.mostroverkhov.r2.core
 
-import com.github.mostroverkhov.r2.core.DataCodec
-import com.github.mostroverkhov.r2.core.RouteEncoder
 import com.github.mostroverkhov.r2.core.internal.MetadataCodec
-import com.github.mostroverkhov.r2.core.internal.StringRouteCodec
+import com.github.mostroverkhov.r2.core.internal.ServiceMethodEncoder
+import com.github.mostroverkhov.r2.core.internal.StringServiceMethodCodec
 import com.github.mostroverkhov.r2.core.internal.requester.CallAdapter
 import com.github.mostroverkhov.r2.core.internal.requester.RequesterCallResolver
 
-open class RequesterBuilder {
+open class RequesterBuilder protected constructor() {
 
     private lateinit var dataCodec: DataCodec
-    private var routeEncoder = defaultRouteEncoder
+    private var routeEncoder = defaultServiceMethodEncoder
     private lateinit var callAdapter: CallAdapter
 
     fun codec(dataCodec: DataCodec): RequesterBuilder {
         this.dataCodec = dataCodec
-        return this
-    }
-
-    fun routeEncoder(routeEncoder: RouteEncoder): RequesterBuilder {
-        this.routeEncoder = routeEncoder
         return this
     }
 
@@ -38,7 +32,9 @@ open class RequesterBuilder {
     }
 
     companion object {
-        private val defaultRouteEncoder: RouteEncoder = StringRouteCodec().encoder()
+        private val defaultServiceMethodEncoder: ServiceMethodEncoder =
+                StringServiceMethodCodec()
+                        .encoder()
         private val metadataCodec = MetadataCodec()
     }
 }

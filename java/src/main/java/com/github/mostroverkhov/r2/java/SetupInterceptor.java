@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 import static io.rsocket.Frame.Setup.dataMimeType;
 import static io.rsocket.Frame.Setup.metadataMimeType;
 
-class SetupInterceptor implements DuplexConnectionInterceptor {
+public class SetupInterceptor implements DuplexConnectionInterceptor {
     private final String dataMime;
     private final String metadataMime;
 

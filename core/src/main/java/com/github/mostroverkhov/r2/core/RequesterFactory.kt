@@ -1,4 +1,4 @@
-package com.github.mostroverkhov.r2.core.requester
+package com.github.mostroverkhov.r2.core
 
 import com.github.mostroverkhov.r2.core.internal.requester.CallAdapter
 import com.github.mostroverkhov.r2.core.internal.requester.RequesterCallResolver

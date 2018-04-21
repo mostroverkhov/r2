@@ -2,9 +2,11 @@ package com.github.mostroverkhov.r2.android
 
 import com.github.mostroverkhov.r2.core.Metadata
 import com.github.mostroverkhov.r2.core.contract.*
+import com.github.mostroverkhov.r2.core.RequesterFactory
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
+import io.rsocket.android.AbstractRSocket
 
 @Service("svc")
 interface PersonsService {
@@ -39,7 +41,18 @@ interface PersonsService {
     fun onClose(): Completable
 }
 
-class PersonServiceHandler : PersonsService {
+class SmarterPersonsServiceHandler(requesterFactory: RequesterFactory)
+    : PersonServiceHandler(),
+        PersonsService {
+    private val personsService = requesterFactory
+            .create<PersonsService>()
+
+    override fun fnf(person: Person): Completable {
+        return personsService.fnf(person).andThen(super.fnf(person))
+    }
+}
+
+open class PersonServiceHandler : PersonsService {
     override fun emptyResponse(): Single<Person> {
         return Single.just(Person("john", "doe"))
     }
@@ -62,8 +75,7 @@ class PersonServiceHandler : PersonsService {
 
     override fun fnf(person: Person): Completable = Completable.complete()
 
-    override fun channel(person: Flowable<Person>)
-            = Flowable.fromPublisher(person).map { it.copy() }
+    override fun channel(person: Flowable<Person>) = Flowable.fromPublisher(person).map { it.copy() }
 
     override fun noAnno(person: Person): Flowable<Person> {
         TODO()
@@ -72,8 +84,9 @@ class PersonServiceHandler : PersonsService {
     override fun emptyAnno(person: Person): Flowable<Person> {
         TODO()
     }
-
 }
+
+class DummyRSocket : AbstractRSocket()
 
 data class Person(var name: String, var surname: String) {
     constructor() : this("", "")
