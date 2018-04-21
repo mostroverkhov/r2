@@ -1,8 +1,8 @@
 package com.github.mostroverkhov.r2.java;
 
 import com.github.mostroverkhov.r2.core.internal.acceptor.ServerAcceptor;
-import com.github.mostroverkhov.r2.core.ServerAcceptorBuilder;
-import com.github.mostroverkhov.r2.java.adapters.JavaRSocketHandler;
+import com.github.mostroverkhov.r2.core.CoreServerAcceptorBuilder;
+import com.github.mostroverkhov.r2.java.adapters.RSocketHandler;
 import io.rsocket.ConnectionSetupPayload;
 import io.rsocket.RSocket;
 import org.jetbrains.annotations.NotNull;
@@ -11,19 +11,19 @@ import reactor.core.publisher.Mono;
 import java.nio.ByteBuffer;
 import java.util.function.BiFunction;
 
-public class JavaServerAcceptorBuilder extends ServerAcceptorBuilder<
+public class ServerAcceptorBuilder extends CoreServerAcceptorBuilder<
     ConnectionSetupPayload,
     RSocket,
     Mono<RSocket>,
-    JavaServerAcceptorBuilder> {
+    ServerAcceptorBuilder> {
 
   @NotNull
   @Override
   public JavaServerAcceptor build() {
     return new JavaServerAcceptor(
         (rSocket, metadata) ->
-            new JavaRSocketHandler(
-                forTarget(rSocket, metadata, JavaRequesterBuilder::new)));
+            new RSocketHandler(
+                forTarget(rSocket, metadata, RequesterBuilder::new)));
   }
 
   public static class JavaServerAcceptor

@@ -1,14 +1,14 @@
 package com.github.mostroverkhov.r2.android
 
-import com.github.mostroverkhov.r2.android.adapters.AndroidRSocketHandler
+import com.github.mostroverkhov.r2.android.adapters.RSocketHandler
 import com.github.mostroverkhov.r2.core.internal.acceptor.ClientAcceptor
-import com.github.mostroverkhov.r2.core.ClientAcceptorBuilder
+import com.github.mostroverkhov.r2.core.CoreClientAcceptorBuilder
 import io.rsocket.android.RSocket
 
-class AndroidClientAcceptorBuilder
-    : ClientAcceptorBuilder<RSocket, RSocket, AndroidClientAcceptorBuilder>() {
+class ClientAcceptorBuilder
+    : CoreClientAcceptorBuilder<RSocket, RSocket, ClientAcceptorBuilder>() {
     override fun build() = AndroidClientAcceptor { rSocket ->
-        AndroidRSocketHandler(forTarget(rSocket, ::AndroidRequesterBuilder))
+        RSocketHandler(forTarget(rSocket, ::RequesterBuilder))
     }
 
     class AndroidClientAcceptor internal constructor(

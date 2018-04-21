@@ -12,17 +12,17 @@ import io.rsocket.android.transport.ServerTransport
 
 class R2Server<T : Closeable> : R2ServerFluentBuilder<
         ServerRSocketFactory,
-        AndroidServerAcceptorBuilder,
+        ServerAcceptorBuilder,
         ServerTransport<T>,
         Start<T>>() {
     override fun transport(transport: ServerTransport<T>): Start<T> {
         assertState()
         val configurer = acceptorConfigurer!!
-        val rsocketFactory = serverRSocketFactory!!
+        val rSocketFactory = serverRSocketFactory!!
 
-        val acceptorBuilder = AndroidServerAcceptorBuilder()
+        val acceptorBuilder = ServerAcceptorBuilder()
         val acceptor = configurer(acceptorBuilder).build()
-        return rsocketFactory
+        return rSocketFactory
                 .addConnectionPlugin(setupInterceptor())
                 .acceptor { adapt(acceptor) }
                 .transport(transport)

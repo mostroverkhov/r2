@@ -6,18 +6,18 @@ import com.github.mostroverkhov.r2.core.internal.StringServiceMethodCodec
 import com.github.mostroverkhov.r2.core.internal.requester.CallAdapter
 import com.github.mostroverkhov.r2.core.internal.requester.RequesterCallResolver
 
-open class RequesterBuilder protected constructor() {
+open class CoreRequesterBuilder protected constructor() {
 
     private lateinit var dataCodec: DataCodec
     private var routeEncoder = defaultServiceMethodEncoder
     private lateinit var callAdapter: CallAdapter
 
-    fun codec(dataCodec: DataCodec): RequesterBuilder {
+    fun codec(dataCodec: DataCodec): CoreRequesterBuilder {
         this.dataCodec = dataCodec
         return this
     }
 
-    protected fun adapter(adapter: CallAdapter): RequesterBuilder {
+    protected fun adapter(adapter: CallAdapter): CoreRequesterBuilder {
         callAdapter = adapter
         return this
     }

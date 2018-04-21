@@ -12,7 +12,7 @@ import io.rsocket.android.util.PayloadImpl
 import org.reactivestreams.Publisher
 import java.nio.ByteBuffer
 
-class AndroidRSocketHandler(private val targetResolver: ResponderTargetResolver) : AbstractRSocket() {
+class RSocketHandler(private val targetResolver: ResponderTargetResolver) : AbstractRSocket() {
 
     override fun fireAndForget(payload: Payload) = callFireAndForget(payload)
 

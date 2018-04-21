@@ -6,10 +6,10 @@ import com.github.mostroverkhov.r2.core.internal.StringServiceMethodCodec
 import com.github.mostroverkhov.r2.core.internal.responder.ResponderTargetResolver
 
 @Suppress("UNCHECKED_CAST")
-abstract class AcceptorBuilder<
+abstract class CoreAcceptorBuilder<
         RequesterRSocket,
         HandlerRSocket,
-        T : AcceptorBuilder<RequesterRSocket, HandlerRSocket, T>>
+        T : CoreAcceptorBuilder<RequesterRSocket, HandlerRSocket, T>>
 internal constructor() {
     private var codecReader: CodecReader? = null
     private val serviceMethodDecoder = defaultServiceMethodDecoder
@@ -29,7 +29,7 @@ internal constructor() {
 
 
     internal fun createRequesterFactory(rSocket: RequesterRSocket,
-                                        builder: (RequesterRSocket) -> RequesterBuilder) =
+                                        builder: (RequesterRSocket) -> CoreRequesterBuilder) =
             builder(rSocket)
                     .codec(notNull(codecReader).primary())
                     .build()

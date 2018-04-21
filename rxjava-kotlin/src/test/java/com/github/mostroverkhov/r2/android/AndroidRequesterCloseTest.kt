@@ -16,7 +16,7 @@ class AndroidRequesterCloseTest {
     fun setUp() {
 
         rsocket = MockRSocket()
-        personsService = AndroidRequesterBuilder(rsocket)
+        personsService = RequesterBuilder(rsocket)
                 .codec(JacksonJsonDataCodec())
                 .build()
                 .create()

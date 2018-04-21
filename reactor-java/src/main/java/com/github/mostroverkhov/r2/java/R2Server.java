@@ -14,14 +14,14 @@ import reactor.core.publisher.Mono;
 
 public class R2Server<T extends Closeable> extends R2ServerFluentBuilder<
         ServerRSocketFactory,
-    JavaServerAcceptorBuilder,
+    ServerAcceptorBuilder,
         ServerTransport<T>,
         Start<T>> {
 
     @Override
     public Start<T> transport(ServerTransport<T> transport) {
         assertState();
-        JavaServerAcceptorBuilder acceptorBuilder = new JavaServerAcceptorBuilder();
+        ServerAcceptorBuilder acceptorBuilder = new ServerAcceptorBuilder();
         ServerAcceptor<ConnectionSetupPayload, RSocket,Mono<RSocket>> acceptor =
                 getAcceptorConfigurer()
                         .invoke(acceptorBuilder)

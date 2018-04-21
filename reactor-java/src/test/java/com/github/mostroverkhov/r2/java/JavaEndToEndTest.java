@@ -30,7 +30,7 @@ public class JavaEndToEndTest {
     @Before
     public void setUp() throws Exception {
 
-        Mono<RSocket> handlerRSocket = new JavaServerAcceptorBuilder()
+        Mono<RSocket> handlerRSocket = new ServerAcceptorBuilder()
                 .codecs(new Codecs().add(new JacksonJsonDataCodec()))
                 .services((ctx, requesterFactory) ->
                     new Services()
@@ -40,7 +40,7 @@ public class JavaEndToEndTest {
 
         RequesterFactory requesterFactory = handlerRSocket
                 .map(rs ->
-                        new JavaRequesterBuilder(rs)
+                        new RequesterBuilder(rs)
                                 .codec(new JacksonJsonDataCodec())
                                 .build())
                 .block();

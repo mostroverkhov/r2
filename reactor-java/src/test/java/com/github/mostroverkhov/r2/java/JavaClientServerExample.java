@@ -64,8 +64,8 @@ public class JavaClientServerExample {
   }
 
   @NotNull
-  private static JavaServerAcceptorBuilder configureServer(
-      JavaServerAcceptorBuilder builder) {
+  private static ServerAcceptorBuilder configureServer(
+      ServerAcceptorBuilder builder) {
     return builder
         /*Jackson Json codec. Also there can be cbor, protobuf etc*/
         .codecs(
@@ -83,8 +83,8 @@ public class JavaClientServerExample {
   }
 
   @NotNull
-  private static JavaClientAcceptorBuilder configureClient(
-      JavaClientAcceptorBuilder b) {
+  private static ClientAcceptorBuilder configureClient(
+      ClientAcceptorBuilder b) {
     return b
         .codecs(new Codecs().add(new JacksonJsonDataCodec()))
         .services(requesterFactory ->

@@ -3,7 +3,7 @@ package com.github.mostroverkhov.r2.android
 import com.github.mostroverkhov.r2.core.R2ClientFluentBuilder
 import com.github.mostroverkhov.r2.core.Metadata
 import com.github.mostroverkhov.r2.core.internal.requester.metaData
-import com.github.mostroverkhov.r2.core.RequesterBuilder
+import com.github.mostroverkhov.r2.core.CoreRequesterBuilder
 import com.github.mostroverkhov.r2.core.RequesterFactory
 import io.reactivex.Single
 import io.rsocket.android.RSocketFactory.ClientRSocketFactory
@@ -12,11 +12,11 @@ import io.rsocket.android.util.PayloadImpl
 
 typealias FluentBuilder = R2ClientFluentBuilder<
         ClientRSocketFactory,
-        AndroidClientAcceptorBuilder,
+        ClientAcceptorBuilder,
         ClientTransport,
         Single<RequesterFactory>>
 
-typealias AcceptorConfigurer = (AndroidClientAcceptorBuilder) -> AndroidClientAcceptorBuilder
+typealias AcceptorConfigurer = (ClientAcceptorBuilder) -> ClientAcceptorBuilder
 
 class R2Client : FluentBuilder() {
     private var configurer: AcceptorConfigurer? = null
@@ -40,7 +40,7 @@ class R2Client : FluentBuilder() {
 
     override fun start(): Single<RequesterFactory> {
         assertState()
-        val acceptorBuilder = AndroidClientAcceptorBuilder()
+        val acceptorBuilder = ClientAcceptorBuilder()
         val transport = clientTransport!!
         val configure = configurer!!
 
@@ -53,9 +53,9 @@ class R2Client : FluentBuilder() {
                 .transport(transport)
                 .start()
 
-        return rSocket.map(::AndroidRequesterBuilder)
+        return rSocket.map(::RequesterBuilder)
                 .map { it.codec(requesterCodec) }
-                .map(RequesterBuilder::build)
+                .map(CoreRequesterBuilder::build)
     }
 
     private fun assertState() {

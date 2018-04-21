@@ -1,7 +1,7 @@
 package com.github.mostroverkhov.r2.java;
 
 import com.github.mostroverkhov.r2.core.internal.requester.CallAdapter;
-import com.github.mostroverkhov.r2.java.adapters.JavaRequesterAdapter;
+import com.github.mostroverkhov.r2.java.adapters.RequesterAdapter;
 import io.rsocket.AbstractRSocket;
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,7 +20,7 @@ public class RequesterAdapterTest {
 
     @Before
     public void setUp() {
-        adapter = new JavaRequesterAdapter(new AbstractRSocket() {
+        adapter = new RequesterAdapter(new AbstractRSocket() {
         });
     }
 

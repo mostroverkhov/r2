@@ -13,10 +13,10 @@ import reactor.core.publisher.UnicastProcessor;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class JavaRSocketHandler extends AbstractRSocket {
+public class RSocketHandler extends AbstractRSocket {
     private final ResponderTargetResolver targetResolver;
 
-    public JavaRSocketHandler(ResponderTargetResolver targetResolver) {
+    public RSocketHandler(ResponderTargetResolver targetResolver) {
         this.targetResolver = targetResolver;
     }
 

@@ -1,8 +1,8 @@
 package com.github.mostroverkhov.r2.android
 
-import com.github.mostroverkhov.r2.android.adapters.AndroidRSocketHandler
+import com.github.mostroverkhov.r2.android.adapters.RSocketHandler
 import com.github.mostroverkhov.r2.core.internal.acceptor.ServerAcceptor
-import com.github.mostroverkhov.r2.core.ServerAcceptorBuilder
+import com.github.mostroverkhov.r2.core.CoreServerAcceptorBuilder
 import io.reactivex.Single
 import io.rsocket.android.ConnectionSetupPayload
 import io.rsocket.android.RSocket
@@ -12,16 +12,16 @@ typealias HandlerFactory = (ByteBuffer, RSocket) -> RSocket
 typealias SetupPayload = ConnectionSetupPayload
 typealias Acceptor = ServerAcceptor<SetupPayload, RSocket, Single<RSocket>>
 
-class AndroidServerAcceptorBuilder : ServerAcceptorBuilder<
+class ServerAcceptorBuilder : CoreServerAcceptorBuilder<
         SetupPayload,
         RSocket,
         Single<RSocket>,
-        AndroidServerAcceptorBuilder>() {
+        ServerAcceptorBuilder>() {
 
     override fun build(): Acceptor =
             AndroidServerAcceptor { metadata, rSocket ->
-                AndroidRSocketHandler(
-                        forTarget(rSocket, metadata, ::AndroidRequesterBuilder))
+                RSocketHandler(
+                        forTarget(rSocket, metadata, ::RequesterBuilder))
             }
 
     private class AndroidServerAcceptor(private val handlerFactory: HandlerFactory) : Acceptor {

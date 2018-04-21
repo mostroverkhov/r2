@@ -20,14 +20,14 @@ class AndroidRequesterEndToEndTest {
     @Before
     fun setUp() {
 
-        val handlerRSocket = AndroidServerAcceptorBuilder()
+        val handlerRSocket = ServerAcceptorBuilder()
                 .codecs(Codecs() + JacksonJsonDataCodec())
                 .services { _, _ -> Services() + PersonServiceHandler() }
                 .build()
                 .accept(mockSetupPayload(), DummyRSocket())
 
         val requesterFactory = handlerRSocket.map {
-            AndroidRequesterBuilder(it)
+            RequesterBuilder(it)
                     .codec(JacksonJsonDataCodec())
                     .build()
         }.blockingGet()

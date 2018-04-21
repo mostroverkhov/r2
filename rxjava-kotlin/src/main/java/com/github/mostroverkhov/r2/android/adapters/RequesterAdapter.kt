@@ -10,7 +10,7 @@ import io.rsocket.android.util.PayloadImpl
 import org.reactivestreams.Publisher
 import java.lang.reflect.Method
 
-internal class AndroidRequesterAdapter(private val rSocket: RSocket) : CallAdapter {
+internal class RequesterAdapter(private val rSocket: RSocket) : CallAdapter {
 
     override fun adapt(call: Call): Any {
 

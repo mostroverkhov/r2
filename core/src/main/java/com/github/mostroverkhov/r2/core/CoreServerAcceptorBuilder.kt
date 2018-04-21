@@ -5,17 +5,17 @@ import com.github.mostroverkhov.r2.core.internal.acceptor.ServerAcceptor
 import java.nio.ByteBuffer
 
 @Suppress("UNCHECKED_CAST")
-abstract class ServerAcceptorBuilder<
+abstract class CoreServerAcceptorBuilder<
         SetupPayload,
         RequesterRSocket,
         HandlerRSocket,
-        T : ServerAcceptorBuilder<
+        T : CoreServerAcceptorBuilder<
                 SetupPayload,
                 RequesterRSocket,
                 HandlerRSocket,
                 T>>
 
-    : AcceptorBuilder<
+    : CoreAcceptorBuilder<
         RequesterRSocket,
         HandlerRSocket, T>() {
 
@@ -32,7 +32,7 @@ abstract class ServerAcceptorBuilder<
 
     fun forTarget(rSocket: RequesterRSocket,
                   payloadMetadata: ByteBuffer,
-                  builder: (RequesterRSocket) -> RequesterBuilder)
+                  builder: (RequesterRSocket) -> CoreRequesterBuilder)
             : ResponderTargetResolver {
         val requesterFactory = createRequesterFactory(rSocket, builder)
         val connectionContext = context(payloadMetadata)

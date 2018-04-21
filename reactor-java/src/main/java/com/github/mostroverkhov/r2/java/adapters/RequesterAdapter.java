@@ -13,10 +13,10 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class JavaRequesterAdapter implements CallAdapter {
+public class RequesterAdapter implements CallAdapter {
     private final RSocket rSocket;
 
-    public JavaRequesterAdapter(RSocket rSocket) {
+    public RequesterAdapter(RSocket rSocket) {
         this.rSocket = rSocket;
     }
 

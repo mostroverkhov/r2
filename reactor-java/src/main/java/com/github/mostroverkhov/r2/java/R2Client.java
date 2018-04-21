@@ -6,7 +6,7 @@ import com.github.mostroverkhov.r2.core.R2ClientFluentBuilder;
 import com.github.mostroverkhov.r2.core.internal.acceptor.ClientAcceptor;
 import com.github.mostroverkhov.r2.core.internal.requester.ClientSetup;
 import com.github.mostroverkhov.r2.core.internal.requester.SetupData;
-import com.github.mostroverkhov.r2.core.RequesterBuilder;
+import com.github.mostroverkhov.r2.core.CoreRequesterBuilder;
 import com.github.mostroverkhov.r2.core.RequesterFactory;
 import io.rsocket.RSocket;
 import io.rsocket.transport.ClientTransport;
@@ -19,13 +19,13 @@ import static io.rsocket.RSocketFactory.ClientRSocketFactory;
 
 public class R2Client extends R2ClientFluentBuilder<
     ClientRSocketFactory,
-    JavaClientAcceptorBuilder,
+    ClientAcceptorBuilder,
     ClientTransport,
     Mono<RequesterFactory>> {
 
   private Function1<
-      ? super JavaClientAcceptorBuilder,
-      ? extends JavaClientAcceptorBuilder> configurer;
+      ? super ClientAcceptorBuilder,
+      ? extends ClientAcceptorBuilder> configurer;
   private Metadata metadata;
   private ClientTransport clientTransport;
 
@@ -33,7 +33,7 @@ public class R2Client extends R2ClientFluentBuilder<
   @Override
   public R2ClientFluentBuilder<
       ClientRSocketFactory,
-      JavaClientAcceptorBuilder,
+      ClientAcceptorBuilder,
       ClientTransport,
       Mono<RequesterFactory>> metadata(@NotNull Metadata metadata) {
     this.metadata = metadata;
@@ -44,7 +44,7 @@ public class R2Client extends R2ClientFluentBuilder<
   @Override
   public R2ClientFluentBuilder<
       ClientRSocketFactory,
-      JavaClientAcceptorBuilder,
+      ClientAcceptorBuilder,
       ClientTransport,
       Mono<RequesterFactory>> transport(ClientTransport clientTransport) {
     this.clientTransport = clientTransport;
@@ -55,12 +55,12 @@ public class R2Client extends R2ClientFluentBuilder<
   @Override
   public R2ClientFluentBuilder<
       ClientRSocketFactory,
-      JavaClientAcceptorBuilder,
+      ClientAcceptorBuilder,
       ClientTransport,
       Mono<RequesterFactory>> configureAcceptor(
       @NotNull Function1<
-          ? super JavaClientAcceptorBuilder,
-          ? extends JavaClientAcceptorBuilder> f) {
+          ? super ClientAcceptorBuilder,
+          ? extends ClientAcceptorBuilder> f) {
     configurer = f;
     return this;
   }
@@ -69,10 +69,10 @@ public class R2Client extends R2ClientFluentBuilder<
   public Mono<RequesterFactory> start() {
     assertState();
 
-    JavaClientAcceptorBuilder acceptorBuilder =
-        new JavaClientAcceptorBuilder();
+    ClientAcceptorBuilder acceptorBuilder =
+        new ClientAcceptorBuilder();
 
-    JavaClientAcceptorBuilder configuredBuilder =
+    ClientAcceptorBuilder configuredBuilder =
         configurer
             .invoke(acceptorBuilder);
     ClientAcceptor<RSocket, RSocket> acceptor =
@@ -94,9 +94,9 @@ public class R2Client extends R2ClientFluentBuilder<
 
     Mono<RequesterFactory> requesterFactory =
         rSocket
-            .map(JavaRequesterBuilder::new)
+            .map(RequesterBuilder::new)
             .map(requesterBuilder -> requesterBuilder.codec(requesterCodec))
-            .map(RequesterBuilder::build);
+            .map(CoreRequesterBuilder::build);
 
     return requesterFactory;
   }

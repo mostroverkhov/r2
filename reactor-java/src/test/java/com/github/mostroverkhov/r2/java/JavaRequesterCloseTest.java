@@ -18,7 +18,7 @@ public class JavaRequesterCloseTest {
     public void setUp() throws Exception {
 
         mockRSocket = new MockRSocket();
-        personsService = new JavaRequesterBuilder(mockRSocket)
+        personsService = new RequesterBuilder(mockRSocket)
                 .codec(new JacksonJsonDataCodec())
                 .build().create(JavaMocks.PersonsService.class);
     }

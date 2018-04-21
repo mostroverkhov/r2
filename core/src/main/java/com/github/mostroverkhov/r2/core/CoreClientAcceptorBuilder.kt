@@ -4,11 +4,11 @@ import com.github.mostroverkhov.r2.core.internal.responder.ResponderTargetResolv
 import com.github.mostroverkhov.r2.core.internal.acceptor.ClientAcceptor
 
 @Suppress("UNCHECKED_CAST")
-abstract class ClientAcceptorBuilder<
+abstract class CoreClientAcceptorBuilder<
         RequesterRSocket,
         HandlerRSocket,
-        T : ClientAcceptorBuilder<RequesterRSocket, HandlerRSocket, T>>
-    : AcceptorBuilder<
+        T : CoreClientAcceptorBuilder<RequesterRSocket, HandlerRSocket, T>>
+    : CoreAcceptorBuilder<
         RequesterRSocket,
         HandlerRSocket, T>() {
 
@@ -22,7 +22,7 @@ abstract class ClientAcceptorBuilder<
     }
 
     fun forTarget(rSocket: RequesterRSocket,
-                  builder: (RequesterRSocket) -> RequesterBuilder)
+                  builder: (RequesterRSocket) -> CoreRequesterBuilder)
             : ResponderTargetResolver {
         val requesterFactory = createRequesterFactory(rSocket, builder)
         val services = serviceReader?.invoke(requesterFactory) ?: emptyReader
