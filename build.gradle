@@ -10,7 +10,7 @@ buildscript {
     }
 }
 
-configure(subprojects.findAll { !['contract','java'].contains(it.name) }) {
+configure(subprojects.findAll { !['contract','reactor-java'].contains(it.name) }) {
 
     apply plugin: 'kotlin'
 
