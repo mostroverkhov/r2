@@ -5,4 +5,5 @@ include 'java'
 include 'codec-jackson'
 include 'codec-jackson-binary'
 include 'codec-proto'
+include 'contract'
 

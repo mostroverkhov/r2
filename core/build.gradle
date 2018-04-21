@@ -1,6 +1,7 @@
 sourceCompatibility = 1.6
 
 dependencies {
+    api project(":contract")
     api "org.jetbrains.kotlin:kotlin-stdlib-jdk7"
     api 'org.reactivestreams:reactive-streams'
 }

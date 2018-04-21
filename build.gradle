@@ -6,11 +6,11 @@ buildscript {
     }
     dependencies {
         classpath "io.spring.gradle:dependency-management-plugin:1.0.5.RELEASE"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.2.31"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.2.40"
     }
 }
 
-configure(subprojects.findAll { it.name != 'java' }) {
+configure(subprojects.findAll { !['contract','java'].contains(it.name) }) {
 
     apply plugin: 'kotlin'
 
@@ -47,7 +47,7 @@ subprojects {
 
     dependencyManagement {
         dependencies {
-            dependency "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.2.31"
+            dependency "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.2.40"
             dependency group: 'org.reactivestreams', name: 'reactive-streams', version: '1.0.2'
 
             dependencySet(group: 'io.projectreactor', version: '3.1.2.RELEASE') {
