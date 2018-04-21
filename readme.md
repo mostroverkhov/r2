@@ -1,7 +1,7 @@
 # R2: RSocket RPC
 [![Build Status](https://travis-ci.org/mostroverkhov/r2.svg?branch=master)](https://travis-ci.org/mostroverkhov/r2)  
 
-RSocket based RPC with pluggable serialization (json, cbor, protobuf and others), 
+RSocket based RPC with pluggable serialization (JSON, CBOR, Protocol Buffers and others), 
 [java8/reactor](https://github.com/rsocket/rsocket-java) and [kotlin/rxjava2](https://github.com/rsocket/rsocket-android) bindings.
 
 [RSocket](http://rsocket.io/) is binary application protocol bringing Reactive-Streams semantics
