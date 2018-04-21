@@ -1,17 +1,14 @@
 # R2: RSocket RPC
 [![Build Status](https://travis-ci.org/mostroverkhov/r2.svg?branch=master)](https://travis-ci.org/mostroverkhov/r2)  
 
-RSocket based RPC with pluggable serialization (jackson, cbor, protobuf and others), 
-Java8/Reactor (via [rsocket-java](https://github.com/rsocket/rsocket-java)) and Kotlin/RxJava2 (via [rsocket-android](https://github.com/rsocket/rsocket-android)) bindings.
+RSocket based RPC with pluggable serialization (json, cbor, protobuf and others), 
+[java8/reactor](https://github.com/rsocket/rsocket-java) and [kotlin/rxjava2](https://github.com/rsocket/rsocket-android) bindings.
 
 [RSocket](http://rsocket.io/) is binary application protocol bringing Reactive-Streams semantics
 to network communications. Check [FAQ](https://github.com/rsocket/rsocket/blob/master/FAQ.md) for more info.
 
 Supports 4 interaction models: `fire-and-forget`, `request-response`, `request-stream`, `request-channel`,
 and `Metadata` passing - for connection setup and above interactions.  
-
-### Performance
-Check [RPC-Thunderdome](https://github.com/mostroverkhov/rpc-thunderdome) project to roughly estimate relative performance of RSocket R2, RSocket Proteus, Grpc & Ratpack
 
 ### Build and Binaries
 
@@ -24,27 +21,30 @@ The project is released on [jitpack](https://jitpack.io/#mostroverkhov/r2)
 
 java8/reactor
 ```groovy
-    compile 'com.github.mostroverkhov.r2:java:0.2.0'
+    compile 'com.github.mostroverkhov.r2:reactor-java:0.3.0'
 ```
 
-kotlin/rxjava2/android
+kotlin/rxjava2
 ```groovy
-    compile 'com.github.mostroverkhov.r2:android:0.2.0'
+    compile 'com.github.mostroverkhov.r2:rxjava-kotlin:0.3.0'
 ```
 
-data codecs
+serialization
 ```groovy
         
-     /*Json support. CBOR and others are available with jackson-dataformat-binary*/ 
-     compile 'com.github.mostroverkhov.r2:codec-jackson:0.2.0'
+     /*JSON support with Jackson*/ 
+     compile 'com.github.mostroverkhov.r2:codec-jackson:0.3.0'
+     
+     /*CBOR and Smile support with Jackson-dataformats-binary*/ 
+     compile 'com.github.mostroverkhov.r2:codec-jackson-binary:0.3.0'
         
      /*Protocol buffers*/
-     compile 'com.github.mostroverkhov.r2:codec-proto:0.2.0'
+     compile 'com.github.mostroverkhov.r2:codec-proto:0.3.0'
 ```
 
 ### Usage
 
-Given interface
+Given service interface
 
 ```java
     @Service("svc")
@@ -120,6 +120,9 @@ Request methods can have payload (as data - `T`, or `Publisher<T>` for Channel r
 ### Serialization
 
 `codec-jackson` provides JSON serialization. Also, some binary formats (cbor, avro and others) are supported with [jackson-dataformat-binary](https://github.com/FasterXML/jackson-dataformats-binary) - just extend `BaseJacksonDataCodec` and provide respective `ObjectMapper` to it. `codec-proto` provides Protobuf serialization. Custom data codecs can be easily built by implementing minimalistic `DataCodec` interface.
+
+### Performance
+Check [RPC-Thunderdome](https://github.com/mostroverkhov/rpc-thunderdome) project to roughly estimate relative performance of RSocket R2, RSocket Proteus, Grpc & Ratpack
 
 ### Examples
 
