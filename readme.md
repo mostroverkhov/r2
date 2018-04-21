@@ -1,8 +1,8 @@
 # R2: RSocket RPC
 [![Build Status](https://travis-ci.org/mostroverkhov/r2.svg?branch=master)](https://travis-ci.org/mostroverkhov/r2)  
 
-RSocket based RPC with pluggable serialization (JSON, CBOR, Protocol Buffers and others), 
-[java8/reactor](https://github.com/rsocket/rsocket-java) and [kotlin/rxjava2](https://github.com/rsocket/rsocket-android) bindings.
+RSocket based RPC with pluggable serialization (JSON, CBOR, Protocol buffers and others), 
+[Reactor/Java](https://github.com/rsocket/rsocket-java) and [RxJava2/Kotlin](https://github.com/rsocket/rsocket-android) bindings.
 
 [RSocket](http://rsocket.io/) is binary application protocol bringing Reactive-Streams semantics
 to network communications. Check [FAQ](https://github.com/rsocket/rsocket/blob/master/FAQ.md) for more info.
@@ -19,17 +19,17 @@ The project is released on [jitpack](https://jitpack.io/#mostroverkhov/r2)
    }
 ```
 
-java8/reactor
+Reactor/Java
 ```groovy
     compile 'com.github.mostroverkhov.r2:reactor-java:0.3.0'
 ```
 
-kotlin/rxjava2
+RxJava2/Kotlin
 ```groovy
     compile 'com.github.mostroverkhov.r2:rxjava-kotlin:0.3.0'
 ```
 
-serialization
+Serialization
 ```groovy
         
      /*JSON support with Jackson*/ 
@@ -44,7 +44,7 @@ serialization
 
 ### Usage
 
-Given service interface
+Given service interface,
 
 ```java
     @Service("svc")
@@ -70,9 +70,9 @@ Given service interface
     }
 ```
 
-And `PersonServiceHandler` - implementation of `PersonsService`
+and `PersonServiceHandler` - implementation of `PersonsService`,
 
-R2 provides `RequesterFactory` to create *Requesters* -`RequesterFactory.create(PersonsService.class)`, and `Services`( containing `PersonsServiceHandler()`) - to act as *Responder* for incoming requests. Such Requester and Responder available for each side of connection(*Client* and *Server*).   
+R2 provides `RequesterFactory` to create *Requesters* -`RequesterFactory.create(PersonsService.class)`, `Services`( containing `PersonsServiceHandler()`) - to act as *Responder* for incoming requests. Requester and Responder are available for each side of connection(*Client* and *Server*).   
 
 `Client` side (Connection initiator) can be constructed as follows:
 
@@ -88,8 +88,8 @@ R2 provides `RequesterFactory` to create *Requesters* -`RequesterFactory.create(
         .transport(TcpClientTransport.create(PORT))
         .start();
 ```
-Configuration consists of providing `DataCodec` for payloads serialization, and Services to handle incoming requests
-from peer. `RequesterFactory` is available to service handlers too
+Configuration consists of providing `DataCodec` for payloads serialization, and `Services` to handle incoming requests
+from peer. `RequesterFactory` is available to `Services` handlers too
 
 ```java
     @NotNull
@@ -120,7 +120,7 @@ Requesters can be created as follows
             .transport(TcpServerTransport.create(PORT))
             .start();
 ```
-Its configuration is symmetric to `Client` and looks like
+Its configuration is symmetric with `Client`, and looks like
 
 ```java
   private static ServerAcceptorBuilder configureServer(ServerAcceptorBuilder builder) {
@@ -138,15 +138,15 @@ Its configuration is symmetric to `Client` and looks like
                 .add(new RequestingPersonServiceHandler(requesterFactory)));
   }
 ```
-In addition to `RequesterFactory`, `Service Handlers` have access to `ConnectionContext` - initial metadata set by `Client` on connection.
+In addition to `RequesterFactory`, `Service` handlers have access to `ConnectionContext` - initial metadata sent by `Client` on connection.
 
 Server is started as
 ```java
      Mono<NettyContextCloseable> started = serverStart.start()
 ```
-### Requests
+### Service methods
 
-Request methods can have Payload (as data - `T`, or `Publisher<T>` for Channel requests), `Metadata`, both, or none. Channel requests must have Payload at least.
+Service methods can have Payload (as data - `T`, or `Publisher<T>` for Channel requests), `Metadata`, both, or none. Channel requests must have Payload at least.
 
 ### Serialization
 
@@ -154,15 +154,15 @@ Request methods can have Payload (as data - `T`, or `Publisher<T>` for Channel r
 
 ### Performance
 
-Check [RPC-Thunderdome](https://github.com/mostroverkhov/rpc-thunderdome) project to roughly estimate relative performance of RSocket R2, RSocket Proteus, Grpc & Ratpack
+Check [RPC-Thunderdome](https://github.com/mostroverkhov/rpc-thunderdome) project to roughly estimate relative performance of RSocket R2, RSocket Proteus, GRPC & Ratpack
 
 ### Examples
 
-Runnable example with Java/Reactor client and server is available [here](https://github.com/mostroverkhov/r2/blob/master/reactor-java/src/test/java/com/github/mostroverkhov/r2/java/JavaClientServerExample.java), example of client for rxJava/kotlin is [here](https://github.com/mostroverkhov/r2/blob/master/rxjava-kotlin/src/test/java/com/github/mostroverkhov/r2/android/AndroidClientExample.kt)
+Runnable example with Reactor/Java client and server is available [here](https://github.com/mostroverkhov/r2/blob/master/reactor-java/src/test/java/com/github/mostroverkhov/r2/java/JavaClientServerExample.java), example of client for RxJava2/Kotlin is [here](https://github.com/mostroverkhov/r2/blob/master/rxjava-kotlin/src/test/java/com/github/mostroverkhov/r2/android/AndroidClientExample.kt)
 
 ### LICENSE
 
-Copyright 2017 Maksym Ostroverkhov
+Copyright 2018 Maksym Ostroverkhov
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
