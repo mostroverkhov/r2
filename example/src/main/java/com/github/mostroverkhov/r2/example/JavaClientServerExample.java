@@ -3,12 +3,8 @@ package com.github.mostroverkhov.r2.example;
 import com.github.mostroverkhov.r2.codec.jackson.JacksonJsonDataCodec;
 import com.github.mostroverkhov.r2.core.Codecs;
 import com.github.mostroverkhov.r2.core.Metadata;
-import com.github.mostroverkhov.r2.core.RequesterFactory;
 import com.github.mostroverkhov.r2.core.Services;
-import com.github.mostroverkhov.r2.example.Contract.Person;
-import com.github.mostroverkhov.r2.example.Contract.PersonServiceHandler;
-import com.github.mostroverkhov.r2.example.Contract.PersonsService;
-import com.github.mostroverkhov.r2.example.Contract.RequestingPersonServiceHandler;
+import com.github.mostroverkhov.r2.example.ui.ControlUnitRenderer;
 import com.github.mostroverkhov.r2.java.ClientAcceptorBuilder;
 import com.github.mostroverkhov.r2.java.R2Client;
 import com.github.mostroverkhov.r2.java.R2Server;
@@ -17,59 +13,60 @@ import io.rsocket.RSocketFactory;
 import io.rsocket.transport.netty.client.TcpClientTransport;
 import io.rsocket.transport.netty.server.NettyContextCloseable;
 import io.rsocket.transport.netty.server.TcpServerTransport;
-import kotlin.text.Charsets;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.Random;
+
+import static com.github.mostroverkhov.r2.example.Contract.AssemblyLines;
 
 
 public class JavaClientServerExample {
-
   private static final int PORT = 8081;
+  private final ControlUnitRenderer renderer = new ControlUnitRenderer();
 
   public static void main(String[] args) {
+    new JavaClientServerExample().startAssemblyLineSystem();
+  }
+
+  void startAssemblyLineSystem() {
+
     /*Wraps Requester RSocket of client side of Connection*/
-    Mono<PersonsService> service =
-        clientRequester()
-            .map(factory -> factory.create(PersonsService.class))
-            .cache();
+    Mono<AssemblyLines.Svc> service = new R2Client()
+        .connectWith(RSocketFactory.connect())
+        /*Passed to Server (Connection Acceptor) as ConnectionContext*/
+        .metadata(authenticate("total-secret"))
+        /*Configure Requester and Responder sides of Client side of Connection*/
+        .configureAcceptor(this::configureClient)
+        .transport(TcpClientTransport.create(PORT))
+        .start()
+        .map(factory -> factory.create(AssemblyLines.Svc.class))
+        .cache();
 
     Mono<NettyContextCloseable> started = new R2Server<NettyContextCloseable>()
         .connectWith(RSocketFactory.receive())
         /*Configure Requester and Responder sides of Server side of Connection*/
-        .configureAcceptor(JavaClientServerExample::configureServer)
+        .configureAcceptor(this::configureServer)
         .transport(TcpServerTransport.create(PORT))
         .start();
 
     /*periodic requests*/
-    Flux<Person> persons = Flux.interval(Duration.ofSeconds(1))
-        .flatMap(__ -> service
-            .flatMapMany(svc ->
-                svc.channel(
-                    Flux.just(new Person("john", "doe")))
-            )
-        );
+    Flux<AssemblyLines.Response> assemblyLineMonitoring =
+        service.flatMapMany(svc ->
+            svc.control(assembliesCommands()));
+
+    assemblyLineMonitoring.subscribe(
+        renderer::assemblyLineStateChanged,
+        renderer::assemblyLineError);
+
     NettyContextCloseable closeable = started.block();
-    persons.subscribe(System.out::println, System.out::println);
     closeable.onClose().block();
-
-  }
-
-  private static Mono<RequesterFactory> clientRequester() {
-    return new R2Client()
-        .connectWith(RSocketFactory.connect())
-        /*Passed to Server (Connection Acceptor) as ConnectionContext*/
-        .metadata(metadata())
-        /*Configure Requester and Responder sides of Client side of Connection*/
-        .configureAcceptor(JavaClientServerExample::configureClient)
-        .transport(TcpClientTransport.create(PORT))
-        .start();
   }
 
   @NotNull
-  private static ServerAcceptorBuilder configureServer(
+  private ServerAcceptorBuilder configureServer(
       ServerAcceptorBuilder builder) {
     return builder
         /*Jackson Json codec. Also there can be cbor, protobuf etc*/
@@ -82,26 +79,32 @@ public class JavaClientServerExample {
         /*RequesterFactory uses first codec provided in Codecs*/
         .services((ctx, requesterFactory) ->
             new Services()
-                .add(new RequestingPersonServiceHandler(
-                    "server",
-                    requesterFactory)));
+                .add(new AssemblyLineHandler(ctx, requesterFactory)));
   }
 
   @NotNull
-  private static ClientAcceptorBuilder configureClient(
+  private ClientAcceptorBuilder configureClient(
       ClientAcceptorBuilder b) {
     return b
         .codecs(new Codecs()
             .add(new JacksonJsonDataCodec()))
         .services(requesterFactory ->
             new Services()
-                .add(new PersonServiceHandler("client")));
+                .add(new ControlUnitHandler()));
   }
 
   @NotNull
-  private static Metadata metadata() {
+  private static Metadata authenticate(String token) {
     return new Metadata.Builder()
-        .auth("secret".getBytes(Charsets.UTF_8))
+        .auth(token.getBytes())
         .build();
+  }
+
+  private static Flux<AssemblyLines.Request> assembliesCommands() {
+    Random random = new Random();
+    return Flux.interval(Duration.ofSeconds(0), Duration.ofSeconds(11))
+        .map(__ ->
+            new AssemblyLines.Request(
+                random.nextInt(4)));
   }
 }
