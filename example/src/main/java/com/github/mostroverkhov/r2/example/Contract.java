@@ -1,13 +1,13 @@
-package com.github.mostroverkhov.r2.java;
+package com.github.mostroverkhov.r2.example;
 
 import com.github.mostroverkhov.r2.core.Metadata;
-import com.github.mostroverkhov.r2.core.contract.*;
 import com.github.mostroverkhov.r2.core.RequesterFactory;
+import com.github.mostroverkhov.r2.core.contract.*;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class JavaMocks {
+public class Contract {
   @Service("svc")
   interface PersonsService {
 
@@ -40,6 +40,35 @@ public class JavaMocks {
 
     @OnClose
     Mono<Void> onClose();
+  }
+
+  static class RequestingPersonServiceHandler
+      extends PersonServiceHandler
+      implements PersonsService {
+    private final PersonsService personsService;
+
+    public RequestingPersonServiceHandler(String tag,
+                                          RequesterFactory requesterFactory) {
+      super(tag);
+      this.personsService = createPersonsService(requesterFactory);
+    }
+
+    @Override
+    public Flux<Person> channel(Flux<Person> person) {
+      return request().thenMany(super.channel(person));
+    }
+
+    private PersonsService createPersonsService(
+        RequesterFactory requesterFactory) {
+      return requesterFactory.create(PersonsService.class);
+    }
+
+    private Mono<Void> request() {
+      return personsService
+          .response(
+              new Person("johanna", "doe"),
+              new Metadata.Builder().build()).then();
+    }
   }
 
   static class PersonServiceHandler implements PersonsService {

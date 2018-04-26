@@ -8,6 +8,5 @@ dependencies {
     api 'io.projectreactor:reactor-core'
 
     testImplementation project(":codec-jackson")
-    testImplementation 'io.rsocket:rsocket-transport-netty'
     testImplementation 'io.projectreactor:reactor-test'
 }
