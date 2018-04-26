@@ -1,203 +1,130 @@
 package com.github.mostroverkhov.r2.example;
 
-import com.github.mostroverkhov.r2.core.Metadata;
-import com.github.mostroverkhov.r2.core.RequesterFactory;
-import com.github.mostroverkhov.r2.core.contract.*;
-import org.jetbrains.annotations.NotNull;
+import com.github.mostroverkhov.r2.core.contract.RequestChannel;
+import com.github.mostroverkhov.r2.core.contract.RequestResponse;
+import com.github.mostroverkhov.r2.core.contract.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class Contract {
-  @Service("svc")
-  interface PersonsService {
 
-    @RequestStream("stream")
-    Flux<Person> stream(Person person);
+  public static class ControlUnit {
 
-    @RequestResponse("response")
-    Mono<Person> response(Person person, Metadata metadata);
+    @Service("controlUnit")
+    interface Svc {
 
-    @RequestResponse("responseEmpty")
-    Mono<Person> responseEmpty();
-
-    @RequestResponse("responseMetadata")
-    Mono<Person> responseMetadata(Metadata metadata);
-
-    @FireAndForget("fnf")
-    Mono<Void> fnf(Person person, Metadata metadata);
-
-    @RequestChannel("channel")
-    Flux<Person> channel(Flux<Person> person);
-
-
-    Flux<Person> noAnno(Person person);
-
-    @RequestStream
-    Flux<Person> emptyAnno(Person person);
-
-    @Close
-    Mono<Void> close();
-
-    @OnClose
-    Mono<Void> onClose();
-  }
-
-  static class RequestingPersonServiceHandler
-      extends PersonServiceHandler
-      implements PersonsService {
-    private final PersonsService personsService;
-
-    public RequestingPersonServiceHandler(String tag,
-                                          RequesterFactory requesterFactory) {
-      super(tag);
-      this.personsService = createPersonsService(requesterFactory);
+      @RequestResponse("power")
+      Mono<Response> power();
     }
 
-    @Override
-    public Flux<Person> channel(Flux<Person> person) {
-      return request().thenMany(super.channel(person));
-    }
+    public static class Response {
+      float availablePower;
 
-    private PersonsService createPersonsService(
-        RequesterFactory requesterFactory) {
-      return requesterFactory.create(PersonsService.class);
-    }
+      public Response(float availablePower) {
+        this.availablePower = availablePower;
+      }
 
-    private Mono<Void> request() {
-      return personsService
-          .response(
-              new Person("johanna", "doe"),
-              new Metadata.Builder().build()).then();
+      public Response() {
+      }
+
+      public float getAvailablePower() {
+        return availablePower;
+      }
+
+      public void setAvailablePower(float availablePower) {
+        this.availablePower = availablePower;
+      }
+
+      @Override
+      public String toString() {
+        return "Response{" +
+            "availablePower=" + availablePower +
+            '}';
+      }
     }
   }
 
-  static class PersonServiceHandler implements PersonsService {
+  public static class AssemblyLines {
 
-    private final String tag;
+    @Service("assemblyLines")
+    public interface Svc {
 
-    public PersonServiceHandler(String tag) {
-      this.tag = tag;
+      @RequestChannel("control")
+      Flux<Response> control(Flux<Request> requests);
     }
 
-    @Override
-    public Flux<Person> stream(Person person) {
-      return Flux.just(withTag(person));
+    public static class Request {
+      private int activeAssemblies;
+
+      public Request(int activeAssemblies) {
+        this.activeAssemblies = activeAssemblies;
+      }
+
+      public Request() {
+      }
+
+      public int getActiveAssemblies() {
+        return activeAssemblies;
+      }
+
+      public void setActiveAssemblies(int activeAssemblies) {
+        this.activeAssemblies = activeAssemblies;
+      }
+
+      @Override
+      public String toString() {
+        return "Request{" +
+            "activeAssemblies=" + activeAssemblies +
+            '}';
+      }
     }
 
-    @Override
-    public Mono<Person> response(Person person, Metadata metadata) {
-      return Mono.just(withTag(person)).doOnNext(System.out::println);
-    }
+    public static class Response {
+      private float temperature;
+      private float humidity;
+      private float particles;
 
-    @Override
-    public Mono<Person> responseEmpty() {
-      return Mono.just(withTag(responsePerson()));
-    }
+      public Response(float temperature, float humidity, float particles) {
+        this.temperature = temperature;
+        this.humidity = humidity;
+        this.particles = particles;
+      }
 
-    @Override
-    public Mono<Person> responseMetadata(Metadata metadata) {
-      return Mono.just(withTag(responsePerson()));
-    }
+      public Response() {
+      }
 
-    @Override
-    public Mono<Void> fnf(Person person, Metadata metadata) {
-      return Mono.empty();
-    }
+      public float getTemperature() {
+        return temperature;
+      }
 
-    @Override
-    public Flux<Person> channel(Flux<Person> person) {
-      return Flux.from(person).flatMap(p -> Flux.just(withTag(p), withTag(p)));
-    }
+      public void setTemperature(float temperature) {
+        this.temperature = temperature;
+      }
 
-    @Override
-    public Flux<Person> noAnno(Person person) {
-      return null;
-    }
+      public float getHumidity() {
+        return humidity;
+      }
 
-    @Override
-    public Flux<Person> emptyAnno(Person person) {
-      return null;
-    }
+      public void setHumidity(float humidity) {
+        this.humidity = humidity;
+      }
 
-    @Override
-    public Mono<Void> close() {
-      return Mono.empty();
-    }
+      public float getParticles() {
+        return particles;
+      }
 
-    @Override
-    public Mono<Void> onClose() {
-      return Mono.empty();
-    }
+      public void setParticles(float particles) {
+        this.particles = particles;
+      }
 
-    @NotNull
-    private Person responsePerson() {
-      return new Person("john", "doe");
-    }
-
-
-    private Person withTag(Person person) {
-      return new Person(
-          withTag(person.getName()),
-          withTag(person.getSurname()));
-    }
-
-    private String withTag(String str) {
-      return tag.isEmpty() ? str : tag + " " + str;
-    }
-  }
-
-  static class Person {
-    private String name;
-    private String surname;
-
-    public Person(String name, String surname) {
-      this.name = name;
-      this.surname = surname;
-    }
-
-    public Person() {
-    }
-
-    @Override
-    public String toString() {
-      return "Person{" +
-          "name='" + name + '\'' +
-          ", surname='" + surname + '\'' +
-          '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
-
-      Person person = (Person) o;
-
-      if (!name.equals(person.name)) return false;
-      return surname.equals(person.surname);
-    }
-
-    @Override
-    public int hashCode() {
-      int result = name.hashCode();
-      result = 31 * result + surname.hashCode();
-      return result;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public void setName(String name) {
-      this.name = name;
-    }
-
-    public String getSurname() {
-      return surname;
-    }
-
-    public void setSurname(String surname) {
-      this.surname = surname;
+      @Override
+      public String toString() {
+        return "Assembly Line{" +
+            "temperature=" + temperature +
+            ", humidity=" + humidity +
+            ", particles=" + particles +
+            '}';
+      }
     }
   }
 }

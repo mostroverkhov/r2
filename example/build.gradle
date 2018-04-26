@@ -4,5 +4,11 @@ dependencies {
     implementation project(":reactor-java")
     implementation project(":codec-jackson")
     implementation 'io.rsocket:rsocket-transport-netty'
+    implementation 'de.vandermeer:asciitable:0.3.2'
+}
+
+task(runMain, dependsOn: 'classes', type: JavaExec) {
+    main = 'com.github.mostroverkhov.r2.example.JavaClientServerExample'
+    classpath = sourceSets.main.runtimeClasspath
 }
 
