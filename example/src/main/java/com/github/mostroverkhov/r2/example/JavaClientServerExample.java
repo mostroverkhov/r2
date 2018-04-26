@@ -1,11 +1,18 @@
-package com.github.mostroverkhov.r2.java;
+package com.github.mostroverkhov.r2.example;
 
 import com.github.mostroverkhov.r2.codec.jackson.JacksonJsonDataCodec;
+import com.github.mostroverkhov.r2.core.Codecs;
 import com.github.mostroverkhov.r2.core.Metadata;
 import com.github.mostroverkhov.r2.core.RequesterFactory;
-import com.github.mostroverkhov.r2.core.Codecs;
 import com.github.mostroverkhov.r2.core.Services;
-import com.github.mostroverkhov.r2.java.JavaMocks.Person;
+import com.github.mostroverkhov.r2.example.Contract.Person;
+import com.github.mostroverkhov.r2.example.Contract.PersonServiceHandler;
+import com.github.mostroverkhov.r2.example.Contract.PersonsService;
+import com.github.mostroverkhov.r2.example.Contract.RequestingPersonServiceHandler;
+import com.github.mostroverkhov.r2.java.ClientAcceptorBuilder;
+import com.github.mostroverkhov.r2.java.R2Client;
+import com.github.mostroverkhov.r2.java.R2Server;
+import com.github.mostroverkhov.r2.java.ServerAcceptorBuilder;
 import io.rsocket.RSocketFactory;
 import io.rsocket.transport.netty.client.TcpClientTransport;
 import io.rsocket.transport.netty.server.NettyContextCloseable;
@@ -17,8 +24,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 
-import static com.github.mostroverkhov.r2.java.JavaMocks.*;
-import static com.github.mostroverkhov.r2.java.JavaMocks.PersonsService;
 
 public class JavaClientServerExample {
 
@@ -86,7 +91,8 @@ public class JavaClientServerExample {
   private static ClientAcceptorBuilder configureClient(
       ClientAcceptorBuilder b) {
     return b
-        .codecs(new Codecs().add(new JacksonJsonDataCodec()))
+        .codecs(new Codecs()
+            .add(new JacksonJsonDataCodec()))
         .services(requesterFactory ->
             new Services()
                 .add(new PersonServiceHandler("client")));
