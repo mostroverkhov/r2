@@ -1,10 +1,7 @@
 package com.github.mostroverkhov.r2.android
 
-import com.github.mostroverkhov.r2.core.R2ClientFluentBuilder
-import com.github.mostroverkhov.r2.core.Metadata
+import com.github.mostroverkhov.r2.core.*
 import com.github.mostroverkhov.r2.core.internal.requester.metaData
-import com.github.mostroverkhov.r2.core.CoreRequesterBuilder
-import com.github.mostroverkhov.r2.core.RequesterFactory
 import io.reactivex.Single
 import io.rsocket.android.RSocketFactory.ClientRSocketFactory
 import io.rsocket.android.transport.ClientTransport

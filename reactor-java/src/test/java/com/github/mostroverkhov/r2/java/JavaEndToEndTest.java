@@ -1,11 +1,8 @@
 package com.github.mostroverkhov.r2.java;
 
 import com.github.mostroverkhov.r2.codec.jackson.JacksonJsonDataCodec;
-import com.github.mostroverkhov.r2.core.Metadata;
+import com.github.mostroverkhov.r2.core.*;
 import com.github.mostroverkhov.r2.core.internal.MetadataCodec;
-import com.github.mostroverkhov.r2.core.RequesterFactory;
-import com.github.mostroverkhov.r2.core.Codecs;
-import com.github.mostroverkhov.r2.core.Services;
 import io.rsocket.AbstractRSocket;
 import io.rsocket.ConnectionSetupPayload;
 import io.rsocket.RSocket;
@@ -38,7 +35,7 @@ public class JavaEndToEndTest {
                 .build()
                 .accept(mockSetupPayload(), mockRSocket());
 
-        RequesterFactory requesterFactory = handlerRSocket
+      RequesterFactory requesterFactory = handlerRSocket
                 .map(rs ->
                         new RequesterBuilder(rs)
                                 .codec(new JacksonJsonDataCodec())

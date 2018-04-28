@@ -20,7 +20,7 @@ class CallResolverTest {
             mdCodec,
             routeEncoder)
 
-    private val callHandler = RequesterFactory.CallHandler(callResolver, Svc::class.java)
+    private val callHandler = RequesterFactoryProxy.CallHandler(callResolver, Svc::class.java)
 
     @Test
     fun fnf() {
@@ -134,7 +134,7 @@ class CallResolverTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun noSvcAnno() {
-        RequesterFactory.CallHandler(callResolver, SvcNoAnno::class.java)
+        RequesterFactoryProxy.CallHandler(callResolver, SvcNoAnno::class.java)
                 .handleWith(Adapter { Pub<Void>() })
                 .fnf(Request("fnf"))
     }
