@@ -2,7 +2,6 @@ package com.github.mostroverkhov.r2.java;
 
 import com.github.mostroverkhov.r2.core.Metadata;
 import com.github.mostroverkhov.r2.core.contract.*;
-import com.github.mostroverkhov.r2.core.RequesterFactory;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

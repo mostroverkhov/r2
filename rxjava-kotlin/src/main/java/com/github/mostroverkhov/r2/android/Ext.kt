@@ -1,9 +1,6 @@
 package com.github.mostroverkhov.r2.android
 
-import com.github.mostroverkhov.r2.core.DataCodec
-import com.github.mostroverkhov.r2.core.RequesterFactory
-import com.github.mostroverkhov.r2.core.Codecs
-import com.github.mostroverkhov.r2.core.Services
+import com.github.mostroverkhov.r2.core.*
 
 inline fun <reified T> RequesterFactory.create(): T = create(T::class.java)
 

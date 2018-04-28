@@ -1,8 +1,8 @@
 package com.github.mostroverkhov.r2.android
 
 import com.github.mostroverkhov.r2.core.Metadata
-import com.github.mostroverkhov.r2.core.contract.*
 import com.github.mostroverkhov.r2.core.RequesterFactory
+import com.github.mostroverkhov.r2.core.contract.*
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single

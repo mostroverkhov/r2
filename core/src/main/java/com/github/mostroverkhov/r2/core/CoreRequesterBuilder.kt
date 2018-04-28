@@ -23,7 +23,7 @@ open class CoreRequesterBuilder protected constructor() {
     }
 
     fun build(): RequesterFactory {
-        return RequesterFactory(
+        return RequesterFactoryProxy(
                 callAdapter,
                 RequesterCallResolver(
                         dataCodec,
