@@ -1,8 +1,8 @@
-package com.github.mostroverkhov.r2.java;
+package com.github.mostroverkhov.r2.reactor;
 
 import com.github.mostroverkhov.r2.core.internal.acceptor.ServerAcceptor;
 import com.github.mostroverkhov.r2.core.CoreServerAcceptorBuilder;
-import com.github.mostroverkhov.r2.java.adapters.RSocketHandler;
+import com.github.mostroverkhov.r2.reactor.adapters.RSocketHandler;
 import io.rsocket.ConnectionSetupPayload;
 import io.rsocket.RSocket;
 import org.jetbrains.annotations.NotNull;

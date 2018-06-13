@@ -1,9 +1,9 @@
 
 dependencies {
     api project(":core")
-    api 'io.rsocket:rsocket-android-core'
+    api 'io.rsocket.kotlin:rsocket-core'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7'
 
     testImplementation project(":codec-jackson")
-    testImplementation 'io.rsocket:rsocket-transport-okhttp'
+    testImplementation 'io.rsocket.kotlin:rsocket-transport-okhttp'
 }

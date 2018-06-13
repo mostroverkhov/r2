@@ -1,4 +1,4 @@
-package com.github.mostroverkhov.r2.android
+package com.github.mostroverkhov.r2.rxjava
 
 import com.github.mostroverkhov.r2.core.Metadata
 import com.github.mostroverkhov.r2.core.RequesterFactory
@@ -6,7 +6,7 @@ import com.github.mostroverkhov.r2.core.contract.*
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
-import io.rsocket.android.AbstractRSocket
+import io.rsocket.kotlin.util.AbstractRSocket
 
 @Service("svc")
 interface PersonsService {

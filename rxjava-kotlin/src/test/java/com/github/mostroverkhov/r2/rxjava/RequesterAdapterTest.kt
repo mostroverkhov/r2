@@ -1,12 +1,12 @@
-package com.github.mostroverkhov.r2.android
+package com.github.mostroverkhov.r2.rxjava
 
-import com.github.mostroverkhov.r2.android.adapters.RequesterAdapter
+import com.github.mostroverkhov.r2.rxjava.adapters.RequesterAdapter
 import com.github.mostroverkhov.r2.core.internal.requester.CallAdapter
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.subscribers.TestSubscriber
-import io.rsocket.android.AbstractRSocket
+import io.rsocket.kotlin.util.AbstractRSocket
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test

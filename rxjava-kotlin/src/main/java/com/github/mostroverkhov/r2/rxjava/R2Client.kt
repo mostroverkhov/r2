@@ -1,11 +1,14 @@
-package com.github.mostroverkhov.r2.android
+package com.github.mostroverkhov.r2.rxjava
 
-import com.github.mostroverkhov.r2.core.*
+import com.github.mostroverkhov.r2.core.CoreRequesterBuilder
+import com.github.mostroverkhov.r2.core.Metadata
+import com.github.mostroverkhov.r2.core.R2ClientFluentBuilder
+import com.github.mostroverkhov.r2.core.RequesterFactory
 import com.github.mostroverkhov.r2.core.internal.requester.metaData
 import io.reactivex.Single
-import io.rsocket.android.RSocketFactory.ClientRSocketFactory
-import io.rsocket.android.transport.ClientTransport
-import io.rsocket.android.util.PayloadImpl
+import io.rsocket.kotlin.DefaultPayload
+import io.rsocket.kotlin.RSocketFactory.ClientRSocketFactory
+import io.rsocket.kotlin.transport.ClientTransport
 
 typealias FluentBuilder = R2ClientFluentBuilder<
         ClientRSocketFactory,
@@ -70,10 +73,12 @@ class R2Client : FluentBuilder() {
     private fun withSetup(factory: ClientRSocketFactory?): ClientRSocketFactory {
         val setupData = metaData(metadata)
         return factory
-                ?.dataMimeType(setupData.dataType)
-                ?.metadataMimeType(setupData.metadataType)
+                ?.mimeType {
+                    it.dataMimeType(setupData.dataType)
+                            .metadataMimeType(setupData.metadataType)
+                }
                 ?.setupPayload(
-                        PayloadImpl(
+                        DefaultPayload(
                                 setupData.data,
                                 setupData.metadata)
                 )

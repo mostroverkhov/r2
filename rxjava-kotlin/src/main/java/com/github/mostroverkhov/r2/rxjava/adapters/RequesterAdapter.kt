@@ -1,12 +1,12 @@
-package com.github.mostroverkhov.r2.android.adapters
+package com.github.mostroverkhov.r2.rxjava.adapters
 
 import com.github.mostroverkhov.r2.core.internal.requester.*
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
-import io.rsocket.android.Payload
-import io.rsocket.android.RSocket
-import io.rsocket.android.util.PayloadImpl
+import io.rsocket.kotlin.DefaultPayload
+import io.rsocket.kotlin.Payload
+import io.rsocket.kotlin.RSocket
 import org.reactivestreams.Publisher
 import java.lang.reflect.Method
 
@@ -61,7 +61,7 @@ internal class RequesterAdapter(private val rSocket: RSocket) : CallAdapter {
 
     private fun Call.encode(): Payload {
         this as RequestCall
-        return PayloadImpl(encodeData(getArgs().data), encodeMetadata())
+        return DefaultPayload(encodeData(getArgs().data), encodeMetadata())
     }
 
     private fun Call.encodePublisher(): Publisher<Payload> {
@@ -73,7 +73,7 @@ internal class RequesterAdapter(private val rSocket: RSocket) : CallAdapter {
                         first = false
                         encodeMetadata()
                     } else null
-                    PayloadImpl(encodeData(t), metadata)
+                    DefaultPayload(encodeData(t), metadata)
                 }
     }
 }

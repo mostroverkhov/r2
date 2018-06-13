@@ -1,4 +1,4 @@
-package com.github.mostroverkhov.r2.java.adapters;
+package com.github.mostroverkhov.r2.reactor.adapters;
 
 import com.github.mostroverkhov.r2.core.internal.requester.*;
 import io.rsocket.Payload;

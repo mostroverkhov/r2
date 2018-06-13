@@ -1,4 +1,4 @@
-package com.github.mostroverkhov.r2.java;
+package com.github.mostroverkhov.r2.reactor;
 
 import com.github.mostroverkhov.r2.core.*;
 import com.github.mostroverkhov.r2.core.internal.acceptor.ClientAcceptor;

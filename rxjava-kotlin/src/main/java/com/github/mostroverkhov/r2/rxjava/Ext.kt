@@ -1,4 +1,4 @@
-package com.github.mostroverkhov.r2.android
+package com.github.mostroverkhov.r2.rxjava
 
 import com.github.mostroverkhov.r2.core.*
 

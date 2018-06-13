@@ -1,6 +1,7 @@
 package com.github.mostroverkhov.r2.java;
 
 import com.github.mostroverkhov.r2.codec.jackson.JacksonJsonDataCodec;
+import com.github.mostroverkhov.r2.reactor.RequesterBuilder;
 import io.rsocket.AbstractRSocket;
 import org.junit.Before;
 import org.junit.Test;

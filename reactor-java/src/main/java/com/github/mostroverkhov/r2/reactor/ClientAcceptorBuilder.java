@@ -1,8 +1,8 @@
-package com.github.mostroverkhov.r2.java;
+package com.github.mostroverkhov.r2.reactor;
 
 import com.github.mostroverkhov.r2.core.internal.acceptor.ClientAcceptor;
 import com.github.mostroverkhov.r2.core.CoreClientAcceptorBuilder;
-import com.github.mostroverkhov.r2.java.adapters.RSocketHandler;
+import com.github.mostroverkhov.r2.reactor.adapters.RSocketHandler;
 import io.rsocket.RSocket;
 
 import java.util.function.Function;

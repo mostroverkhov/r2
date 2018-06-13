@@ -3,6 +3,8 @@ package com.github.mostroverkhov.r2.java;
 import com.github.mostroverkhov.r2.codec.jackson.JacksonJsonDataCodec;
 import com.github.mostroverkhov.r2.core.*;
 import com.github.mostroverkhov.r2.core.internal.MetadataCodec;
+import com.github.mostroverkhov.r2.reactor.RequesterBuilder;
+import com.github.mostroverkhov.r2.reactor.ServerAcceptorBuilder;
 import io.rsocket.AbstractRSocket;
 import io.rsocket.ConnectionSetupPayload;
 import io.rsocket.RSocket;

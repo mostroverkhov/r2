@@ -1,13 +1,13 @@
-package com.github.mostroverkhov.r2.android
+package com.github.mostroverkhov.r2.rxjava
 
 import com.github.mostroverkhov.r2.codec.jackson.JacksonJsonDataCodec
 import io.reactivex.Completable
-import io.rsocket.android.AbstractRSocket
+import io.rsocket.kotlin.util.AbstractRSocket
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
-class AndroidRequesterCloseTest {
+class RxjavaRequesterCloseTest {
 
     lateinit var personsService: PersonsService
     lateinit var rsocket: MockRSocket
