@@ -21,25 +21,25 @@ The project is released on [jitpack](https://jitpack.io/#mostroverkhov/r2)
 
 Reactor/Java
 ```groovy
-    compile 'com.github.mostroverkhov.r2:reactor-java:0.3.0'
+    compile 'com.github.mostroverkhov.r2:reactor-java:0.4.0'
 ```
 
 RxJava2/Kotlin
 ```groovy
-    compile 'com.github.mostroverkhov.r2:rxjava-kotlin:0.3.0'
+    compile 'com.github.mostroverkhov.r2:rxjava-kotlin:0.4.0'
 ```
 
 Serialization
 ```groovy
         
      /*JSON support with Jackson*/ 
-     compile 'com.github.mostroverkhov.r2:codec-jackson:0.3.0'
+     compile 'com.github.mostroverkhov.r2:codec-jackson:0.4.0'
      
      /*CBOR and Smile support with Jackson-dataformats-binary*/ 
-     compile 'com.github.mostroverkhov.r2:codec-jackson-binary:0.3.0'
+     compile 'com.github.mostroverkhov.r2:codec-jackson-binary:0.4.0'
         
      /*Protocol buffers*/
-     compile 'com.github.mostroverkhov.r2:codec-proto:0.3.0'
+     compile 'com.github.mostroverkhov.r2:codec-proto:0.4.0'
 ```
 
 ### Usage
