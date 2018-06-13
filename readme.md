@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/mostroverkhov/r2.svg?branch=master)](https://travis-ci.org/mostroverkhov/r2)  
 
 RSocket based RPC with pluggable serialization (JSON, CBOR, Protocol buffers and others), 
-[Reactor/Java](https://github.com/rsocket/rsocket-java) and [RxJava2/Kotlin](https://github.com/rsocket/rsocket-android) bindings.
+[Reactor/Java](https://github.com/rsocket/rsocket-java) and [RxJava2/Kotlin](https://github.com/rsocket/rsocket-kotlin) bindings.
 
 [RSocket](http://rsocket.io/) is binary application protocol bringing Reactive-Streams semantics
 to network communications. Check [FAQ](https://github.com/rsocket/rsocket/blob/master/FAQ.md) for more info.
@@ -158,7 +158,7 @@ Check [RPC-Thunderdome](https://github.com/mostroverkhov/rpc-thunderdome) projec
 
 ### Examples
 
-Runnable example with Reactor/Java client and server is available [here](https://github.com/mostroverkhov/r2/blob/master/reactor-java/src/test/java/com/github/mostroverkhov/r2/java/JavaClientServerExample.java), example of client for RxJava2/Kotlin is [here](https://github.com/mostroverkhov/r2/blob/master/rxjava-kotlin/src/test/java/com/github/mostroverkhov/r2/android/AndroidClientExample.kt)
+Runnable example with Reactor/Java client and server is available [here](https://github.com/mostroverkhov/r2/blob/master/reactor-java/src/test/java/com/github/mostroverkhov/r2/java/JavaClientServerExample.java), example of client for RxJava2/Kotlin is [here](https://github.com/mostroverkhov/r2/blob/master/rxjava-kotlin/src/test/java/com/github/mostroverkhov/r2/rxjava/RxjavaClientExample.kt)
 
 ### LICENSE
 

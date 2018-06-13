@@ -1,12 +1,11 @@
-package com.github.mostroverkhov.r2.android
+package com.github.mostroverkhov.r2.rxjava
 
 import com.github.mostroverkhov.r2.core.internal.MimeType
 import io.reactivex.Flowable
-import io.rsocket.android.DuplexConnection
-import io.rsocket.android.Frame
-import io.rsocket.android.exceptions.InvalidSetupException
-import io.rsocket.android.plugins.DuplexConnectionInterceptor
-import io.rsocket.android.plugins.DuplexConnectionInterceptor.*
+import io.rsocket.kotlin.DuplexConnection
+import io.rsocket.kotlin.Frame
+import io.rsocket.kotlin.exceptions.InvalidSetupException
+import io.rsocket.kotlin.interceptors.DuplexConnectionInterceptor
 import org.reactivestreams.Publisher
 
 internal class SetupInterceptor(private val mimeType: MimeType)
@@ -14,7 +13,10 @@ internal class SetupInterceptor(private val mimeType: MimeType)
 
     override fun invoke(type: DuplexConnectionInterceptor.Type,
                         conn: DuplexConnection): DuplexConnection =
-            if (type == Type.STREAM_ZERO) SetupConnection(conn) else conn
+            if (type == DuplexConnectionInterceptor.Type.SETUP)
+                SetupConnection(conn)
+            else
+                conn
 
     private inner class SetupConnection(private val source: DuplexConnection)
         : DuplexConnection {

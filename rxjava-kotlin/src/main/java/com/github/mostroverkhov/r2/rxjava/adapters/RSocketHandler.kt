@@ -1,14 +1,13 @@
-package com.github.mostroverkhov.r2.android.adapters
+package com.github.mostroverkhov.r2.rxjava.adapters
 
 import com.github.mostroverkhov.r2.core.internal.responder.ResponderTargetResolver
-import com.github.mostroverkhov.r2.core.internal.responder.TargetAction
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.processors.UnicastProcessor
-import io.rsocket.android.AbstractRSocket
-import io.rsocket.android.Payload
-import io.rsocket.android.util.PayloadImpl
+import io.rsocket.kotlin.DefaultPayload
+import io.rsocket.kotlin.Payload
+import io.rsocket.kotlin.util.AbstractRSocket
 import org.reactivestreams.Publisher
 import java.nio.ByteBuffer
 
@@ -59,7 +58,7 @@ class RSocketHandler(private val targetResolver: ResponderTargetResolver) : Abst
 
     companion object {
 
-        private fun payload(data: ByteBuffer) = PayloadImpl(data, null)
+        private fun payload(data: ByteBuffer) = DefaultPayload(data, null)
 
         private fun split(p: Publisher<Payload>): Flowable<Split> {
             var first = true

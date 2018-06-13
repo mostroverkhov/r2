@@ -1,21 +1,20 @@
-package com.github.mostroverkhov.r2.android
+package com.github.mostroverkhov.r2.rxjava
 
 import com.github.mostroverkhov.r2.codec.jackson.JacksonJsonDataCodec
 import com.github.mostroverkhov.r2.core.Metadata
 import com.github.mostroverkhov.r2.core.Codecs
 import com.github.mostroverkhov.r2.core.Services
-import io.rsocket.android.RSocketFactory
+import io.rsocket.kotlin.RSocketFactory
 import io.rsocket.transport.okhttp.client.OkhttpWebsocketClientTransport
 import okhttp3.HttpUrl
 import org.junit.Test
 
-class AndroidClientExample {
+class RxjavaClientExample {
 
     @Test
     fun clientExample() {
         val clientFactory = RSocketFactory
                 .connect()
-                .keepAlive()
         val md = metadata()
         val url = url()
 

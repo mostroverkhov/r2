@@ -1,20 +1,21 @@
-package com.github.mostroverkhov.r2.android
+package com.github.mostroverkhov.r2.rxjava
 
 import com.github.mostroverkhov.r2.codec.jackson.JacksonJsonDataCodec
-import com.github.mostroverkhov.r2.core.Metadata
-import com.github.mostroverkhov.r2.core.internal.MetadataCodec
 import com.github.mostroverkhov.r2.core.Codecs
+import com.github.mostroverkhov.r2.core.Metadata
 import com.github.mostroverkhov.r2.core.Services
+import com.github.mostroverkhov.r2.core.internal.MetadataCodec
 import io.reactivex.Flowable
-import io.rsocket.android.ConnectionSetupPayload
-import io.rsocket.android.util.PayloadImpl
+import io.rsocket.kotlin.DefaultPayload
+import io.rsocket.kotlin.Payload
+import io.rsocket.kotlin.Setup
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.nio.ByteBuffer
 
-class AndroidRequesterEndToEndTest {
+class RxjavaRequesterEndToEndTest {
 
     private lateinit var svc: PersonsService
     @Before
@@ -97,14 +98,31 @@ class AndroidRequesterEndToEndTest {
                 .blockingSubscribe()
     }
 
-    private fun mockSetupPayload(): ConnectionSetupPayload {
+    private fun mockSetupPayload(): Setup {
         val md = Metadata.Builder()
                 .data("auth", Charsets.UTF_16.encode("secret"))
                 .build()
         val mdByteBuffer = MetadataCodec().encode(md)
-        return ConnectionSetupPayload
-                .create("stub", "stub",
-                        PayloadImpl(ByteBuffer.allocate(0),
-                                mdByteBuffer))
+        return MockSetup("stub", "stub",
+        DefaultPayload(ByteBuffer.allocate(0),
+                mdByteBuffer))
+    }
+
+    private class MockSetup(private val dataMime: String,
+                            private val metadataMime: String,
+                            private val payload: Payload) : Setup {
+
+        override val data: ByteBuffer
+            get() = payload.data
+
+        override val metadata: ByteBuffer
+            get() = payload.metadata
+
+        override fun dataMimeType(): String = dataMime
+
+        override fun hasMetadata(): Boolean = payload.hasMetadata()
+
+        override fun metadataMimeType(): String = metadataMime
+
     }
 }

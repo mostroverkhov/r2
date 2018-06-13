@@ -5,10 +5,10 @@ import com.github.mostroverkhov.r2.core.Codecs;
 import com.github.mostroverkhov.r2.core.Metadata;
 import com.github.mostroverkhov.r2.core.Services;
 import com.github.mostroverkhov.r2.example.ui.ControlUnitRenderer;
-import com.github.mostroverkhov.r2.java.ClientAcceptorBuilder;
-import com.github.mostroverkhov.r2.java.R2Client;
-import com.github.mostroverkhov.r2.java.R2Server;
-import com.github.mostroverkhov.r2.java.ServerAcceptorBuilder;
+import com.github.mostroverkhov.r2.reactor.ClientAcceptorBuilder;
+import com.github.mostroverkhov.r2.reactor.R2Client;
+import com.github.mostroverkhov.r2.reactor.R2Server;
+import com.github.mostroverkhov.r2.reactor.ServerAcceptorBuilder;
 import io.rsocket.RSocketFactory;
 import io.rsocket.transport.netty.client.TcpClientTransport;
 import io.rsocket.transport.netty.server.NettyContextCloseable;
@@ -24,7 +24,7 @@ import static com.github.mostroverkhov.r2.example.Contract.AssemblyLines;
 
 
 public class JavaClientServerExample {
-  private static final int PORT = 8081;
+  private static final int PORT = 0;
   private final ControlUnitRenderer renderer = new ControlUnitRenderer();
 
   public static void main(String[] args) {
@@ -33,6 +33,15 @@ public class JavaClientServerExample {
 
   void startAssemblyLineSystem() {
 
+    Mono<NettyContextCloseable> serverStart = new R2Server<NettyContextCloseable>()
+        .connectWith(RSocketFactory.receive())
+        /*Configure Requester and Responder sides of Server side of Connection*/
+        .configureAcceptor(this::configureServer)
+        .transport(TcpServerTransport.create(PORT))
+        .start();
+
+    NettyContextCloseable serverStarted = serverStart.block();
+
     /*Wraps Requester RSocket of client side of Connection*/
     Mono<AssemblyLines.Svc> service = new R2Client()
         .connectWith(RSocketFactory.connect())
@@ -40,17 +49,10 @@ public class JavaClientServerExample {
         .metadata(authenticate("total-secret"))
         /*Configure Requester and Responder sides of Client side of Connection*/
         .configureAcceptor(this::configureClient)
-        .transport(TcpClientTransport.create(PORT))
+        .transport(TcpClientTransport.create(serverStarted.address()))
         .start()
         .map(factory -> factory.create(AssemblyLines.Svc.class))
         .cache();
-
-    Mono<NettyContextCloseable> started = new R2Server<NettyContextCloseable>()
-        .connectWith(RSocketFactory.receive())
-        /*Configure Requester and Responder sides of Server side of Connection*/
-        .configureAcceptor(this::configureServer)
-        .transport(TcpServerTransport.create(PORT))
-        .start();
 
     /*periodic requests*/
     Flux<AssemblyLines.Response> assemblyLineMonitoring =
@@ -61,8 +63,7 @@ public class JavaClientServerExample {
         renderer::assemblyLineStateChanged,
         renderer::assemblyLineError);
 
-    NettyContextCloseable closeable = started.block();
-    closeable.onClose().block();
+    serverStarted.onClose().block();
   }
 
   @NotNull
