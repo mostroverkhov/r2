@@ -1,7 +1,7 @@
 package com.github.mostroverkhov.r2.java;
 
 import com.github.mostroverkhov.r2.core.internal.requester.CallAdapter;
-import com.github.mostroverkhov.r2.reactor.adapters.RequesterAdapter;
+import com.github.mostroverkhov.r2.reactor.internal.adapters.RequesterAdapter;
 import io.rsocket.AbstractRSocket;
 import org.junit.Assert;
 import org.junit.Before;
@@ -12,6 +12,7 @@ import reactor.test.StepVerifier;
 
 import java.lang.reflect.Method;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.function.Function;
 
 public class RequesterAdapterTest {
@@ -21,7 +22,7 @@ public class RequesterAdapterTest {
     @Before
     public void setUp() {
         adapter = new RequesterAdapter(new AbstractRSocket() {
-        });
+        }, Collections.emptyList());
     }
 
 

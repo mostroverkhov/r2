@@ -1,14 +1,19 @@
 package com.github.mostroverkhov.r2.java;
 
 import com.github.mostroverkhov.r2.codec.jackson.JacksonJsonDataCodec;
-import com.github.mostroverkhov.r2.core.*;
+import com.github.mostroverkhov.r2.core.Codecs;
+import com.github.mostroverkhov.r2.core.Metadata;
+import com.github.mostroverkhov.r2.core.RequesterFactory;
+import com.github.mostroverkhov.r2.core.Services;
 import com.github.mostroverkhov.r2.core.internal.MetadataCodec;
-import com.github.mostroverkhov.r2.reactor.RequesterBuilder;
+import com.github.mostroverkhov.r2.reactor.internal.RequesterBuilder;
 import com.github.mostroverkhov.r2.reactor.ServerAcceptorBuilder;
+import com.github.mostroverkhov.r2.reactor.InteractionsInterceptor;
 import io.rsocket.AbstractRSocket;
 import io.rsocket.ConnectionSetupPayload;
+import io.rsocket.Frame;
 import io.rsocket.RSocket;
-import io.rsocket.util.PayloadImpl;
+import io.rsocket.util.DefaultPayload;
 import kotlin.text.Charsets;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -17,6 +22,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.ByteBuffer;
+import java.util.Collections;
 import java.util.List;
 
 import static com.github.mostroverkhov.r2.java.JavaMocks.*;
@@ -28,8 +34,8 @@ public class JavaEndToEndTest {
 
     @Before
     public void setUp() throws Exception {
-
-        Mono<RSocket> handlerRSocket = new ServerAcceptorBuilder()
+        List<InteractionsInterceptor> empty = Collections.emptyList();
+        Mono<RSocket> handlerRSocket = new ServerAcceptorBuilder(empty, empty)
                 .codecs(new Codecs().add(new JacksonJsonDataCodec()))
                 .services((ctx, requesterFactory) ->
                     new Services()
@@ -39,7 +45,7 @@ public class JavaEndToEndTest {
 
       RequesterFactory requesterFactory = handlerRSocket
                 .map(rs ->
-                        new RequesterBuilder(rs)
+                        new RequesterBuilder(rs, empty)
                                 .codec(new JacksonJsonDataCodec())
                                 .build())
                 .block();
@@ -117,10 +123,15 @@ public class JavaEndToEndTest {
                 .data("auth", Charsets.UTF_8.encode("secret"))
                 .build();
         ByteBuffer encodedMd = new MetadataCodec().encode(md);
-        return ConnectionSetupPayload
-                .create("stub", "stub",
-                        new PayloadImpl(ByteBuffer.allocate(0),
-                                encodedMd));
+        Frame mockSetupFrame = Frame.Setup.from(0,
+          1,
+          3,
+          "stub",
+          "stub",
+          DefaultPayload.create(ByteBuffer.allocate(0),
+              encodedMd));
+      return ConnectionSetupPayload
+                .create(mockSetupFrame);
     }
 
     @NotNull

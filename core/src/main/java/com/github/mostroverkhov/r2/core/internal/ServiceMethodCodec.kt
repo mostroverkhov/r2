@@ -4,10 +4,10 @@ import java.nio.ByteBuffer
 
 interface ServiceMethodEncoder {
 
-    fun encode(serviceMethod: ServiceMethod): ByteBuffer
+    fun encode(serviceMethod: RemoteServiceMethod): ByteBuffer
 }
 
 interface ServiceMethodDecoder {
 
-    fun decode(buffer: ByteBuffer): ServiceMethod
+    fun decode(buffer: ByteBuffer): RemoteServiceMethod
 }

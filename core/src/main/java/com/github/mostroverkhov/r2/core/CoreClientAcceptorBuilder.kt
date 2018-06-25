@@ -21,8 +21,8 @@ abstract class CoreClientAcceptorBuilder<
         return this as T
     }
 
-    fun forTarget(rSocket: RequesterRSocket,
-                  builder: (RequesterRSocket) -> CoreRequesterBuilder)
+    fun targetResolver(rSocket: RequesterRSocket,
+                       builder: (RequesterRSocket) -> CoreRequesterBuilder)
             : ResponderTargetResolver {
         val requesterFactory = createRequesterFactory(rSocket, builder)
         val services = serviceReader?.invoke(requesterFactory) ?: emptyReader

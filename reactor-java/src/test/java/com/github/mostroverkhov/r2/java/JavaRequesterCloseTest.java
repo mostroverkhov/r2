@@ -1,11 +1,15 @@
 package com.github.mostroverkhov.r2.java;
 
 import com.github.mostroverkhov.r2.codec.jackson.JacksonJsonDataCodec;
-import com.github.mostroverkhov.r2.reactor.RequesterBuilder;
+import com.github.mostroverkhov.r2.reactor.internal.RequesterBuilder;
+import com.github.mostroverkhov.r2.reactor.InteractionsInterceptor;
 import io.rsocket.AbstractRSocket;
 import org.junit.Before;
 import org.junit.Test;
 import reactor.core.publisher.Mono;
+
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -17,22 +21,22 @@ public class JavaRequesterCloseTest {
 
     @Before
     public void setUp() throws Exception {
-
+        List<InteractionsInterceptor> empty = Collections.emptyList();
         mockRSocket = new MockRSocket();
-        personsService = new RequesterBuilder(mockRSocket)
+        personsService = new RequesterBuilder(mockRSocket, empty)
                 .codec(new JacksonJsonDataCodec())
                 .build().create(JavaMocks.PersonsService.class);
     }
 
     @Test
     public void close() throws Exception {
-        personsService.close();
+        personsService.close().subscribe();
         assertEquals(1, mockRSocket.closeCalled);
     }
 
     @Test
     public void onClose() throws Exception {
-        personsService.onClose();
+        personsService.onClose().subscribe();
         assertEquals(1, mockRSocket.onCloseCalled);
     }
 
@@ -41,9 +45,9 @@ public class JavaRequesterCloseTest {
         private int onCloseCalled;
 
         @Override
-        public Mono<Void> close() {
+        public void dispose() {
             closeCalled++;
-            return super.close();
+            super.dispose();
         }
 
         @Override

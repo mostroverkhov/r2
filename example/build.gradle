@@ -5,6 +5,7 @@ dependencies {
     implementation project(":codec-jackson")
     implementation 'io.rsocket:rsocket-transport-netty'
     implementation 'de.vandermeer:asciitable:0.3.2'
+    implementation 'io.micrometer:micrometer-registry-prometheus:1.0.5'
 }
 
 task(runMain, dependsOn: 'classes', type: JavaExec) {

@@ -6,7 +6,7 @@ abstract class R2ServerFluentBuilder<
         Transport,
         Closeable> {
 
-    protected var serverRSocketFactory: RSocketFactory? = null
+    protected var rSocketFactory: RSocketFactory? = null
     protected var acceptorConfigurer: ((AcceptorBuilder) -> AcceptorBuilder)? = null
 
     open fun connectWith(rSocketFactory: RSocketFactory): R2ServerFluentBuilder<
@@ -14,7 +14,7 @@ abstract class R2ServerFluentBuilder<
             AcceptorBuilder,
             Transport,
             Closeable> {
-        serverRSocketFactory = rSocketFactory
+        this.rSocketFactory = rSocketFactory
         return this
     }
 
@@ -25,15 +25,6 @@ abstract class R2ServerFluentBuilder<
             Closeable> {
         acceptorConfigurer = f
         return this
-    }
-
-    protected fun assertState() {
-        if (serverRSocketFactory == null) {
-            throw IllegalArgumentException("SocketFactory was not set")
-        }
-        if (acceptorConfigurer == null) {
-            throw IllegalArgumentException("Acceptor was not configured")
-        }
     }
 
     abstract fun transport(transport: Transport): Closeable

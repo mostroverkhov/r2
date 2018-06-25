@@ -3,7 +3,7 @@ package com.github.mostroverkhov.r2.core
 import java.nio.ByteBuffer
 import java.util.concurrent.ConcurrentHashMap
 
-class Metadata private constructor(private val route: ByteBuffer?,
+class Metadata private constructor(private val svcMethod: ByteBuffer?,
                                    private val keyValues: Map<String, () -> ByteBuffer>) {
 
     fun data(key: String): ByteArray? = keyValues[key]?.invoke()?.toArray()
@@ -12,9 +12,9 @@ class Metadata private constructor(private val route: ByteBuffer?,
 
     fun auth() = data(Keys.AUTH())
 
-    fun hasRoute(): Boolean = route != null
+    fun hasSvcMethod(): Boolean = svcMethod != null
 
-    fun route(): ByteArray? = route?.toArray()
+    fun svcMethod(): ByteArray? = svcMethod?.toArray()
 
     fun asByteBuffer(): AsByteBuffer = AsByteBuffer()
 
@@ -32,9 +32,9 @@ class Metadata private constructor(private val route: ByteBuffer?,
 
         fun data(key: String): (() -> ByteBuffer)? = keyValues[key]
 
-        fun route(): ByteBuffer? = route
+        fun svcMethod(): ByteBuffer? = svcMethod
 
-        fun hasRoute() = this@Metadata.hasRoute()
+        fun hasSvcMethod() = this@Metadata.hasSvcMethod()
 
         fun keyValues() = keyValues
     }
@@ -61,7 +61,7 @@ class Metadata private constructor(private val route: ByteBuffer?,
     }
 
     internal class RequestBuilder : Builder() {
-        private lateinit var route: ByteBuffer
+        private lateinit var svcMethod: ByteBuffer
 
         fun metadata(metadata: Metadata?): RequestBuilder {
             metadata?.let {
@@ -73,12 +73,12 @@ class Metadata private constructor(private val route: ByteBuffer?,
             return this
         }
 
-        fun route(route: ByteBuffer): RequestBuilder {
-            this.route = route
+        fun svcMethod(svcMethod: ByteBuffer): RequestBuilder {
+            this.svcMethod = svcMethod
             return this
         }
 
-        override fun build(): Metadata = Metadata(route, keyValues)
+        override fun build(): Metadata = Metadata(svcMethod, keyValues)
     }
 
 

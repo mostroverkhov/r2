@@ -2,7 +2,7 @@ package com.github.mostroverkhov.r2.core
 
 import com.github.mostroverkhov.r2.core.contract.*
 import com.github.mostroverkhov.r2.core.internal.MetadataCodec
-import com.github.mostroverkhov.r2.core.internal.StringServiceMethodCodec
+import com.github.mostroverkhov.r2.core.internal.PathServiceMethodCodec
 import com.github.mostroverkhov.r2.core.internal.requester.*
 import org.junit.Assert.*
 import org.junit.Test
@@ -13,24 +13,24 @@ import java.lang.reflect.Method
 class CallResolverTest {
     private val dataCodec = MockCodec()
     private val mdCodec = MetadataCodec()
-    private val routeEncoder = StringServiceMethodCodec().encoder()
+    private val svcMethodEncoder = PathServiceMethodCodec().encoder()
 
     private val callResolver = RequesterCallResolver(
             dataCodec,
             mdCodec,
-            routeEncoder)
+            svcMethodEncoder)
 
     private val callHandler = RequesterFactoryProxy.CallHandler(callResolver, Svc::class.java)
 
     @Test
     fun fnf() {
         callHandler.handleWith(Adapter { call ->
-            assertTrue(call is RequestCall)
-            call as RequestCall
+            assertTrue(call is RequesterCall)
+            call as RequesterCall
             assertEquals(Interaction.FNF, call.interaction)
             assertEquals("svc", call.service)
             assertEquals("fnf", call.method)
-            assertEquals(Request("fnf"), call.getArgs().data)
+            assertEquals(Request("fnf"), call.params().data)
             assertEquals(Void::class.java, call.responsePayloadType)
             Pub<Void>()
         }).fnf(Request("fnf"))
@@ -39,12 +39,12 @@ class CallResolverTest {
     @Test
     fun response() {
         callHandler.handleWith(Adapter { call ->
-            assertTrue(call is RequestCall)
-            call as RequestCall
+            assertTrue(call is RequesterCall)
+            call as RequesterCall
             assertEquals(Interaction.RESPONSE, call.interaction)
             assertEquals("svc", call.service)
             assertEquals("rep", call.method)
-            assertEquals(Request("rep"), call.getArgs().data)
+            assertEquals(Request("rep"), call.params().data)
             assertEquals(Response::class.java, call.responsePayloadType)
             Pub<Response>()
         }).response(Request("rep"))
@@ -53,12 +53,12 @@ class CallResolverTest {
     @Test
     fun stream() {
         callHandler.handleWith(Adapter { call ->
-            assertTrue(call is RequestCall)
-            call as RequestCall
+            assertTrue(call is RequesterCall)
+            call as RequesterCall
             assertEquals(Interaction.STREAM, call.interaction)
             assertEquals("svc", call.service)
             assertEquals("stream", call.method)
-            assertEquals(Request("stream"), call.getArgs().data)
+            assertEquals(Request("stream"), call.params().data)
             assertEquals(Response::class.java, call.responsePayloadType)
             Pub<Response>()
         }).stream(Request("stream"))
@@ -67,12 +67,12 @@ class CallResolverTest {
     @Test
     fun channel() {
         callHandler.handleWith(Adapter { call ->
-            assertTrue(call is RequestCall)
-            call as RequestCall
+            assertTrue(call is RequesterCall)
+            call as RequesterCall
             assertEquals(Interaction.CHANNEL, call.interaction)
             assertEquals("svc", call.service)
             assertEquals("channel", call.method)
-            assertTrue(call.getArgs().data is Publisher<*>)
+            assertTrue(call.params().data is Publisher<*>)
             assertEquals(Response::class.java, call.responsePayloadType)
             Pub<Response>()
         }).channel(Pub(Request("channel")))
@@ -85,13 +85,13 @@ class CallResolverTest {
                 .build()
 
         callHandler.handleWith(Adapter { call ->
-            assertTrue(call is RequestCall)
-            call as RequestCall
+            assertTrue(call is RequesterCall)
+            call as RequesterCall
             assertEquals(Interaction.RESPONSE, call.interaction)
             assertEquals("svc", call.service)
             assertEquals("metadata", call.method)
-            assertNull(call.getArgs().data)
-            assertNotNull(call.getArgs().metadata)
+            assertNull(call.params().data)
+            assertNotNull(call.params().metadata)
             assertEquals(Response::class.java, call.responsePayloadType)
             Pub<Response>()
         }).metadataResponse(metadata)
@@ -100,13 +100,13 @@ class CallResolverTest {
     @Test
     fun emptyResponse() {
         callHandler.handleWith(Adapter { call ->
-            assertTrue(call is RequestCall)
-            call as RequestCall
+            assertTrue(call is RequesterCall)
+            call as RequesterCall
             assertEquals(Interaction.RESPONSE, call.interaction)
             assertEquals("svc", call.service)
             assertEquals("empty", call.method)
-            assertNull(call.getArgs().data)
-            assertNull(call.getArgs().metadata)
+            assertNull(call.params().data)
+            assertNull(call.params().metadata)
             assertEquals(Response::class.java, call.responsePayloadType)
             Pub<Response>()
         }).emptyResponse()
@@ -116,7 +116,7 @@ class CallResolverTest {
     @Test
     fun close() {
         callHandler.handleWith(Adapter { call ->
-            assertTrue(call is CloseCall)
+            assertTrue(call is TerminationCall)
             assertEquals(Interaction.CLOSE, call.interaction)
             Pub<Void>()
         }).close()
@@ -126,7 +126,7 @@ class CallResolverTest {
     fun onClose() {
         callHandler.handleWith(Adapter
         { call ->
-            assertTrue(call is CloseCall)
+            assertTrue(call is TerminationCall)
             assertEquals(Interaction.ONCLOSE, call.interaction)
             Pub<Void>()
         }).onClose()

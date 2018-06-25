@@ -2,7 +2,7 @@ package com.github.mostroverkhov.r2.core
 
 import com.github.mostroverkhov.r2.core.internal.ServiceMethodDecoder
 import com.github.mostroverkhov.r2.core.internal.MetadataCodec
-import com.github.mostroverkhov.r2.core.internal.StringServiceMethodCodec
+import com.github.mostroverkhov.r2.core.internal.PathServiceMethodCodec
 import com.github.mostroverkhov.r2.core.internal.responder.ResponderTargetResolver
 
 @Suppress("UNCHECKED_CAST")
@@ -36,7 +36,7 @@ internal constructor() {
 
     companion object {
         private var defaultServiceMethodDecoder: (CodecReader) -> ServiceMethodDecoder =
-                StringServiceMethodCodec()::decoder
+                PathServiceMethodCodec()::decoder
 
         internal val metadataCodec = MetadataCodec()
 

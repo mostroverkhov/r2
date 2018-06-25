@@ -1,8 +1,6 @@
-package com.github.mostroverkhov.r2.core
+package com.github.mostroverkhov.r2.core.internal.requester
 
-import com.github.mostroverkhov.r2.core.internal.requester.CallAdapter
-import com.github.mostroverkhov.r2.core.internal.requester.RequesterCallResolver
-import com.github.mostroverkhov.r2.core.internal.requester.TargetAction
+import com.github.mostroverkhov.r2.core.RequesterFactory
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy

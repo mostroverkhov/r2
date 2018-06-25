@@ -2,7 +2,8 @@ package com.github.mostroverkhov.r2.rxjava
 
 import com.github.mostroverkhov.r2.core.CoreServerAcceptorBuilder
 import com.github.mostroverkhov.r2.core.internal.acceptor.ServerAcceptor
-import com.github.mostroverkhov.r2.rxjava.adapters.RSocketHandler
+import com.github.mostroverkhov.r2.rxjava.internal.RequesterBuilder
+import com.github.mostroverkhov.r2.rxjava.internal.adapters.HandlerRSocket
 import io.reactivex.Single
 import io.rsocket.kotlin.RSocket
 import io.rsocket.kotlin.Setup
@@ -19,8 +20,8 @@ class ServerAcceptorBuilder : CoreServerAcceptorBuilder<
 
     override fun build(): Acceptor =
             RxjavaServerAcceptor { metadata, rSocket ->
-                RSocketHandler(
-                        forTarget(rSocket, metadata, ::RequesterBuilder))
+                HandlerRSocket(
+                        targetResolver(rSocket, metadata, ::RequesterBuilder))
             }
 
     private class RxjavaServerAcceptor(private val handlerFactory: HandlerFactory) : Acceptor {
