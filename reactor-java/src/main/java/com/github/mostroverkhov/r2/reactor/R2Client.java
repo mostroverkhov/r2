@@ -36,6 +36,13 @@ public class R2Client extends R2ClientFluentBuilder<
 
   @NotNull
   @Override
+  public R2Client connectWith(ClientRSocketFactory clientRSocketFactory) {
+    super.connectWith(clientRSocketFactory);
+    return this;
+  }
+
+  @NotNull
+  @Override
   public R2Client metadata(@NotNull Metadata metadata) {
     this.metadata = metadata;
     return this;

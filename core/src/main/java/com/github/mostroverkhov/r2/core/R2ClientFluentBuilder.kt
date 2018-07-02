@@ -9,7 +9,7 @@ abstract class R2ClientFluentBuilder<
 
     protected var rSocketFactory: RSocketFactory? = null
 
-    fun connectWith(rSocketFactory: RSocketFactory): R2ClientFluentBuilder<
+    open fun connectWith(rSocketFactory: RSocketFactory): R2ClientFluentBuilder<
             RSocketFactory,
             AcceptorBuilder,
             Transport,

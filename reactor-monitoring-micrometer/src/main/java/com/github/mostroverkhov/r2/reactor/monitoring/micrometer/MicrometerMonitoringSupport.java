@@ -5,27 +5,16 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Tags;
 
+import java.util.Collections;
 import java.util.Objects;
 
 public final class MicrometerMonitoringSupport implements MonitoringSupport {
-
-  private static final Tag serverSide = side("server");
-  private static final Tag clientSide = side("client");
   private final MeterRegistry meterRegistry;
   private final Iterable<Tag> tags;
 
-  public static MonitoringSupport ofServer(MeterRegistry meterRegistry,
-                                           Iterable<Tag> tags) {
-    assertArgs(meterRegistry, tags);
-    return new MicrometerMonitoringSupport(meterRegistry, Tags.of(tags).and(serverSide));
+  public static Builder builder() {
+    return new Builder();
   }
-
-  public static MonitoringSupport ofClient(MeterRegistry meterRegistry,
-                                           Iterable<Tag> tags) {
-    assertArgs(meterRegistry, tags);
-    return new MicrometerMonitoringSupport(meterRegistry, Tags.of(tags).and(clientSide));
-  }
-
   private MicrometerMonitoringSupport(MeterRegistry meterRegistry,
                                       Iterable<Tag> tags) {
     this.meterRegistry = meterRegistry;
@@ -48,13 +37,52 @@ public final class MicrometerMonitoringSupport implements MonitoringSupport {
     );
   }
 
-  private static Tag side(String side) {
-    return Tag.of("side", side);
-  }
+  public static class Builder {
+    private static final Tag serverSide = side("server");
+    private static final Tag clientSide = side("client");
+    private static final Iterable<Tag> emptyTags = Collections.emptyList();
 
-  private static void assertArgs(MeterRegistry meterRegistry,
-                                 Iterable<Tag> tags) {
-    Objects.requireNonNull(meterRegistry, "MeterRegistry");
-    Objects.requireNonNull(tags, "Tags");
+    private Iterable<Tag> tags = emptyTags;
+    private MeterRegistry meterRegistry;
+
+    private Builder() {
+    }
+
+    public Builder tags(Iterable<Tag> tags) {
+      this.tags = Objects.requireNonNull(tags, "Tags");
+      return this;
+    }
+
+    public Builder meterRegistry(MeterRegistry meterRegistry) {
+      this.meterRegistry = Objects.requireNonNull(
+          meterRegistry,
+          "MeterRegistry");
+      return this;
+    }
+
+    public MonitoringSupport forClient() {
+      return monitorWithTag(clientSide);
+    }
+
+    public MonitoringSupport forServer() {
+      return monitorWithTag(serverSide);
+    }
+
+    private MonitoringSupport monitorWithTag(Tag tag) {
+      checkState();
+      return new MicrometerMonitoringSupport(
+          meterRegistry,
+          Tags.of(tags).and(tag));
+    }
+
+    private void checkState() {
+      if (meterRegistry == null) {
+        throw new IllegalStateException("MeterRegistry must be set");
+      }
+    }
+
+    private static Tag side(String side) {
+      return Tag.of("side", side);
+    }
   }
 }
