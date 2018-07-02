@@ -32,12 +32,14 @@ public class RSocketMonitoringTest {
 
     clientMonitoring =
         MicrometerMonitoringSupport
-            .ofClient(meterRegistry, tags)
+            .builder().tags(tags).meterRegistry(meterRegistry)
+            .forClient()
             .rSocket();
 
     serverMonitoring =
         MicrometerMonitoringSupport
-            .ofServer(meterRegistry, tags)
+            .builder().tags(tags).meterRegistry(meterRegistry)
+            .forServer()
             .rSocket();
   }
 

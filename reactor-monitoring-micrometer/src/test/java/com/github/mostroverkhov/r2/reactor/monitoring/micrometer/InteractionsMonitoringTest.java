@@ -32,12 +32,14 @@ public class InteractionsMonitoringTest {
 
     clientMonitoring =
         MicrometerMonitoringSupport
-            .ofClient(meterRegistry, tags)
+            .builder().tags(tags).meterRegistry(meterRegistry)
+            .forClient()
             .r2();
 
     serverMonitoring =
         MicrometerMonitoringSupport
-            .ofServer(meterRegistry, tags)
+            .builder().tags(tags).meterRegistry(meterRegistry)
+            .forServer()
             .r2();
   }
 
