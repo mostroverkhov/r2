@@ -15,25 +15,25 @@ class MetadataCodecTest {
     }
 
     @Test
-    fun route() {
-        val route = "proto/1/svc/method"
-        assertRouteWriteRead(route, mapOf("foo" to "bar"))
+    fun svcMethod() {
+        val svcMethod = "proto/1/svc/method"
+        assertSvcMethodWriteRead(svcMethod, mapOf("foo" to "bar"))
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun routeExceedsLength() {
-        val route = "proto/1/svc/method".times(4000)
-        assertRouteWriteRead(route, mapOf("foo" to "bar"))
+    fun svcMethodExceedsLength() {
+        val svcMethod = "proto/1/svc/method".times(4000)
+        assertSvcMethodWriteRead(svcMethod, mapOf("foo" to "bar"))
     }
 
     @Test()
     fun longKey() {
-        val route = "proto/1/svc/method"
-        assertRouteWriteRead(route, mapOf("foo".times(50) to "bar"))
+        val svcMethod = "proto/1/svc/method"
+        assertSvcMethodWriteRead(svcMethod, mapOf("foo".times(50) to "bar"))
     }
 
-    private fun assertRouteWriteRead(route: String, keyValues: Map<String, String>) {
-        val builder = Metadata.RequestBuilder().route(encode(route))
+    private fun assertSvcMethodWriteRead(svcMethod: String, keyValues: Map<String, String>) {
+        val builder = Metadata.RequestBuilder().svcMethod(encode(svcMethod))
 
         keyValues.forEach { k, v ->
             builder.data(k, charset.encode(v))
@@ -42,11 +42,11 @@ class MetadataCodecTest {
         val byteBuffer = metadataCodec.encode(metadata)
         val decodedMetadata = metadataCodec.decodeForRequest(byteBuffer)
 
-        assertEq(route, keyValues, decodedMetadata)
+        assertEq(svcMethod, keyValues, decodedMetadata)
     }
 
-    private fun assertEq(route: String, keyValues: Map<String, String>, decodedMetadata: Metadata) {
-        assertEquals(route, String(decodedMetadata.route()!!, charset))
+    private fun assertEq(svcMethod: String, keyValues: Map<String, String>, decodedMetadata: Metadata) {
+        assertEquals(svcMethod, String(decodedMetadata.svcMethod()!!, charset))
         val decodedKeys = decodedMetadata.keys()
         assertEquals(keyValues.keys, decodedKeys)
 
@@ -66,5 +66,5 @@ class MetadataCodecTest {
         return times(StringBuilder(), n)
     }
 
-    private fun encode(route: String) = charset.encode(route)
+    private fun encode(svcMethod: String) = charset.encode(svcMethod)
 }

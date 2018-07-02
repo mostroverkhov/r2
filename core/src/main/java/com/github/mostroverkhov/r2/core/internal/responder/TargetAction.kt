@@ -2,6 +2,7 @@ package com.github.mostroverkhov.r2.core.internal.responder
 
 import com.github.mostroverkhov.r2.core.DataCodec
 import com.github.mostroverkhov.r2.core.Metadata
+import com.github.mostroverkhov.r2.core.internal.ServiceMethod
 import java.lang.reflect.Method
 import java.nio.ByteBuffer
 import java.util.*
@@ -9,12 +10,15 @@ import java.util.*
 data class TargetAction internal constructor(private val target: Any,
                                              private val action: Method,
                                              private val args: ActionArgs,
-                                             private val codec: DataCodec) {
+                                             private val codec: DataCodec,
+                                             override val service: String,
+                                             override val method: String)
+    : ServiceMethod {
 
     @Suppress("UNCHECKED_CAST")
     operator fun <T> invoke(): T = action(target, *args()) as T
 
-    fun request(f: (Any) -> Any): TargetAction {
+    fun updateRequest(f: (Any) -> Any): TargetAction {
         args.updateRequest(f)
         return this
     }

@@ -1,4 +1,4 @@
-package com.github.mostroverkhov.r2.rxjava.adapters
+package com.github.mostroverkhov.r2.rxjava.internal.adapters
 
 import com.github.mostroverkhov.r2.core.internal.responder.ResponderTargetResolver
 import io.reactivex.Completable
@@ -11,7 +11,7 @@ import io.rsocket.kotlin.util.AbstractRSocket
 import org.reactivestreams.Publisher
 import java.nio.ByteBuffer
 
-class RSocketHandler(private val targetResolver: ResponderTargetResolver) : AbstractRSocket() {
+class HandlerRSocket(private val targetResolver: ResponderTargetResolver) : AbstractRSocket() {
 
     override fun fireAndForget(payload: Payload) = callFireAndForget(payload)
 
@@ -47,7 +47,7 @@ class RSocketHandler(private val targetResolver: ResponderTargetResolver) : Abst
                     val targetAction = targetResolver.resolveTarget(headPayload)
                     val payloadT = tailPayload.map { targetAction.decode(it.data) }
                     val response: Flowable<*> = targetAction
-                            .request { request -> payloadT.startWith(request) }()
+                            .updateRequest { request -> payloadT.startWith(request) }()
                     response.map { targetAction.encode(it) }
                             .map { payload(it) }
                 }

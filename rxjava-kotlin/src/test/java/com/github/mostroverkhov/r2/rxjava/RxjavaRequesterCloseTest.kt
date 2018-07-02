@@ -1,6 +1,7 @@
 package com.github.mostroverkhov.r2.rxjava
 
 import com.github.mostroverkhov.r2.codec.jackson.JacksonJsonDataCodec
+import com.github.mostroverkhov.r2.rxjava.internal.RequesterBuilder
 import io.reactivex.Completable
 import io.rsocket.kotlin.util.AbstractRSocket
 import org.junit.Assert.assertEquals

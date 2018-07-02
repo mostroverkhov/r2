@@ -1,4 +1,4 @@
-package com.github.mostroverkhov.r2.rxjava
+package com.github.mostroverkhov.r2.rxjava.internal
 
 import com.github.mostroverkhov.r2.core.internal.MimeType
 import io.reactivex.Flowable

@@ -1,23 +1,31 @@
-package com.github.mostroverkhov.r2.reactor.adapters;
+package com.github.mostroverkhov.r2.reactor.internal.adapters;
 
 import com.github.mostroverkhov.r2.core.internal.responder.ResponderTargetResolver;
 import com.github.mostroverkhov.r2.core.internal.responder.TargetAction;
+import com.github.mostroverkhov.r2.reactor.Interactions;
+import com.github.mostroverkhov.r2.reactor.InteractionsInterceptor;
+import com.github.mostroverkhov.r2.reactor.internal.interceptors.ResponderInteractions;
 import io.rsocket.AbstractRSocket;
 import io.rsocket.Payload;
-import io.rsocket.util.PayloadImpl;
+import io.rsocket.util.DefaultPayload;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.UnicastProcessor;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class RSocketHandler extends AbstractRSocket {
+public class HandlerRSocket extends AbstractRSocket {
     private final ResponderTargetResolver targetResolver;
+    private final Interactions interactions;
 
-    public RSocketHandler(ResponderTargetResolver targetResolver) {
+    public HandlerRSocket(ResponderTargetResolver targetResolver,
+                          List<InteractionsInterceptor> interceptors) {
         this.targetResolver = targetResolver;
+        this.interactions = createInteractions(interceptors);
+
     }
 
     @Override
@@ -40,21 +48,40 @@ public class RSocketHandler extends AbstractRSocket {
         return callRequestChannel(payloads);
     }
 
+    @Override
+    public void dispose() {
+        super.dispose();
+    }
+
+    @Override
+    public Mono<Void> onClose() {
+        return super.onClose();
+    }
+
+    private static Interactions createInteractions(
+        List<InteractionsInterceptor> interceptors) {
+        Interactions interactions = new ResponderInteractions();
+        for (InteractionsInterceptor interceptor : interceptors) {
+            interactions = interceptor.apply(interactions);
+        }
+        return interactions;
+    }
+
     private Mono<Void> callFireAndForget(Payload payload) {
         TargetAction targetAction = resolveTarget(payload);
-        return targetAction.invoke();
+        return interactions.fireAndForget(targetAction);
     }
 
     private Mono<Payload> callRequestResponse(Payload payload) {
         TargetAction targetAction = resolveTarget(payload);
-        return targetAction.<Mono<?>>invoke()
+        return interactions.requestResponse(targetAction)
                 .map(targetAction::encode)
                 .map(this::payload);
     }
 
     private Flux<Payload> callRequestStream(Payload payload) {
         TargetAction targetAction = resolveTarget(payload);
-        return targetAction.<Flux<?>>invoke()
+        return interactions.requestStream(targetAction)
                 .map(targetAction::encode)
                 .map(this::payload);
     }
@@ -67,8 +94,10 @@ public class RSocketHandler extends AbstractRSocket {
                     TargetAction targetAction = resolveTarget(headPayload);
                     Flux<Object> payloadT = tailPayload
                             .map(p -> targetAction.decode(p.getData()));
-                    return targetAction.request(payloadT::startWith)
-                            .<Flux<?>>invoke()
+                    TargetAction targetActionWithRequest = targetAction
+                        .updateRequest(payloadT::startWith);
+
+                    return interactions.requestChannel(targetActionWithRequest)
                             .map(targetAction::encode)
                             .map(this::payload);
                 });
@@ -79,7 +108,7 @@ public class RSocketHandler extends AbstractRSocket {
     }
 
     private Payload payload(ByteBuffer data) {
-        return new PayloadImpl(data, null);
+        return DefaultPayload.create(data, null);
     }
 
     private static Flux<Split> split(Publisher<Payload> p) {

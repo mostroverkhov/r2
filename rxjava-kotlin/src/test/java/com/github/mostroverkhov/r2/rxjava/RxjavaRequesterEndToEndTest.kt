@@ -5,6 +5,7 @@ import com.github.mostroverkhov.r2.core.Codecs
 import com.github.mostroverkhov.r2.core.Metadata
 import com.github.mostroverkhov.r2.core.Services
 import com.github.mostroverkhov.r2.core.internal.MetadataCodec
+import com.github.mostroverkhov.r2.rxjava.internal.RequesterBuilder
 import io.reactivex.Flowable
 import io.rsocket.kotlin.DefaultPayload
 import io.rsocket.kotlin.Payload
@@ -56,7 +57,8 @@ class RxjavaRequesterEndToEndTest {
 
     @Test(timeout = 5_000)
     fun fnf() {
-        val person = svc.fnf(Person("john", "doe")).blockingGet()
+        val err = svc.fnf(Person("john", "doe")).blockingGet()
+        assertTrue(err == null)
     }
 
     @Test
@@ -89,7 +91,7 @@ class RxjavaRequesterEndToEndTest {
 
     @Test(timeout = 5_000, expected = IllegalArgumentException::class)
     fun noAnno() {
-        val person = svc.noAnno(Person("john", "doe")).toList().blockingGet()
+        svc.noAnno(Person("john", "doe")).toList().blockingGet()
     }
 
     @Test(timeout = 5_000, expected = IllegalArgumentException::class)
@@ -104,8 +106,8 @@ class RxjavaRequesterEndToEndTest {
                 .build()
         val mdByteBuffer = MetadataCodec().encode(md)
         return MockSetup("stub", "stub",
-        DefaultPayload(ByteBuffer.allocate(0),
-                mdByteBuffer))
+                DefaultPayload(ByteBuffer.allocate(0),
+                        mdByteBuffer))
     }
 
     private class MockSetup(private val dataMime: String,
@@ -120,7 +122,7 @@ class RxjavaRequesterEndToEndTest {
 
         override fun dataMimeType(): String = dataMime
 
-        override fun hasMetadata(): Boolean = payload.hasMetadata()
+        override val hasMetadata: Boolean = payload.hasMetadata
 
         override fun metadataMimeType(): String = metadataMime
 

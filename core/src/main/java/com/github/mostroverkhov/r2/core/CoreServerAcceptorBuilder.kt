@@ -30,9 +30,9 @@ abstract class CoreServerAcceptorBuilder<
         return this as T
     }
 
-    fun forTarget(rSocket: RequesterRSocket,
-                  payloadMetadata: ByteBuffer,
-                  builder: (RequesterRSocket) -> CoreRequesterBuilder)
+    fun targetResolver(rSocket: RequesterRSocket,
+                       payloadMetadata: ByteBuffer,
+                       builder: (RequesterRSocket) -> CoreRequesterBuilder)
             : ResponderTargetResolver {
         val requesterFactory = createRequesterFactory(rSocket, builder)
         val connectionContext = context(payloadMetadata)

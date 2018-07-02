@@ -5,7 +5,7 @@ import com.github.mostroverkhov.r2.core.Metadata
 import com.github.mostroverkhov.r2.core.internal.MetadataCodec
 import com.github.mostroverkhov.r2.core.internal.ServiceMethodDecoder
 import com.github.mostroverkhov.r2.core.contract.*
-import com.github.mostroverkhov.r2.core.internal.ServiceMethod
+import com.github.mostroverkhov.r2.core.internal.RemoteServiceMethod
 import com.github.mostroverkhov.r2.core.ServiceReader
 import org.reactivestreams.Publisher
 import java.lang.reflect.Method
@@ -25,11 +25,11 @@ class ResponderTargetResolver(private val svcReader: ServiceReader,
                 payloadMetadata: ByteBuffer): TargetAction {
 
         val metadata = decodeMetadata(payloadMetadata)
-        val route = decodeRoute(metadata)
+        val svcMethod = decodeSvcMethod(metadata)
 
-        val svcName = route.service
-        val methodName = route.method
-        val codec = route.dataCodec
+        val svcName = svcMethod.service
+        val methodName = svcMethod.method
+        val codec = svcMethod.dataCodec
 
         val service = svcReader[svcName]
 
@@ -38,17 +38,17 @@ class ResponderTargetResolver(private val svcReader: ServiceReader,
             val args = resolveArguments(method)
             args.setMetadata(metadata)
             args.setRequest { requestType -> decodeData(payloadData, requestType, codec) }
-            return TargetAction(service, method, args, codec)
+            return TargetAction(service, method, args, codec, svcName, methodName)
 
         } ?: throw missingServiceError(svcName)
 
         return targetAction
     }
 
-    private fun decodeRoute(metadata: Metadata): ServiceMethod {
-        val routeBuffer = metadata.asByteBuffer().route()
-                ?: throw missingRouteError()
-        return serviceMethodDecoder.decode(routeBuffer)
+    private fun decodeSvcMethod(metadata: Metadata): RemoteServiceMethod {
+        val svcMethodBuffer = metadata.asByteBuffer().svcMethod()
+                ?: throw missingServiceMethodError()
+        return serviceMethodDecoder.decode(svcMethodBuffer)
     }
 
     private fun decodeMetadata(metadata: ByteBuffer): Metadata =
@@ -60,8 +60,8 @@ class ResponderTargetResolver(private val svcReader: ServiceReader,
     private fun missingServiceError(svcName: String) =
             ArgErr("No service with name: $svcName")
 
-    private fun missingRouteError() =
-            ArgErr("Request route is missing")
+    private fun missingServiceMethodError() =
+            ArgErr("Request svcMethod is missing")
 
     internal class MethodResolver {
 

@@ -5,35 +5,34 @@ import com.github.mostroverkhov.r2.core.Metadata
 import com.github.mostroverkhov.r2.core.R2ClientFluentBuilder
 import com.github.mostroverkhov.r2.core.RequesterFactory
 import com.github.mostroverkhov.r2.core.internal.requester.metaData
+import com.github.mostroverkhov.r2.rxjava.internal.RequesterBuilder
 import io.reactivex.Single
 import io.rsocket.kotlin.DefaultPayload
 import io.rsocket.kotlin.RSocketFactory.ClientRSocketFactory
 import io.rsocket.kotlin.transport.ClientTransport
 
-typealias FluentBuilder = R2ClientFluentBuilder<
+typealias AcceptorConfigurer = (ClientAcceptorBuilder) -> ClientAcceptorBuilder
+
+class R2Client : R2ClientFluentBuilder<
         ClientRSocketFactory,
         ClientAcceptorBuilder,
         ClientTransport,
-        Single<RequesterFactory>>
-
-typealias AcceptorConfigurer = (ClientAcceptorBuilder) -> ClientAcceptorBuilder
-
-class R2Client : FluentBuilder() {
+        Single<RequesterFactory>>() {
     private var configurer: AcceptorConfigurer? = null
     private var metadata: Metadata? = null
     private var clientTransport: ClientTransport? = null
 
-    override fun metadata(metadata: Metadata): FluentBuilder {
+    override fun metadata(metadata: Metadata): R2Client {
         this.metadata = metadata
         return this
     }
 
-    override fun transport(transport: ClientTransport): FluentBuilder {
+    override fun transport(transport: ClientTransport): R2Client {
         clientTransport = transport
         return this
     }
 
-    override fun configureAcceptor(f: AcceptorConfigurer): FluentBuilder {
+    override fun configureAcceptor(f: AcceptorConfigurer): R2Client {
         configurer = f
         return this
     }

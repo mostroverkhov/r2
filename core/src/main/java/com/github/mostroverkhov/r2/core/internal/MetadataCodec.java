@@ -21,7 +21,7 @@ public class MetadataCodec {
         ByteBuffer bb = ByteBuffer.allocate(metadataSize);
 
         Metadata.AsByteBuffer asByteBuffer = metadata.asByteBuffer();
-        encodeRoute(bb, asByteBuffer);
+        encodeSvcMethod(bb, asByteBuffer);
 
         Map<String, Function0<ByteBuffer>> keyValues = asByteBuffer.keyValues();
         for (Map.Entry<String, Function0<ByteBuffer>> keyValue : keyValues.entrySet()) {
@@ -42,9 +42,9 @@ public class MetadataCodec {
         return decode(metadata, false);
     }
 
-    public Metadata decode(ByteBuffer metadata, boolean hasRoute) {
-        Metadata.Builder builder = hasRoute
-                ? new Metadata.RequestBuilder().route(decodeRoute(metadata))
+    public Metadata decode(ByteBuffer metadata, boolean hasSvcMethod) {
+        Metadata.Builder builder = hasSvcMethod
+                ? new Metadata.RequestBuilder().svcMethod(decodeSvcMethod(metadata))
                 : new Metadata.Builder();
 
         while (metadata.remaining() > 0) {
@@ -56,13 +56,13 @@ public class MetadataCodec {
     }
 
     private int calcSize(Metadata metadata) {
-        int routeSize;
-        if (metadata.hasRoute()) {
-            ByteBuffer route = metadata.asByteBuffer().route();
-            assertValueLength("route", route.remaining());
-            routeSize = calcValueSize(route);
+        int svcMethodSize;
+        if (metadata.hasSvcMethod()) {
+            ByteBuffer svcMethod = metadata.asByteBuffer().svcMethod();
+            assertValueLength("svcMethod", svcMethod.remaining());
+            svcMethodSize = calcValueSize(svcMethod);
         } else {
-            routeSize = 0;
+            svcMethodSize = 0;
         }
 
         int kvSize = 0;
@@ -79,7 +79,7 @@ public class MetadataCodec {
 
             kvSize += calcKeySize(key) + calcValueSize(value);
         }
-        return routeSize + kvSize;
+        return svcMethodSize + kvSize;
     }
 
     private int calcKeySize(String key) {
@@ -103,10 +103,10 @@ public class MetadataCodec {
     }
 
     @NotNull
-    private void encodeRoute(ByteBuffer result, Metadata.AsByteBuffer metadata) {
-        if (metadata.hasRoute()) {
-            ByteBuffer route = metadata.route();
-            result.putShort((short) route.remaining()).put(route);
+    private void encodeSvcMethod(ByteBuffer result, Metadata.AsByteBuffer metadata) {
+        if (metadata.hasSvcMethod()) {
+            ByteBuffer svcMethod = metadata.svcMethod();
+            result.putShort((short) svcMethod.remaining()).put(svcMethod);
         }
     }
 
@@ -132,7 +132,7 @@ public class MetadataCodec {
     }
 
     @NotNull
-    private ByteBuffer decodeRoute(ByteBuffer metadata) {
+    private ByteBuffer decodeSvcMethod(ByteBuffer metadata) {
         int length = metadata.getShort() & 0xFFFF;
         Buffer result = metadata.slice().limit(length);
         metadata.position(metadata.position() + length);

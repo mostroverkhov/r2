@@ -2,9 +2,9 @@ package com.github.mostroverkhov.r2.core.internal.requester
 
 import com.github.mostroverkhov.r2.core.DataCodec
 import com.github.mostroverkhov.r2.core.Metadata
-import com.github.mostroverkhov.r2.core.internal.ServiceMethodEncoder
 import com.github.mostroverkhov.r2.core.contract.*
 import com.github.mostroverkhov.r2.core.internal.MetadataCodec
+import com.github.mostroverkhov.r2.core.internal.ServiceMethodEncoder
 import com.github.mostroverkhov.r2.core.internal.requester.Interaction.*
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
@@ -12,34 +12,35 @@ import java.util.concurrent.ConcurrentHashMap
 
 internal class RequesterCallResolver(private val dataCodec: DataCodec,
                                      private val metadataCodec: MetadataCodec,
-                                     private val routeEncoder: ServiceMethodEncoder) {
+                                     private val serviceMethodEncoder: ServiceMethodEncoder) {
 
-    private val requestCallCache = ConcurrentHashMap<Method, () -> RequestCall>()
+    private val remoteCallsCache = ConcurrentHashMap<Method, () -> RequesterCall>()
 
     fun resolve(targetAction: TargetAction): Call {
         val call = resolveFastPath(targetAction)
                 ?: resolveSlowPath(targetAction)
                 ?: throw unknownInteraction(targetAction)
         return when (call) {
-            is RequestCall -> call.setArgs(resolveArgs(targetAction, call))
+            is RequesterCall -> call.params(resolveParams(targetAction, call))
             else -> call
         }
     }
 
     private fun resolveFastPath(targetAction: TargetAction): Call? {
-        return requestCallCache[targetAction.action]?.let { it() } ?: return null
+        return remoteCallsCache[targetAction.action]?.let { it() }
+                ?: return null
     }
 
     private fun resolveSlowPath(targetAction: TargetAction): Call? {
         val action = targetAction.action
         for (ann in action.declaredAnnotations) {
             val call = when (ann) {
-                is FireAndForget -> requestCall(targetAction, FNF, ann.value)
-                is RequestResponse -> requestCall(targetAction, RESPONSE, ann.value)
-                is RequestStream -> requestCall(targetAction, STREAM, ann.value)
-                is RequestChannel -> requestCall(targetAction, CHANNEL, ann.value)
-                is Close -> closeCall(CLOSE)
-                is OnClose -> closeCall(ONCLOSE)
+                is FireAndForget -> interactionCall(targetAction, FNF, ann.value)
+                is RequestResponse -> interactionCall(targetAction, RESPONSE, ann.value)
+                is RequestStream -> interactionCall(targetAction, STREAM, ann.value)
+                is RequestChannel -> interactionCall(targetAction, CHANNEL, ann.value)
+                is Close -> terminationCall(targetAction, CLOSE)
+                is OnClose -> terminationCall(targetAction, ONCLOSE)
                 else -> null
             }
             call?.let { return it }
@@ -47,20 +48,24 @@ internal class RequesterCallResolver(private val dataCodec: DataCodec,
         return null
     }
 
-    private fun unknownInteraction(targetAction: TargetAction): IllegalArgumentException {
+    private fun unknownInteraction(targetAction: TargetAction)
+            : IllegalArgumentException {
         val action = targetAction.action
-        return IllegalArgumentException("$action: No known request interactions amongst " +
-                "${action.declaredAnnotations.map { it.annotationClass }}")
+        return IllegalArgumentException(
+                "$action: No known request interactions amongst " +
+                        "${action.declaredAnnotations.map { it.annotationClass }}")
     }
 
-    private fun resolveArgs(targetAction: TargetAction,
-                            call: Call): ActionArgs {
+    private fun resolveParams(targetAction: TargetAction,
+                              call: Call): CallParams {
         val args = targetAction.args
         if (args != null && args.size > 2) {
-            throw IllegalArgumentException("Method: ${targetAction.action.name} of service: " +
-                    "${targetAction.target.javaClass} is expected to have at most 2 arguments")
+            throw IllegalArgumentException("Method: ${targetAction.action.name}" +
+                    " of service: " +
+                    "${targetAction.target.javaClass} is expected to have at" +
+                    " most 2 arguments")
         }
-        val builder = ActionArgs.Builder(call.interaction)
+        val builder = CallParams.Builder(call.interaction)
         args?.forEach {
             when (it) {
                 is Metadata -> builder.metadata(it)
@@ -74,7 +79,8 @@ internal class RequesterCallResolver(private val dataCodec: DataCodec,
         val svcClass = m.declaringClass
         val svcName = svcClass.getAnnotation(Service::class.java)?.value
         if (svcName.isNullOrEmpty()) {
-            throw IllegalArgumentException("Service ${svcClass.name} name should not be null or empty")
+            throw IllegalArgumentException(
+                    "Service ${svcClass.name} name should not be null or empty")
         } else {
             return svcName!!
         }
@@ -85,7 +91,8 @@ internal class RequesterCallResolver(private val dataCodec: DataCodec,
         return if (returnType is ParameterizedType) {
             val returnTypeArgs = returnType.actualTypeArguments
             if (returnTypeArgs.size != 1) {
-                throw IllegalArgumentException("$m: generic return type is expected to have 1 type argument")
+                throw IllegalArgumentException(
+                        "$m: generic return type is expected to have 1 type argument")
             }
             return returnTypeArgs[0] as Class<*>
         } else {
@@ -93,29 +100,33 @@ internal class RequesterCallResolver(private val dataCodec: DataCodec,
         }
     }
 
-    private fun closeCall(interaction: Interaction) = CloseCall(interaction)
+    private fun terminationCall(targetAction: TargetAction,
+                                interaction: Interaction) = TerminationCall(
+            resolveService(targetAction.action),
+            targetAction.action.name,
+            interaction)
 
-    private fun requestCall(targetAction: TargetAction,
-                            interaction: Interaction,
-                            methodName: String): Call {
+    private fun interactionCall(targetAction: TargetAction,
+                                interaction: Interaction,
+                                methodName: String): RequesterCall {
         assertMethodName(methodName, targetAction)
 
         val action = targetAction.action
-        val callProducer = requestCallCache.getOrPut(
+        val callFactory = remoteCallsCache.getOrPut(
                 action,
-                { requestCallProducer(action, interaction, methodName) })
-        return callProducer()
+                { remoteCallFactory(action, interaction, methodName) })
+        return callFactory()
     }
 
-    private fun requestCallProducer(action: Method,
-                                    interaction: Interaction,
-                                    methodName: String): () -> RequestCall {
+    private fun remoteCallFactory(action: Method,
+                                  interaction: Interaction,
+                                  methodName: String): () -> RequesterCall {
         val serviceName = resolveService(action)
         val responsePayloadType = resolveResponsePayloadType(action)
 
         return {
-            RequestCall(
-                    routeEncoder,
+            RequesterCall(
+                    serviceMethodEncoder,
                     metadataCodec,
                     dataCodec,
                     serviceName,

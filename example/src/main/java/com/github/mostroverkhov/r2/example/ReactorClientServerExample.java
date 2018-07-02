@@ -23,12 +23,12 @@ import java.util.Random;
 import static com.github.mostroverkhov.r2.example.Contract.AssemblyLines;
 
 
-public class JavaClientServerExample {
+public class ReactorClientServerExample {
   private static final int PORT = 0;
   private final ControlUnitRenderer renderer = new ControlUnitRenderer();
 
   public static void main(String[] args) {
-    new JavaClientServerExample().startAssemblyLineSystem();
+    new ReactorClientServerExample().startAssemblyLineSystem();
   }
 
   void startAssemblyLineSystem() {

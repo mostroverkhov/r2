@@ -1,13 +1,13 @@
 package com.github.mostroverkhov.r2.core
 
-import com.github.mostroverkhov.r2.core.internal.StringServiceMethodCodec
-import com.github.mostroverkhov.r2.core.internal.responder.SimpleServiceMethod
+import com.github.mostroverkhov.r2.core.internal.PathServiceMethodCodec
+import com.github.mostroverkhov.r2.core.internal.responder.ResponderCall
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class StringServiceMethodCodecTest {
+class PathServiceMethodCodecTest {
 
-    private val routeCodec = StringServiceMethodCodec()
+    private val svcMethodCodec = PathServiceMethodCodec()
     private val dataCodec = MockCodec()
     private var charset = Charsets.UTF_8
     private val expectedPath = "mock/svc/method"
@@ -15,15 +15,15 @@ class StringServiceMethodCodecTest {
 
     @Test
     fun encode() {
-        val encoded = routeCodec.encoder()
-                .encode(SimpleServiceMethod(dataCodec, "svc", "method"))
+        val encoded = svcMethodCodec.encoder()
+                .encode(ResponderCall(dataCodec, "svc", "method"))
         val encodedPath = encoded.asStr(charset)
         assertEquals("mock/svc/method", encodedPath)
     }
 
     @Test
     fun decode() {
-        val decoded = routeCodec.decoder(Codecs().add(dataCodec))
+        val decoded = svcMethodCodec.decoder(Codecs().add(dataCodec))
                 .decode(expectedPathBuffer)
 
         assertEquals("mock", decoded.dataCodec.prefix)
@@ -33,13 +33,13 @@ class StringServiceMethodCodecTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun decodeMissingCodec() {
-        val decoded = routeCodec.decoder(Codecs())
+        svcMethodCodec.decoder(Codecs())
                 .decode(expectedPathBuffer)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun decodeWrongPath() {
-        val decoded = routeCodec.decoder(Codecs())
+        svcMethodCodec.decoder(Codecs())
                 .decode("foo/bar".asBuffer(charset))
     }
 }

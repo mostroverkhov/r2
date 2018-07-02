@@ -1,4 +1,4 @@
-package com.github.mostroverkhov.r2.rxjava.adapters
+package com.github.mostroverkhov.r2.rxjava.internal.adapters
 
 import com.github.mostroverkhov.r2.core.internal.requester.*
 import io.reactivex.Completable
@@ -55,19 +55,19 @@ internal class RequesterAdapter(private val rSocket: RSocket) : CallAdapter {
             = T::class.java == this
 
     private fun Call.decode(arg: Payload): Any {
-        this as RequestCall
+        this as RequesterCall
         return decodeData(arg.data)
     }
 
     private fun Call.encode(): Payload {
-        this as RequestCall
-        return DefaultPayload(encodeData(getArgs().data), encodeMetadata())
+        this as RequesterCall
+        return DefaultPayload(encodeData(params().data), encodeMetadata())
     }
 
     private fun Call.encodePublisher(): Publisher<Payload> {
-        this as RequestCall
+        this as RequesterCall
         var first = true
-        return Flowable.fromPublisher(getArgs().data as Publisher<*>)
+        return Flowable.fromPublisher(params().data as Publisher<*>)
                 .map { t ->
                     val metadata = if (first) {
                         first = false

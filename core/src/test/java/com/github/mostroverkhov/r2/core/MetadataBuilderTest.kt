@@ -13,8 +13,8 @@ class MetadataBuilderTest {
         assertEquals(1, metadata.keys().size)
         assertEquals("foo", metadata.auth()!!.asString())
 
-        assertFalse(metadata.hasRoute())
-        assertTrue(metadata.route() == null)
+        assertFalse(metadata.hasSvcMethod())
+        assertTrue(metadata.svcMethod() == null)
 
     }
 
@@ -29,18 +29,18 @@ class MetadataBuilderTest {
     @Test
     fun requestMetadata() {
         val metadata = Metadata.RequestBuilder()
-                .route(ByteBuffer.allocate(42))
+                .svcMethod(ByteBuffer.allocate(42))
                 .data("key", "foo".asBytes())
                 .build()
         assertEquals(1, metadata.keys().size)
         assertEquals("foo", metadata.data("key")!!.asString())
-        assertTrue(metadata.hasRoute())
-        assertTrue(metadata.route() != null)
+        assertTrue(metadata.hasSvcMethod())
+        assertTrue(metadata.svcMethod() != null)
 
     }
 
     @Test(expected = Exception::class)
-    fun requestMetadataNoRoute() {
+    fun requestMetadataNoSvcMethod() {
         Metadata.RequestBuilder()
                 .data("key", "foo".asBytes())
                 .build()

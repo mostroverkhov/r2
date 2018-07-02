@@ -1,4 +1,4 @@
-package com.github.mostroverkhov.r2.reactor;
+package com.github.mostroverkhov.r2.reactor.internal;
 
 import com.github.mostroverkhov.r2.core.internal.MimeType;
 import io.rsocket.DuplexConnection;
@@ -60,7 +60,7 @@ public class SetupInterceptor implements DuplexConnectionInterceptor {
 
                             InvalidSetupException error = new InvalidSetupException(msg);
                             source.sendOne(Frame.Error.from(0, error))
-                                    .then(source.close())
+                                    .then(Mono.fromRunnable(source::dispose))
                                     .subscribe(ignore -> {
                                     }, ignoreErr -> {
                                     });
@@ -74,8 +74,8 @@ public class SetupInterceptor implements DuplexConnectionInterceptor {
         }
 
         @Override
-        public Mono<Void> close() {
-            return source.close();
+        public void dispose() {
+            source.dispose();
         }
 
         @Override

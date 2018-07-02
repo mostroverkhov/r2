@@ -7,4 +7,5 @@ include 'codec-jackson-binary'
 include 'codec-proto'
 include 'contract'
 include 'example'
+include 'reactor-monitoring-micrometer'
 

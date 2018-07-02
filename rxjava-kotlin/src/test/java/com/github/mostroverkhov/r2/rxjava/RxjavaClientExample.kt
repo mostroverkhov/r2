@@ -31,6 +31,7 @@ class RxjavaClientExample {
                 .transport(OkhttpWebsocketClientTransport.create(url))
                 .start()
 
+        @Suppress("UNUSED_VARIABLE")
         val svc = requesterFactory.map { it.create<PersonsService>() }
     }
 
