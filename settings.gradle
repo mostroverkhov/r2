@@ -8,4 +8,6 @@ include 'codec-proto'
 include 'contract'
 include 'example'
 include 'reactor-monitoring-micrometer'
+include 'contract-gen'
+include 'contract-gen-test'
 

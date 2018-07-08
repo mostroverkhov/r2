@@ -1,0 +1,33 @@
+apply plugin: 'java'
+
+compileJava {
+    options.compilerArgs << '-Aplatform=rxjava'
+    options.compilerArgs << '-Apackage=com.github.mostroverkhov.r2.core.contract.gen'
+
+    options.compilerArgs << "-s"
+    options.compilerArgs << genDirectory()
+
+    doFirst {
+        file(new File(genDirectory())).mkdirs()
+    }
+}
+
+dependencies {
+    implementation 'io.projectreactor:reactor-core'
+    implementation 'io.reactivex.rxjava2:rxjava'
+    implementation project(":contract")
+    implementation project(":contract-gen")
+    annotationProcessor project(":contract-gen")
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir genDirectory()
+        }
+    }
+}
+
+def genDirectory() {
+    "$buildDir/generated/java"
+}
