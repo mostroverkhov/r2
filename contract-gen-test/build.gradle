@@ -1,0 +1,45 @@
+apply plugin: 'java'
+
+compileJava {
+    options.compilerArgs << '-Ar2.gen.enabled=true'
+    options.compilerArgs << '-Ar2.gen.platform=rxjava'
+    options.compilerArgs << '-Ar2.gen.package=com.github.mostroverkhov.r2.core.contract.gen'
+
+    options.compilerArgs << "-s"
+    options.compilerArgs << genDirectory()
+
+    doFirst {
+        //workaround jdk bug https://bugs.openjdk.java.net/browse/JDK-8067747
+        def folder = new File(genDirectory())
+        if (file(folder).exists()) {
+            FileCollection collection = files { file(folder).listFiles() }
+            collection.each { delete it }
+        }
+
+        file(folder).mkdirs()
+    }
+}
+
+dependencies {
+    implementation 'io.projectreactor:reactor-core'
+    implementation 'io.reactivex.rxjava2:rxjava'
+    implementation project(":contract")
+    implementation project(":contract-gen")
+    annotationProcessor project(":contract-gen")
+
+    testImplementation files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
+    testImplementation 'com.google.testing.compile:compile-testing'
+    testImplementation 'com.google.truth:truth'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir genDirectory()
+        }
+    }
+}
+
+def genDirectory() {
+    "$buildDir/generated/java"
+}
