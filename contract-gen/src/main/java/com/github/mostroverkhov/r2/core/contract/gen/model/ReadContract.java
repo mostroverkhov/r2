@@ -35,17 +35,20 @@ public class ReadContract {
   public static class Method {
     private final Interaction interaction;
     private final String name;
+    private final String javadoc;
     private final TypeMirror returnTypeArg;
     private final List<VariableElement> args;
     private final List<AnnotationMirror> annotations;
 
     public Method(Interaction interaction,
                   String name,
+                  String javadoc,
                   TypeMirror returnTypeArg,
                   List<VariableElement> args,
                   List<AnnotationMirror> annotations) {
       this.interaction = interaction;
       this.name = name;
+      this.javadoc = javadoc;
       this.returnTypeArg = returnTypeArg;
       this.args = args;
       this.annotations = annotations;
@@ -57,6 +60,14 @@ public class ReadContract {
 
     public String getName() {
       return name;
+    }
+
+    public String getJavadoc() {
+      return javadoc;
+    }
+
+    public boolean hasJavadoc() {
+      return !javadoc.isEmpty();
     }
 
     public TypeMirror getReturnTypeArg() {
@@ -76,6 +87,7 @@ public class ReadContract {
       return "Method{" +
           "interaction=" + interaction +
           ", name='" + name + '\'' +
+          ", javadoc='" + javadoc + '\'' +
           ", returnTypeArg=" + returnTypeArg +
           ", args=" + args +
           ", annotations=" + annotations +
@@ -109,11 +121,23 @@ public class ReadContract {
 
   public static class Type {
     private final String name;
+    private final String javadoc;
     private final List<AnnotationMirror> annotations;
 
-    public Type(String name, List<AnnotationMirror> annotations) {
+    public Type(String name,
+                String javadoc,
+                List<AnnotationMirror> annotations) {
       this.name = name;
+      this.javadoc = javadoc;
       this.annotations = annotations;
+    }
+
+    public String getJavadoc() {
+      return javadoc;
+    }
+
+    public boolean hasJavadoc() {
+      return !javadoc.isEmpty();
     }
 
     public String getName() {
@@ -128,6 +152,7 @@ public class ReadContract {
     public String toString() {
       return "Type{" +
           "name='" + name + '\'' +
+          ", javadoc='" + javadoc + '\'' +
           ", annotations=" + annotations +
           '}';
     }

@@ -3,17 +3,20 @@ package com.github.mostroverkhov.r2.core.contract.gen.reader;
 import com.github.mostroverkhov.r2.core.contract.gen.model.ReadContract;
 
 import javax.lang.model.AnnotatedConstruct;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
+import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 class ContractReader {
+  private final Elements elementUtils;
+
+  public ContractReader(Elements elementUtils) {
+    this.elementUtils = elementUtils;
+  }
 
   public Optional<ReadContract> read(TypeElement contract) {
     ReadContract.Type type = readType(contract);
@@ -27,7 +30,12 @@ class ContractReader {
   private ReadContract.Type readType(TypeElement contract) {
     String name = contract.getSimpleName().toString();
     List<AnnotationMirror> annos = annotations(contract);
-    return new ReadContract.Type(name, annos);
+    String javadoc = readJavadoc(contract);
+    return new ReadContract.Type(name, javadoc, annos);
+  }
+
+  private String readJavadoc(Element element) {
+    return Optional.ofNullable(elementUtils.getDocComment(element)).orElse("");
   }
 
   private Optional<ReadContract.Method> readMethod(ExecutableElement method) {
@@ -40,10 +48,12 @@ class ContractReader {
     if (isPublisher(declaredType)) {
       TypeMirror typeParameterArg = declaredType.getTypeArguments().get(0);
       ReadContract.Method.Interaction interaction = interaction(annotations);
+      String javadoc = readJavadoc(method);
 
       return Optional.of(new ReadContract.Method(
           interaction,
           name,
+          javadoc,
           typeParameterArg,
           params,
           annotations

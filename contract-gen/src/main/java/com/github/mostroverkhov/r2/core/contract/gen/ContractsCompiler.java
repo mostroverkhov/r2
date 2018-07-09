@@ -11,7 +11,10 @@ import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.Elements;
+import javax.tools.Diagnostic;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -22,27 +25,44 @@ public class ContractsCompiler extends AbstractProcessor {
 
   private ContractsReader contractsReader;
   private PlatformContractWriter contractWriter;
+  private boolean enabled;
+  private Messager messager;
 
   @Override
   public synchronized void init(ProcessingEnvironment processingEnv) {
     super.init(processingEnv);
 
+    messager = processingEnv.getMessager();
+    Elements elementUtils = processingEnv.getElementUtils();
     Map<String, String> mapOptions = processingEnv.getOptions();
     Filer filer = processingEnv.getFiler();
 
-    Options options = options(mapOptions, fileDest(filer));
-    contractsReader = new ContractsReader();
-    contractWriter = new PlatformContractWriter(options);
+    if (isSet("r2.gen.enabled", mapOptions)) {
+      Optional<Options> options = options(mapOptions, fileDest(filer));
+      enabled = options.isPresent();
+      if (enabled) {
+        contractsReader = new ContractsReader(elementUtils);
+        contractWriter = new PlatformContractWriter(options.get());
+      } else {
+        printMissingOptionsError();
+      }
+    }
   }
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations,
                          RoundEnvironment roundEnv) {
-    contractsReader
-        .read(contracts(roundEnv))
-        .forEach(contract -> contractWriter.write(contract));
-
+    if (enabled) {
+      contractsReader
+          .read(contracts(roundEnv))
+          .forEach(contract -> contractWriter.write(contract));
+    }
     return false;
+  }
+
+  private void printMissingOptionsError() {
+    messager.printMessage(Diagnostic.Kind.ERROR,
+        "r2.gen.platform and r2.gen.package must be present");
   }
 
   @SuppressWarnings("unchecked")
@@ -50,22 +70,29 @@ public class ContractsCompiler extends AbstractProcessor {
     return (Set<Element>) roundEnv.getElementsAnnotatedWith(Service.class);
   }
 
-  private Options options(Map<String, String> processorOpts,
-                          Function<String, WriteDest> writeDest) {
-    String platform = getOrThrow("platform", processorOpts);
-    String pkg = getOrThrow("package", processorOpts);
-    return new Options(platform, pkg, writeDest);
+  private Optional<Options> options(Map<String, String> processorOpts,
+                                    Function<String, WriteDest> writeDest) {
+    Optional<String> platform = option("r2.gen.platform", processorOpts);
+    Optional<String> pkg = option("r2.gen.package", processorOpts);
+
+    return platform
+        .flatMap(pl -> pkg
+            .map(pk -> new Options(pl, pk, writeDest)));
   }
 
   private Function<String, WriteDest> fileDest(Filer filer) {
     return path -> new FileWriteDest(filer, path);
   }
 
-  private String getOrThrow(String key, Map<String, String> map) {
-    String val = map.get(key);
-    if (val == null) {
-      throw new IllegalArgumentException("missing option: " + key);
-    }
-    return val;
+  private boolean isSet(String key,
+                        Map<String, String> processorOpts) {
+    return Optional.ofNullable(
+        processorOpts.get(key))
+        .map(Boolean::parseBoolean)
+        .orElse(false);
+  }
+
+  private Optional<String> option(String key, Map<String, String> map) {
+    return Optional.ofNullable(map.get(key));
   }
 }

@@ -1,8 +1,9 @@
 apply plugin: 'java'
 
 compileJava {
-    options.compilerArgs << '-Aplatform=reactor'
-    options.compilerArgs << '-Apackage=com.github.mostroverkhov.r2.core.contract.gen'
+    options.compilerArgs << '-Ar2.gen.enabled=true'
+    options.compilerArgs << '-Ar2.gen.platform=rxjava'
+    options.compilerArgs << '-Ar2.gen.package=com.github.mostroverkhov.r2.core.contract.gen'
 
     options.compilerArgs << "-s"
     options.compilerArgs << genDirectory()
@@ -15,7 +16,7 @@ compileJava {
             collection.each { delete it }
         }
 
-        file(new File(genDirectory())).mkdirs()
+        file(folder).mkdirs()
     }
 }
 
@@ -25,6 +26,10 @@ dependencies {
     implementation project(":contract")
     implementation project(":contract-gen")
     annotationProcessor project(":contract-gen")
+
+    testImplementation files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
+    testImplementation 'com.google.testing.compile:compile-testing'
+    testImplementation 'com.google.truth:truth'
 }
 
 sourceSets {

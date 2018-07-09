@@ -5,6 +5,9 @@ import com.github.mostroverkhov.r2.core.contract.gen.model.Bar;
 import com.github.mostroverkhov.r2.core.contract.gen.model.Foo;
 import org.reactivestreams.Publisher;
 
+/**
+ * Svc Comment
+ */
 @Service("test")
 public interface TestContract {
 
@@ -14,6 +17,9 @@ public interface TestContract {
   @RequestStream("stream")
   Publisher<Bar> stream(Foo foo);
 
+  /**
+   * Method Comment
+   */
   @RequestResponse("response")
   Publisher<Bar> response(Foo foo);
 

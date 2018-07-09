@@ -5,12 +5,18 @@ import com.github.mostroverkhov.r2.core.contract.gen.model.ReadContract;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.Elements;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ContractsReader {
-  private final ContractReader contractReader = new ContractReader();
+  private final ContractReader contractReader;
+
+  public ContractsReader(Elements elementUtils) {
+    this.contractReader = new ContractReader(elementUtils);
+  }
+
 
   public Set<ReadContract> read(Set<Element> contracts) {
     return contracts.stream()

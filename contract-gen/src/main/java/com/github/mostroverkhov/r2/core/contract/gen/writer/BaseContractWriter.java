@@ -1,8 +1,8 @@
 package com.github.mostroverkhov.r2.core.contract.gen.writer;
 
-import com.github.mostroverkhov.r2.core.contract.gen.model.WriteContract;
 import com.github.mostroverkhov.r2.core.contract.gen.dest.WriteDest;
 import com.github.mostroverkhov.r2.core.contract.gen.model.ReadContract;
+import com.github.mostroverkhov.r2.core.contract.gen.model.WriteContract;
 import com.squareup.javapoet.*;
 
 import javax.lang.model.element.*;
@@ -38,6 +38,11 @@ public class BaseContractWriter implements ContractWriter {
         AnnotationSpec annotationSpec = AnnotationSpec.get(annotation);
         mb.addAnnotation(annotationSpec);
       }
+
+      if (method.hasJavadoc()) {
+        mb.addJavadoc(method.getJavadoc());
+      }
+
       MethodSpec methodSpec = mb
           .addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
           .build();
@@ -51,10 +56,14 @@ public class BaseContractWriter implements ContractWriter {
       AnnotationSpec annotationSpec = AnnotationSpec.get(annotation);
       annoSpecs.add(annotationSpec);
     }
-    TypeSpec typeSpec = TypeSpec.interfaceBuilder(type.getName())
+    TypeSpec.Builder tsb = TypeSpec.interfaceBuilder(type.getName())
         .addModifiers(Modifier.PUBLIC)
         .addMethods(methodSpecs)
-        .addAnnotations(annoSpecs)
+        .addAnnotations(annoSpecs);
+    if (type.hasJavadoc()) {
+      tsb.addJavadoc(type.getJavadoc());
+    }
+    TypeSpec typeSpec = tsb
         .build();
 
     contractWithWriteDest.updatePackage(adapter::updatePackage);
@@ -72,7 +81,7 @@ public class BaseContractWriter implements ContractWriter {
   }
 
   private static ParameterSpec adaptArgumentTypes(VariableElement arg,
-                                                    Class<?> targetType) {
+                                                  Class<?> targetType) {
     TypeMirror typeMirror = arg.asType();
     String varName = arg.getSimpleName().toString();
     if (typeMirror.getKind() == TypeKind.DECLARED) {
