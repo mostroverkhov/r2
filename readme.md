@@ -214,7 +214,7 @@ Check [RPC-Thunderdome](https://github.com/mostroverkhov/rpc-thunderdome) projec
 
 ### Examples
 
-Runnable example with Reactor/Java client and server is available [here](https://github.com/mostroverkhov/r2/blob/master/reactor-java/src/test/java/com/github/mostroverkhov/r2/java/JavaClientServerExample.java), example of client for RxJava2/Kotlin is [here](https://github.com/mostroverkhov/r2/blob/master/rxjava-kotlin/src/test/java/com/github/mostroverkhov/r2/rxjava/RxjavaClientExample.kt)
+Runnable example with Reactor/Java client and server is available [here](https://github.com/mostroverkhov/r2/blob/master/example/src/main/java/com/github/mostroverkhov/r2/example/ReactorClientServerExample.java), example of client for RxJava2/Kotlin is [here](https://github.com/mostroverkhov/r2/blob/master/rxjava-kotlin/src/test/java/com/github/mostroverkhov/r2/rxjava/RxjavaClientExample.kt)
 
 ### LICENSE
 
