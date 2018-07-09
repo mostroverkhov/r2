@@ -1,15 +1,33 @@
 # R2: RSocket RPC
 [![Build Status](https://travis-ci.org/mostroverkhov/r2.svg?branch=master)](https://travis-ci.org/mostroverkhov/r2)  
 
-RSocket based RPC with pluggable serialization (JSON, CBOR, Protocol buffers and others), 
-[Reactor/Java](https://github.com/rsocket/rsocket-java) and [RxJava2/Kotlin](https://github.com/rsocket/rsocket-kotlin) bindings.
+Flexible RPC which enables Reactive Streams interactions over network boundary (TCP, WebSockets, etc)
+with pluggable serialization (JSON, CBOR, Protocol Buffers etc), and [Reactor](https://github.com/rsocket/rsocket-java) & [RxJava](https://github.com/rsocket/rsocket-kotlin) bindings.
 
-[RSocket](http://rsocket.io/) is binary application protocol bringing Reactive-Streams semantics
+Built on top of [RSocket](http://rsocket.io/) - binary application protocol bringing Reactive Streams semantics
 to network communications. Check [FAQ](https://github.com/rsocket/rsocket/blob/master/FAQ.md) for more info.
 
-Supports 4 interaction models: `fire-and-forget`, `request-response`, `request-stream`, `request-channel`,
-and `Metadata` passing - for connection setup and above interactions.  
-
+Supports 4 interaction models: 
+* `Fire-and-forget`
+```java
+Publisher<Void> fireAndForget(Request request)
+```
+* `Request-Response`
+```java
+Publisher<Response> response(Request request) 
+```
+* `Request-Stream`
+```java
+Publisher<Response> stream(Request request)
+```
+* `Request-Channel`
+```java
+Publisher<Response> channel(Publisher<Request> request)
+```
+* `Metadata` passing along every of above interactions  
+```java
+Publisher<Response> response(Request request, Metadata metadata)
+```
 ### Build and Binaries
 
 The project is released on [jitpack](https://jitpack.io/#mostroverkhov/r2)
@@ -19,33 +37,62 @@ The project is released on [jitpack](https://jitpack.io/#mostroverkhov/r2)
    }
 ```
 
-Reactor/Java
+Reactor bindings
 ```groovy
-    compile 'com.github.mostroverkhov.r2:reactor-java:0.4.0'
+    compile 'com.github.mostroverkhov.r2:reactor-java:0.5.0'
 ```
 
-RxJava2/Kotlin
+RxJava bindings
 ```groovy
-    compile 'com.github.mostroverkhov.r2:rxjava-kotlin:0.4.0'
+    compile 'com.github.mostroverkhov.r2:rxjava-kotlin:0.5.0'
 ```
 
-Serialization
+Serialization: JSON, CBOR, Smile, Protocol Buffers
 ```groovy
         
      /*JSON support with Jackson*/ 
-     compile 'com.github.mostroverkhov.r2:codec-jackson:0.4.0'
+     compile 'com.github.mostroverkhov.r2:codec-jackson:0.5.0'
      
      /*CBOR and Smile support with Jackson-dataformats-binary*/ 
-     compile 'com.github.mostroverkhov.r2:codec-jackson-binary:0.4.0'
+     compile 'com.github.mostroverkhov.r2:codec-jackson-binary:0.5.0'
         
      /*Protocol buffers*/
-     compile 'com.github.mostroverkhov.r2:codec-proto:0.4.0'
+     compile 'com.github.mostroverkhov.r2:codec-proto:0.5.0'
 ```
 
 ### Usage
 
-Given service interface,
+RSocket is symmetric protocol, so each peer: `Client` - initiator of connection,   
+and `Server` - acceptor of connection, has `Requester` to perform requests,  
+ and `Responder` to accept requests from peer.
 
+R2 service is interface with interactions defined in terms of Reactive Streams `Publisher`
+
+```java
+    @Service("svc")
+    interface PersonsService {
+
+        @RequestStream("stream")
+        Publisher<Person> stream(Person person);
+
+        @RequestResponse("response")
+        Publisher<Person> response(Person person);
+
+        @FireAndForget("fnf")
+        Publisher<Void> fnf(Person person);
+
+        @RequestChannel("channel")
+        Publisher<Person> channel(Publisher<Person> person);
+
+        @Close
+        Publisher<Void> close();
+
+        @OnClose
+        Publisher<Void> onClose();
+    }
+```
+
+Library generates reactive library specific definitions, which for `Reactor` look as follows.
 ```java
     @Service("svc")
     interface PersonsService {
@@ -69,12 +116,16 @@ Given service interface,
         Mono<Void> onClose();
     }
 ```
+Let `PersonServiceHandler` be implementation of above `PersonsService`.
 
-and `PersonServiceHandler` - implementation of `PersonsService`,
+R2 provides `RequesterFactory` to create `Requesters`, 
+```java
+PersonService personService = requesterFactory.create(PersonsService.class)
+``` 
+and accepts handlers (e.g. `PersonsServiceHandler`) through its `Services` API.  
+Set of handlers act as peer `Responder` for incoming requests.   
 
-R2 provides `RequesterFactory` to create *Requesters* -`RequesterFactory.create(PersonsService.class)`, `Services`( containing `PersonsServiceHandler()`) - to act as *Responder* for incoming requests. Requester and Responder are available for each side of connection(*Client* and *Server*).   
-
-`Client` side (Connection initiator) can be constructed as follows:
+`Client` (connection initiator) can be constructed as follows:
 
 ```java    
    
@@ -140,7 +191,7 @@ Its configuration is symmetric with `Client`, and looks like
 ```
 In addition to `RequesterFactory`, `Service` handlers have access to `ConnectionContext` - initial metadata sent by `Client` on connection.
 
-Server is started as
+Server can be started as follows
 ```java
      Mono<NettyContextCloseable> started = serverStart.start()
 ```
@@ -151,6 +202,11 @@ Service methods can have Payload (as data - `T`, or `Publisher<T>` for Channel r
 ### Serialization
 
 `codec-jackson` provides simple JSON serialization. Also, some binary formats (CBOR and Smile) are supported with `codec-jackson-binary` artifact. `codec-proto` provides Protocol Buffers serialization. Custom data codecs can be written by implementing minimalistic `DataCodec` interface.
+
+### Monitoring
+
+R2 Reactor supports multiple monitoring systems with [Micrometer](https://micrometer.io/) library.  
+Metrics are provided for `RSocket` interactions, `DuplexConnection` frames and `R2` interactions (service name, method name). 
 
 ### Performance
 
