@@ -92,7 +92,7 @@ R2 service is interface with interactions defined in terms of Reactive Streams `
     }
 ```
 
-Library generates reactive library specific definitions, which for `Reactor` look as follows.
+R2 generates reactive library specific definitions, which for `Reactor` look as follows
 ```java
     @Service("svc")
     interface PersonsService {
