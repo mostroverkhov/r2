@@ -1,5 +1,6 @@
 package com.github.mostroverkhov.r2.example;
 
+import com.github.mostroverkhov.r2.example.contract.model.AssemblyLinesResponse;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
@@ -13,13 +14,13 @@ class AssemblyLineModel {
   private final Random random = new Random();
 
   @NotNull
-  public Contract.AssemblyLines.Response monitoringResponse(Integer assemblies) {
+  public AssemblyLinesResponse monitoringResponse(Integer assemblies) {
     int count = Math.max(0, Math.min(3, assemblies));
     float temp = nextTemp(count);
     float humidity = nextHumidity(count);
     float particles = nextParticles(count);
 
-    return new Contract.AssemblyLines.Response(temp, humidity, particles);
+    return new AssemblyLinesResponse(temp, humidity, particles);
   }
 
   private float nextTemp(int index) {

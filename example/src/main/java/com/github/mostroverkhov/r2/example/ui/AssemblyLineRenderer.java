@@ -1,18 +1,19 @@
 package com.github.mostroverkhov.r2.example.ui;
 
-import com.github.mostroverkhov.r2.example.Contract;
+import com.github.mostroverkhov.r2.example.contract.model.AssemblyLinesRequest;
+import com.github.mostroverkhov.r2.example.contract.model.ControlUnitResponse;
 
 public class AssemblyLineRenderer {
 
   private final State state = new State();
   private final ServerContent serverContent = new ServerContent(state);
 
-  public void assemblyLinesChanged(Contract.AssemblyLines.Request request) {
+  public void assemblyLinesChanged(AssemblyLinesRequest request) {
     state.setAssemblyLines(request.getActiveAssemblies());
     render();
   }
 
-  public void powerChanged(Contract.ControlUnit.Response resp) {
+  public void powerChanged(ControlUnitResponse resp) {
     state.setPower(resp.getAvailablePower());
     render();
   }

@@ -1,10 +1,10 @@
 package com.github.mostroverkhov.r2.example.ui;
 
-import com.github.mostroverkhov.r2.example.Contract;
+import com.github.mostroverkhov.r2.example.contract.model.AssemblyLinesResponse;
 
 public class ControlUnitRenderer {
 
-  public void assemblyLineStateChanged(Contract.AssemblyLines.Response resp) {
+  public void assemblyLineStateChanged(AssemblyLinesResponse resp) {
     ClientContent content = new ClientContent(resp);
     System.out.println(content.render());
   }

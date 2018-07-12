@@ -4,6 +4,9 @@ import com.github.mostroverkhov.r2.codec.jackson.JacksonJsonDataCodec;
 import com.github.mostroverkhov.r2.core.Codecs;
 import com.github.mostroverkhov.r2.core.Metadata;
 import com.github.mostroverkhov.r2.core.Services;
+import com.github.mostroverkhov.r2.example.contract.model.AssemblyLinesRequest;
+import com.github.mostroverkhov.r2.example.contract.model.AssemblyLinesResponse;
+import com.github.mostroverkhov.r2.example.contract.services.reactor.AssemblyLinesService;
 import com.github.mostroverkhov.r2.example.ui.ControlUnitRenderer;
 import com.github.mostroverkhov.r2.reactor.ClientAcceptorBuilder;
 import com.github.mostroverkhov.r2.reactor.R2Client;
@@ -19,8 +22,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.Random;
-
-import static com.github.mostroverkhov.r2.example.Contract.AssemblyLines;
 
 
 public class ReactorClientServerExample {
@@ -43,7 +44,7 @@ public class ReactorClientServerExample {
     NettyContextCloseable serverStarted = serverStart.block();
 
     /*Wraps Requester RSocket of client side of Connection*/
-    Mono<AssemblyLines.Svc> service = new R2Client()
+    Mono<AssemblyLinesService> service = new R2Client()
         .connectWith(RSocketFactory.connect())
         /*Passed to Server (Connection Acceptor) as ConnectionContext*/
         .metadata(authenticate("total-secret"))
@@ -51,15 +52,15 @@ public class ReactorClientServerExample {
         .configureAcceptor(this::configureClient)
         .transport(TcpClientTransport.create(serverStarted.address()))
         .start()
-        .map(factory -> factory.create(AssemblyLines.Svc.class))
+        .map(factory -> factory.create(AssemblyLinesService.class))
         .cache();
 
     /*periodic requests*/
-    Flux<AssemblyLines.Response> assemblyLineMonitoring =
+    Flux<AssemblyLinesResponse> assemblyLines =
         service.flatMapMany(svc ->
             svc.control(assembliesCommands()));
 
-    assemblyLineMonitoring.subscribe(
+    assemblyLines.subscribe(
         renderer::assemblyLineStateChanged,
         renderer::assemblyLineError);
 
@@ -101,11 +102,11 @@ public class ReactorClientServerExample {
         .build();
   }
 
-  private static Flux<AssemblyLines.Request> assembliesCommands() {
+  private static Flux<AssemblyLinesRequest> assembliesCommands() {
     Random random = new Random();
     return Flux.interval(Duration.ofSeconds(0), Duration.ofSeconds(11))
         .map(__ ->
-            new AssemblyLines.Request(
+            new AssemblyLinesRequest(
                 random.nextInt(4)));
   }
 }
