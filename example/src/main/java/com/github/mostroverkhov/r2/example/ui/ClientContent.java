@@ -1,12 +1,12 @@
 package com.github.mostroverkhov.r2.example.ui;
 
-import com.github.mostroverkhov.r2.example.Contract;
+import com.github.mostroverkhov.r2.example.contract.model.AssemblyLinesResponse;
 import de.vandermeer.asciitable.AsciiTable;
 
 public class ClientContent implements Content {
-  private final Contract.AssemblyLines.Response resp;
+  private final AssemblyLinesResponse resp;
 
-  public ClientContent(Contract.AssemblyLines.Response resp) {
+  public ClientContent(AssemblyLinesResponse resp) {
     this.resp = resp;
   }
 

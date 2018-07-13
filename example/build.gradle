@@ -5,11 +5,56 @@ dependencies {
     implementation project(":codec-jackson")
     implementation 'io.rsocket:rsocket-transport-netty'
     implementation 'de.vandermeer:asciitable:0.3.2'
-    implementation 'io.micrometer:micrometer-registry-prometheus:1.0.5'
+    implementation 'io.projectreactor:reactor-core'
+    implementation project(":contract-gen")
+    annotationProcessor project(":contract-gen")
+}
+
+// add generated sources directory to main sourceset
+sourceSets {
+    main {
+        java {
+            srcDir genDirectory()
+        }
+    }
+}
+
+// remove contract definition classes (with interactions defined as Publishers) from
+// final jar because generated reactive library specific services are used
+jar {
+    dependsOn classes
+    from sourceSets.main.output
+    exclude('**/example/contract/definition/**')
+}
+
+compileJava {
+    // configure service definition generator: target library (reactor | rxjava), path + package
+    options.compilerArgs << '-Ar2.gen.enabled=true'
+    options.compilerArgs << '-Ar2.gen.platform=reactor'
+    options.compilerArgs << '-Ar2.gen.package=com.github.mostroverkhov.r2.example.contract.services'
+
+    options.compilerArgs << "-s"
+    options.compilerArgs << genDirectory()
+
+    doFirst {
+        //workaround jdk bug https://bugs.openjdk.java.net/browse/JDK-8067747
+        def folder = new File(genDirectory())
+        if (file(folder).exists()) {
+            FileCollection collection = files { file(folder).listFiles() }
+            collection.each { delete it }
+        }
+
+        file(folder).mkdirs()
+    }
 }
 
 task(runMain, dependsOn: 'classes', type: JavaExec) {
-    main = 'com.github.mostroverkhov.r2.example.JavaClientServerExample'
+    main = 'com.github.mostroverkhov.r2.example.ReactorClientServerExample'
     classpath = sourceSets.main.runtimeClasspath
 }
+
+String genDirectory() {
+    "$buildDir/generated/java"
+}
+
 
