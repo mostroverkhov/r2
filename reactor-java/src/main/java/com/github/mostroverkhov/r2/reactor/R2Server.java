@@ -47,7 +47,7 @@ public class R2Server<T extends Closeable> extends R2ServerFluentBuilder<
                         .build();
 
         return monitoredRSocketFactory
-                .acceptor(() -> acceptor::accept)
+                .acceptor(acceptor::accept)
                 .transport(transport);
     }
 
