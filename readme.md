@@ -39,25 +39,25 @@ The project is released on [jitpack](https://jitpack.io/#mostroverkhov/r2)
 
 Reactor bindings
 ```groovy
-    compile 'com.github.mostroverkhov.r2:reactor-java:0.5.0'
+    compile 'com.github.mostroverkhov.r2:reactor-java:0.5.1'
 ```
 
 RxJava bindings
 ```groovy
-    compile 'com.github.mostroverkhov.r2:rxjava-kotlin:0.5.0'
+    compile 'com.github.mostroverkhov.r2:rxjava-kotlin:0.5.1'
 ```
 
 Serialization: JSON, CBOR, Smile, Protocol Buffers
 ```groovy
         
      /*JSON support with Jackson*/ 
-     compile 'com.github.mostroverkhov.r2:codec-jackson:0.5.0'
+     compile 'com.github.mostroverkhov.r2:codec-jackson:0.5.1'
      
      /*CBOR and Smile support with Jackson-dataformats-binary*/ 
-     compile 'com.github.mostroverkhov.r2:codec-jackson-binary:0.5.0'
+     compile 'com.github.mostroverkhov.r2:codec-jackson-binary:0.5.1'
         
      /*Protocol buffers*/
-     compile 'com.github.mostroverkhov.r2:codec-proto:0.5.0'
+     compile 'com.github.mostroverkhov.r2:codec-proto:0.5.1'
 ```
 
 ### Usage
