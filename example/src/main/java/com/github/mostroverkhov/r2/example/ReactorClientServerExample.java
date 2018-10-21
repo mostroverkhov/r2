@@ -14,7 +14,7 @@ import com.github.mostroverkhov.r2.reactor.R2Server;
 import com.github.mostroverkhov.r2.reactor.ServerAcceptorBuilder;
 import io.rsocket.RSocketFactory;
 import io.rsocket.transport.netty.client.TcpClientTransport;
-import io.rsocket.transport.netty.server.NettyContextCloseable;
+import io.rsocket.transport.netty.server.CloseableChannel;
 import io.rsocket.transport.netty.server.TcpServerTransport;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Flux;
@@ -34,14 +34,14 @@ public class ReactorClientServerExample {
 
   void startAssemblyLineSystem() {
 
-    Mono<NettyContextCloseable> serverStart = new R2Server<NettyContextCloseable>()
+    Mono<CloseableChannel> serverStart = new R2Server<CloseableChannel>()
         .connectWith(RSocketFactory.receive())
         /*Configure Requester and Responder sides of Server side of Connection*/
         .configureAcceptor(this::configureServer)
         .transport(TcpServerTransport.create(PORT))
         .start();
 
-    NettyContextCloseable serverStarted = serverStart.block();
+    CloseableChannel serverStarted = serverStart.block();
 
     /*Wraps Requester RSocket of client side of Connection*/
     Mono<AssemblyLinesService> service = new R2Client()
